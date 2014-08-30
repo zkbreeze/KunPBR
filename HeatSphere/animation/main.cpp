@@ -6,7 +6,6 @@
 //  Created by Kun Zhao on 2014/08/30.
 //
 //
-// This is just test.
 
 #include <kvs/glut/Application>
 #include <kvs/glut/Screen>
