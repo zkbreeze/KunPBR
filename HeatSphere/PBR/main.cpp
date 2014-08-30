@@ -8,19 +8,16 @@
 
 #include <kvs/glut/Application>
 #include <kvs/glut/Screen>
-#include <kvs/StructuredVolumeImporter>
 #include <kvs/StructuredVolumeObject>
+#include <kvs/StructuredVolumeImporter>
 #include <kvs/UnstructuredVolumeObject>
 #include <kvs/UnstructuredVolumeImporter>
 #include <kvs/TransferFunction>
 #include <kvs/ColorMap>
 #include <kvs/OpacityMap>
-#include <kvs/HydrogenVolumeData>
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
 #include <kvs/CommandLine>
-#include <kvs/glut/RadioButton>
-#include <kvs/glut/RadioButtonGroup>
 #include"CellByCellUniformSampling.h"
 #include"ParticleBasedRendererGLSL.h"
 #include"JetImporter.h"
@@ -32,8 +29,6 @@
 #include "load_ucd.h"
 #include "PointObject.h"
 
-#include <kvs/CellByCellMetropolisSampling>
-#include <kvs/ParticleBasedRenderer>
 #include <kvs/Timer>
 
 #define TETRA 4
