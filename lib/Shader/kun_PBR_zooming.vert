@@ -1,17 +1,11 @@
-/*****************************************************************************/
-/**
- *  @file   zooming.vert
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright 2007 Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id: zooming.vert 992 2011-10-15 00:24:45Z naohisa.sakamoto@gmail.com $
- */
-/*****************************************************************************/
+//
+//  kun_PBR_zooming.vert
+//
+//
+//  Created by Kun Zhao on 2014/08/30.
+//
+//
+
 uniform float object_depth;
 uniform vec2 screen_scale;
 uniform sampler2D random_texture;
@@ -19,6 +13,7 @@ uniform sampler1D transfer_function_texture;
 uniform float random_texture_size_inv;
 uniform float scale;
 uniform float max_alpha;
+uniform float base_opacity;
 
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
@@ -55,8 +50,9 @@ float zooming( in vec4 p )
 
     float a = texture1D( transfer_function_texture, value ).a;
     if ( a < max_alpha )
-        s *= sqrt( log( 1.0 - a ) / log( 1.0 - max_alpha ) ); 
-
+        s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
+    else
+        s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) ); 
     
     s *= scale;
     

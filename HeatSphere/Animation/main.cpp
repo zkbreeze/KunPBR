@@ -73,8 +73,7 @@ struct timeval start,end,start2;
 
 namespace
 {
-    float particle_scale = 1.0;
-    float max_alpha = 0.79212;
+    float base_opacity = 0.2;
 }
 namespace { const std::string ObjectName( "ParticleObject" ); }
 namespace { const std::string RendererName( "ParticleRenderer" ); }
@@ -104,7 +103,7 @@ public:
         tfunc.setOpacityMap(transferFunction().opacityMap());
         tfunc.setColorMap(transferFunction().colorMap() );
         renderer->setTransferFunction( transferFunction() );
-        renderer->setParticleScale( ::particle_scale );
+        renderer->setBaseOpacity( ::base_opacity );
         printf("apply pushed \n");
         gettimeofday(&start2, NULL);
         screen()->redraw();
@@ -200,7 +199,7 @@ public:
         }
 
         renderer->setName( ::RendererName );
-        renderer->setParticleScale( ::particle_scale );
+        renderer->setBaseOpacity( ::base_opacity );
         renderer->setTransferFunction( tfunc );
 
         
@@ -246,7 +245,7 @@ class TimerEvent : public kvs::TimerEventListener
         }
         renderer->setTransferFunction( tfunc );
         renderer->setRepetitionLevel( repetition );
-        renderer->setParticleScale( ::particle_scale );
+        renderer->setBaseOpacity( ::base_opacity );
         // renderer->setLODRepetitionLevel( 4 );
 
         // Set the transfer function editor
@@ -299,7 +298,7 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                         std::cout << "Finish loading " << fine_filename[time_step - 1] <<std::endl;
 
                         renderer->setName( ::RendererName );
-                        renderer->setParticleScale( ::particle_scale );
+                        renderer->setBaseOpacity( ::base_opacity );
                         renderer->setTransferFunction( tfunc );
                         renderer->setRepetitionLevel( fine_repetition );
 
@@ -340,7 +339,7 @@ int main( int argc, char** argv )
     if ( !param.parse() ) return 1;
 
     repetition = param.optionValue<size_t>( "rep" );
-    float base_opacity = param.optionValue<float>( "o" );
+    ::base_opacity = param.optionValue<float>( "o" );
 
     // Base transfer function
     if(param.hasOption("trans"))
@@ -353,10 +352,8 @@ int main( int argc, char** argv )
     initialize( param.optionValue<std::string>( "point" ).c_str() );
 
     kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-    if ( base_opacity < ::max_alpha )
-        ::particle_scale = std::sqrt( std::log( 1 - ::max_alpha ) / std::log( 1 - base_opacity ) );
-    std::cout << "Particle Scale: " << ::particle_scale << std::endl;
-    renderer->setParticleScale( ::particle_scale );
+
+    renderer->setBaseOpacity( ::base_opacity );
     renderer->setTransferFunction( tfunc );
     if ( param.hasOption( "nos" ) )
     {
