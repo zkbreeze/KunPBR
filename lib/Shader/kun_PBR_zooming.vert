@@ -1,11 +1,17 @@
-//
-//  kun_PBR_zooming.vert
-//
-//
-//  Created by Kun Zhao on 2014/08/30.
-//
-//
-
+/*****************************************************************************/
+/**
+ *  @file   zooming.vert
+ *  @author Naohisa Sakamoto
+ */
+/*----------------------------------------------------------------------------
+ *
+ *  Copyright 2007 Visualization Laboratory, Kyoto University.
+ *  All rights reserved.
+ *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
+ *
+ *  $Id: zooming.vert 992 2011-10-15 00:24:45Z naohisa.sakamoto@gmail.com $
+ */
+/*****************************************************************************/
 uniform float object_depth;
 uniform vec2 screen_scale;
 uniform sampler2D random_texture;

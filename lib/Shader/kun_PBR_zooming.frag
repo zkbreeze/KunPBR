@@ -1,5 +1,5 @@
 //
-//  kun_PBR_zooming.frag
+//  PBR_kun_zooming.frag
 //
 //
 //  Created by Kun Zhao on 2014/08/30.

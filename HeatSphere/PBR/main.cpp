@@ -18,6 +18,7 @@
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
 #include <kvs/CommandLine>
+#include <kvs/KeyPressEventListener>
 #include"CellByCellUniformSampling.h"
 #include"ParticleBasedRendererGLSL.h"
 #include"JetImporter.h"
@@ -30,6 +31,7 @@
 #include "PointObject.h"
 
 #include <kvs/Timer>
+#include <kvs/ColorImage>
 
 #define TETRA 4
 #define PRISM 6
@@ -70,6 +72,22 @@ public:
   }
 };
 
+class KeyPressEvent : public kvs::KeyPressEventListener
+{
+  void update( kvs::KeyEvent* event )
+  {
+    switch ( event->key() )
+    {
+      case kvs::Key::s:
+      {
+        kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
+        kvs::ColorImage image = glut_screen->scene()->camera()->snapshot();
+        image.write( "prism.bmp");
+      }
+    }
+  }
+};
+
 kvs::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
 {
   kvs::Timer time;
@@ -77,6 +95,7 @@ kvs::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpi
   kvs::PointObject* point = new kvs::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
   time.stop();
   std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
+  std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
   return point;
 }
 
@@ -87,6 +106,9 @@ int main( int argc, char** argv )
 
   kvs::CommandLine param( argc, argv );
   param.addHelpOption();
+
+  KeyPressEvent key;
+  screen.addEvent( &key );
 
   // Parameter
   param.addOption( "s", "Subpixel Level", 1, false );
