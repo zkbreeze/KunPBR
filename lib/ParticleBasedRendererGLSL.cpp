@@ -431,9 +431,10 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_shader_program()
 {
-
-    kvs::ShaderSource vert( "kun_PBR_zooming.vert" );
-    kvs::ShaderSource frag( "kun_PBR_zooming.frag" );
+    std::string vert_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.vert" );
+    std::string frag_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.frag" );
+    kvs::ShaderSource vert( vert_shader_source );
+    kvs::ShaderSource frag( frag_shader_source );
 
     if ( isEnabledShading() )
     {
