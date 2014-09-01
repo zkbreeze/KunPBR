@@ -4,7 +4,7 @@
 //
 //  Created by Kun Zhao on 2014/08/29.
 //
-//test
+//
 
 #include <kvs/glut/Application>
 #include <kvs/glut/Screen>
