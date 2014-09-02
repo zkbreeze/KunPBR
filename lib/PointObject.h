@@ -26,6 +26,8 @@
 #include <kvs/Deprecated>
 
 
+
+
 namespace kvs
 {
 
@@ -186,3 +188,4 @@ public:
 } // end of namespace kvs
 
 #endif // KVS__POINT_OBJECT_H_INCLUDE
+

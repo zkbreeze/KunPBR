@@ -31,7 +31,7 @@
 namespace Generator = kvs::CellByCellParticleGenerator;
 
 
-namespace kvs
+namespace kun
 {
 
 /*===========================================================================*/
@@ -374,7 +374,7 @@ void CellByCellUniformSampling::generate_particles( const kvs::StructuredVolumeO
                     scalar = ( scalar - volume->minValue() ) / ( volume->maxValue() - volume->minValue() );
 
                     // Calculate a normal.
-                    Vector3f normal( interpolator.gradient<T>() );
+                    kvs::Vector3f normal( interpolator.gradient<T>() );
                     // if ( scalar == 0.0 )
                     //     normal = Vector3f( 0.0, 0.0, 1.0 );
 
@@ -494,7 +494,7 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
             // Calculate a normal.
             /* NOTE: The gradient vector of the cell is reversed for shading on the rendering process.
              */
-            Vector3f normal( -cell->gradient() );
+            kvs::Vector3f normal( -cell->gradient() );
             // if ( scalar == 0.0 )
             //     normal = Vector3f( 0.0, 0.0, 1.0 );
 
@@ -517,4 +517,4 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
     delete cell;
 }
 
-} // end of namespace kvs
+} // end of namespace kun

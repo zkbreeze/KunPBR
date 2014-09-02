@@ -21,31 +21,19 @@
 #include <kvs/glut/RadioButton>
 #include <kvs/glut/RadioButtonGroup>
 #include <kvs/HydrogenVolumeData>
-
 #include <kvs/ObjectManager>
-
 #include <kvs/glut/Slider>
 #include <kvs/glut/Label>
-
 #include <kvs/Directory>
 #include <kvs/FileList>
-
 #include <kvs/glut/Timer>
 #include <kvs/TimerEventListener>
-
-
 #include"ParticleBasedRendererGLSL.h"
-
 #include <kvs/PointImporter>
-
 #include "PointObject.h"
-
 #include <kvs/ParticleBasedRenderer>
 
-#include <sys/time.h>
-
 #define TETRA 4
-
 #define PRISM 6
 
 
@@ -90,8 +78,6 @@ public:
     
     void apply( void )
     {
-
-        gettimeofday(&start, NULL);
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
         kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
         kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
@@ -104,13 +90,7 @@ public:
         tfunc.setColorMap(transferFunction().colorMap() );
         renderer->setTransferFunction( transferFunction() );
         renderer->setBaseOpacity( ::base_opacity );
-        printf("apply pushed \n");
-        gettimeofday(&start2, NULL);
         screen()->redraw();
-        gettimeofday(&end, NULL);
-        printf("更新時間 %f [s] \n",end.tv_sec-start.tv_sec + (end.tv_usec-start.tv_usec)*1.0E-6);
-        printf("screen()->redraw() %f [s] \n",end.tv_sec-start2.tv_sec + (end.tv_usec-start2.tv_usec)*1.0E-6);
-        printf("finish redraw\n");
     }
 };
 
@@ -119,8 +99,6 @@ TransferFunctionEditor* editor = NULL;
 void initialize( std::string filename )
 {
     time_step = 0;
-//    filename = "5/Density";
-
     msec = 20;
     nsteps = 0;
     kvs::Directory directory( filename );
@@ -217,7 +195,7 @@ public:
             renderer->setRepetitionLevel( repetition );  
         }
 
-        glut_screen->scene()->objectManager()->change( ::ObjectName, object[time_step], false );
+        glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
         glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
         glut_screen->redraw();    
     }
@@ -231,11 +209,12 @@ class TimerEvent : public kvs::TimerEventListener
     void update( kvs::TimeEvent* event )
     {
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
-        kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>(r);
+        // kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
+        // kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
+        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 
         renderer->setName( ::RendererName );
-        if(ShadingFlag == false)
+        if( ShadingFlag == false )
         {
             renderer->disableShading();
         }
@@ -246,21 +225,9 @@ class TimerEvent : public kvs::TimerEventListener
         renderer->setTransferFunction( tfunc );
         renderer->setRepetitionLevel( repetition );
         renderer->setBaseOpacity( ::base_opacity );
-        // renderer->setLODRepetitionLevel( 4 );
-
-        // Set the transfer function editor
-        // kvs::StructuredVolumeObject* pointdummy = new kvs::StructuredVolumeObject();
-        // pointdummy->setGridType( kvs::StructuredVolumeObject::Uniform );
-        // pointdummy->setVeclen( 1 );
-        // pointdummy->setResolution( kvs::Vector3ui( 1, 1, object[time_step]->numberOfVertices() ) );
-        // pointdummy->setValues( object[time_step]->sizes() );
-        // pointdummy->updateMinMaxValues();
-
-        // editor->setVolumeObject( pointdummy );
-        // editor->show();
 
         glut_screen->scene()->objectManager()->change( ::ObjectName, object[time_step++], false );
-        //glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
+        glut_screen->scene()->replaceRenderer( ::RendererName, renderer, true );
         slider->setValue( (float)time_step );
         std::cout << "\r" << time_step <<std::flush;
         glut_screen->redraw();
@@ -295,6 +262,7 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                         kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
                         kvs::PointObject* object_current = new kvs::PointImporter( fine_filename[time_step - 1] );
                         object_current->setName( ::ObjectName );
+                        std::cout << std::endl;
                         std::cout << "Finish loading " << fine_filename[time_step - 1] <<std::endl;
 
                         renderer->setName( ::RendererName );
@@ -304,7 +272,6 @@ class KeyPressEvent : public kvs::KeyPressEventListener
 
                         glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
                         glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
-
                     }
                     screen()->redraw();
                 }
@@ -315,11 +282,8 @@ class KeyPressEvent : public kvs::KeyPressEventListener
     }
 };
 
-
-
 int main( int argc, char** argv )
 {
-    printf("this program needs more than two steps\n");
     kvs::glut::Application app( argc, argv );
     kvs::glut::Screen screen( &app );
     KeyPressEvent     key_press_event;
@@ -346,12 +310,11 @@ int main( int argc, char** argv )
     {
         tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
     }
-    
-
 
     initialize( param.optionValue<std::string>( "point" ).c_str() );
 
     kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
+    renderer->setName( ::RendererName );
 
     renderer->setBaseOpacity( ::base_opacity );
     renderer->setTransferFunction( tfunc );

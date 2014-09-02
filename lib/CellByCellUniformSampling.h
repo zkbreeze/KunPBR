@@ -12,8 +12,8 @@
  *  $Id: CellByCellUniformSampling.h 1721 2014-03-12 15:27:38Z naohisa.sakamoto@gmail.com $
  */
 /****************************************************************************/
-#ifndef KVS__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
-#define KVS__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
+#ifndef KUN__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
+#define KUN__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
 
 #include <kvs/MapperBase>
 #include <kvs/Camera>
@@ -24,7 +24,7 @@
 #include <kvs/Module>
 #include "CellByCellParticleGenerator.h"
 
-namespace kvs
+namespace kun
 {
 
 /*===========================================================================*/
@@ -84,6 +84,6 @@ private:
     void generate_particles( const kvs::UnstructuredVolumeObject* volume );
 };
 
-} // end of namespace kvs
+} // end of namespace kun
 
-#endif // KVS__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
+#endif // KUN__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE

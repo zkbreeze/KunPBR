@@ -406,6 +406,7 @@ void PointObject::print( std::ostream& os, const kvs::Indent& indent ) const
     os << indent << "Object type : " << "point object" << std::endl;
     BaseClass::print( os, indent );
     os << indent << "Number of sizes : " << this->numberOfSizes() << std::endl;
+    os << indent << "Use the new Point Object!!!!" << std::endl;
 }
 
 /*===========================================================================*/

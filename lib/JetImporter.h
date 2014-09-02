@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kun Zhao. All rights reserved.
 //
 
-#ifndef KVS__JET_IMPORTER_H_INCLUDE
-#define KVS__JET_IMPORTER_H_INCLUDE
+#ifndef KUN__JET_IMPORTER_H_INCLUDE
+#define KUN__JET_IMPORTER_H_INCLUDE
 
 #include <string>
 #include <iostream>
@@ -23,7 +23,7 @@
 namespace kun
 {
 
-    class JetImporter : public kvs::StructuredVolumeObject
+class JetImporter : public kvs::StructuredVolumeObject
 {
 
 private:
