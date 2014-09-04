@@ -29,7 +29,7 @@
 #include <kvs/glut/Timer>
 #include <kvs/TimerEventListener>
 #include"ParticleBasedRendererGLSL.h"
-#include <kvs/PointImporter>
+#include "PointImporter.h"
 #include "PointObject.h"
 #include <kvs/ParticleBasedRenderer>
 
@@ -37,8 +37,8 @@
 #define PRISM 6
 
 
-kvs::PointObject** object;
-kvs::PointObject** object_fine;
+kun::PointObject** object;
+kun::PointObject** object_fine;
 bool isHaveFinePoint = false;
 
 kvs::glut::Timer* glut_timer;
@@ -115,14 +115,14 @@ void initialize( std::string filename )
         }
     }
     
-    object = new kvs::PointObject*[nsteps];
+    object = new kun::PointObject*[nsteps];
     std::cout << nsteps << std::endl;
     
     kvs::Timer time;
     time.start();
     for ( int i = 0; i < nsteps; i++ )
     { 
-        object[i] = new kvs::PointImporter( file_name[i] );
+        object[i] = new kun::PointImporter( file_name[i] );
         object[i]->setName( ::ObjectName );
         std::cout << "\r" << i << std::flush;        
     }
@@ -181,11 +181,11 @@ public:
         renderer->setTransferFunction( tfunc );
 
         
-        kvs::PointObject* object_current = NULL;
+        kun::PointObject* object_current = NULL;
 
         if ( isHaveFinePoint )
         {
-            object_current = new kvs::PointImporter( fine_filename[time_step] );
+            object_current = new kun::PointImporter( fine_filename[time_step] );
             object_current->setName( ::ObjectName );
             renderer->setRepetitionLevel( fine_repetition );
         }
@@ -260,7 +260,7 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                     {
                         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
                         kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-                        kvs::PointObject* object_current = new kvs::PointImporter( fine_filename[time_step - 1] );
+                        kun::PointObject* object_current = new kun::PointImporter( fine_filename[time_step - 1] );
                         object_current->setName( ::ObjectName );
                         std::cout << std::endl;
                         std::cout << "Finish loading " << fine_filename[time_step - 1] <<std::endl;
@@ -327,7 +327,7 @@ int main( int argc, char** argv )
         renderer->disableShading();
     }
 
-    kvs::PointObject* object_first = NULL;
+    kun::PointObject* object_first = NULL;
 
     // If there are fine point object
     if ( param.hasOption( "point_fine" ) )
@@ -345,7 +345,7 @@ int main( int argc, char** argv )
                 fine_filename.push_back( file.filePath() );
             }
         }
-        object_first = new kvs::PointImporter( fine_filename[0] );
+        object_first = new kun::PointImporter( fine_filename[0] );
         object_first->setName( ObjectName );
 
         fine_repetition = param.optionValue<size_t>( "rep_fine" );

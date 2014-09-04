@@ -22,9 +22,9 @@
 #include "ParticleBasedRendererGLSL.h"
 #include "JetImporter.h"
 
-#include <kvs/PointImporter>
+#include "PointImporter.h"
 #include <kvs/KVSMLObjectPoint>
-#include <kvs/PointExporter>
+#include "PointExporter.h"
 
 #include "load_ucd.h"
 #include "PointObject.h"
@@ -71,11 +71,11 @@ public:
 	}
 };
 
-kvs::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
+kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
 {
 	kvs::Timer time;
 	time.start();
-	kvs::PointObject* point = new kun::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
+	kun::PointObject* point = new kun::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
 	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
@@ -139,12 +139,12 @@ int main( int argc, char** argv )
 		tfunc_base.setOpacityMap( omap );
 	}
 
-	kvs::PointObject* point = NULL;
+	kun::PointObject* point = NULL;
 
 		// Data Input
 	if( param.hasOption( "point" ) )
 	{
-		point = new kvs::PointImporter(param.optionValue<std::string>( "point" )	);
+		point = new kun::PointImporter(param.optionValue<std::string>( "point" )	);
 	}
 	else if ( param.hasOption( "u" ) )
 	{
@@ -185,7 +185,7 @@ int main( int argc, char** argv )
 
 		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,PRISM);
 
-		kvs::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base );
+		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base );
 		delete(volume2);
 		point->add(*point2);
 	}
@@ -199,7 +199,7 @@ int main( int argc, char** argv )
 	if ( param.hasOption( "writepoint" ) )
 	{
 
-		kvs::KVSMLObjectPoint* kvsml = new kvs::PointExporter<kvs::KVSMLObjectPoint>(point);
+		kvs::KVSMLObjectPoint* kvsml = new kun::PointExporter<kvs::KVSMLObjectPoint>(point);
 		kvsml -> setWritingDataType(kvs::KVSMLObjectPoint::ExternalBinary);
 		std::string point_filename = param.optionValue<std::string>( "writepoint" );
 		kvsml -> write( point_filename.c_str());

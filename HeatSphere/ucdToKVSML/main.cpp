@@ -30,10 +30,10 @@
 #include <kvs/CommandLine>
 #include <kvs/glut/RadioButton>
 #include <kvs/glut/RadioButtonGroup>
-#include <kvs/PointImporter>
+#include "PointImporter.h"
 
 #include <kvs/KVSMLObjectPoint>
-#include <kvs/PointExporter>
+#include "PointExporter.h"
 #include <kvs/KVSMLObjectUnstructuredVolume>
 
 #include "load_ucd.h"
