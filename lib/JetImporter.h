@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Kun Zhao. All rights reserved.
 //
 
-#ifndef KUN__JET_IMPORTER_H_INCLUDE
-#define KUN__JET_IMPORTER_H_INCLUDE
+#ifndef KUN__JETIMPORTER_H_INCLUDE
+#define KUN__JETIMPORTER_H_INCLUDE
 
 #include <string>
 #include <iostream>
@@ -64,4 +64,4 @@ public:
 
 }
 
-#endif
+#endif // KUN__JETIMPORTER_H_INCLUDE
