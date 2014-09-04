@@ -20,7 +20,7 @@
 #include <kvs/Texture1D>
 #include <kvs/TransferFunction>
 
-namespace kvs { class PointObject; }
+namespace kun { class PointObject; }
 
 namespace kun
 {
@@ -123,7 +123,7 @@ public:
 private:
 
     void create_shader_program();
-    void create_buffer_object( const kvs::PointObject* point );
+    void create_buffer_object( const kun::PointObject* point );
     
     void initialize_transfer_function_texture();
 };

@@ -9,7 +9,7 @@
 #include "ParticleBasedRendererGLSL.h"
 #include <cmath>
 #include <kvs/OpenGL>
-#include <kvs/PointObject>
+#include "PointObject.h"
 #include <kvs/Camera>
 #include <kvs/Light>
 #include <kvs/Assert>
@@ -241,7 +241,7 @@ void ParticleBasedRenderer::Engine::setBaseOpacity( float base_opacity )
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create( kvs::ObjectBase* object, kvs::Camera* camera, kvs::Light* light )
 {
-    kvs::PointObject* point = kvs::PointObject::DownCast( object );
+    kun::PointObject* point = kun::PointObject::DownCast( object );
     m_has_normal = point->normals().size() > 0;
     if ( !m_has_normal ) setEnabledShading( false );
 
@@ -317,7 +317,7 @@ void ParticleBasedRenderer::Engine::setup( kvs::ObjectBase* object, kvs::Camera*
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* camera, kvs::Light* light )
 {
-    kvs::PointObject* point = kvs::PointObject::DownCast( object );
+    kun::PointObject* point = kun::PointObject::DownCast( object );
     
     if( m_has_transfer_function ) this->initialize_transfer_function_texture();
 
@@ -471,7 +471,7 @@ void ParticleBasedRenderer::Engine::create_shader_program()
  *  @param  point [in] pointer to the point object
  */
 /*===========================================================================*/
-void ParticleBasedRenderer::Engine::create_buffer_object( const kvs::PointObject* point )
+void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
     KVS_ASSERT( point->coords().size() == point->colors().size() );
 

@@ -32,7 +32,7 @@ namespace kun
 /*===========================================================================*/
 CellByCellUniformSampling::CellByCellUniformSampling():
     kvs::MapperBase(),
-    kvs::PointObject(),
+    kun::PointObject(),
     m_camera( 0 )
 {
 }
@@ -54,7 +54,7 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     const kvs::TransferFunction& transfer_function,
     const float                  object_depth ):
     kvs::MapperBase( transfer_function ),
-    kvs::PointObject(),
+    kun::PointObject(),
     m_camera( 0 )
 {
     this->setSubpixelLevel( subpixel_level );
@@ -82,7 +82,7 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     const kvs::TransferFunction& transfer_function,
     const float                  object_depth ):
     kvs::MapperBase( transfer_function ),
-    kvs::PointObject()
+    kun::PointObject()
 {
     this->attachCamera( camera ),
     this->setSubpixelLevel( subpixel_level );

@@ -11,7 +11,7 @@
 
 #include <kvs/MapperBase>
 #include <kvs/Camera>
-#include <kvs/PointObject>
+#include "PointObject.h"
 #include <kvs/VolumeObjectBase>
 #include <kvs/StructuredVolumeObject>
 #include <kvs/UnstructuredVolumeObject>
@@ -26,12 +26,12 @@ namespace kun
  *  @brief  Cell-by-cell particle generation class.
  */
 /*===========================================================================*/
-class CellByCellUniformSampling : public kvs::MapperBase, public kvs::PointObject
+class CellByCellUniformSampling : public kvs::MapperBase, public kun::PointObject
 {
     kvsModuleName( kvs::CellByCellUniformSampling );
     kvsModuleCategory( Mapper );
     kvsModuleBaseClass( kvs::MapperBase );
-    kvsModuleSuperClass( kvs::PointObject );
+    kvsModuleSuperClass( kun::PointObject );
 
 private:
 

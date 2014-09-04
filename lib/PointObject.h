@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef KVS__POINT_OBJECT_H_INCLUDE
-#define KVS__POINT_OBJECT_H_INCLUDE
+#ifndef KUN__POINTOBJECT_H_INCLUDE
+#define KUN__POINTOBJECT_H_INCLUDE
 
 #include <ostream>
 #include <kvs/GeometryObjectBase>
@@ -18,15 +18,11 @@
 #include <kvs/Module>
 #include <kvs/Indent>
 #include <kvs/Deprecated>
+#include <kvs/LineObject>
+#include <kvs/PolygonObject>
 
-
-
-
-namespace kvs
+namespace kun
 {
-
-class LineObject;
-class PolygonObject;
 
 /*==========================================================================*/
 /**
@@ -35,7 +31,7 @@ class PolygonObject;
 /*==========================================================================*/
 class PointObject : public kvs::GeometryObjectBase
 {
-    kvsModule( kvs::PointObject, Object );
+    kvsModule( kun::PointObject, Object );
     kvsModuleBaseClass( kvs::GeometryObjectBase );
 
 private:
@@ -181,5 +177,5 @@ public:
 
 } // end of namespace kvs
 
-#endif // KVS__POINT_OBJECT_H_INCLUDE
+#endif // KUN__POINTOBJECT_H_INCLUDE
 

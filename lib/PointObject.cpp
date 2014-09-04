@@ -13,7 +13,7 @@
 #include <kvs/Assert>
 
 
-namespace kvs
+namespace kun
 {
 
 /*===========================================================================*/
@@ -435,4 +435,4 @@ std::ostream& operator << ( std::ostream& os, const PointObject& object )
     return os;
 }
 
-} // end of namespace kvs
+} // end of namespace kun
