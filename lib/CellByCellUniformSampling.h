@@ -22,7 +22,7 @@
 #include <kvs/StructuredVolumeObject>
 #include <kvs/UnstructuredVolumeObject>
 #include <kvs/Module>
-#include "CellByCellParticleGenerator.h"
+#include <kvs/CellByCellParticleGenerator>
 
 namespace kun
 {
