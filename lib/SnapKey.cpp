@@ -20,7 +20,7 @@ void SnapKey::update( kvs::KeyEvent* event )
 			kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 			kvs::ColorImage image = glut_screen->scene()->camera()->snapshot();
 			image.write( "snapshot.bmp");
-			std::cout << "Finish writing the snapshot." << std::endl;
+			std::cout << "Finish writing the snapshot.bmp." << std::endl;
 		}
 	}
 }
