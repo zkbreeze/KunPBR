@@ -1,17 +1,11 @@
-/*****************************************************************************/
-/**
- *  @file   ParticleBasedRenderer.cpp
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright (c) Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id$
- */
-/*****************************************************************************/
+//
+//  ParticleBasedRendererGLSL.cpp
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:10:22.
+//
+//
+
 #include "ParticleBasedRendererGLSL.h"
 #include <cmath>
 #include <kvs/OpenGL>

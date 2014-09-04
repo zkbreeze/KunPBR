@@ -1,6 +1,14 @@
-#ifndef IMAGE_EVALUATION
-#define IMAGE_EVALUATION
+//
+//  ImageEvaluation.h
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:09:30.
+//
+//
 
+#ifndef KUN__IMAGEEVALUATION_H_INCLUDE
+#define KUN__IMAGEEVALUATION_H_INCLUDE
+ 
 #include <kvs/ColorImage>
 
 namespace kun
@@ -26,5 +34,5 @@ public:
 };
 
 } // end of namespace kun
-
-#endif
+ 
+#endif // KUN__IMAGEEVALUATION_H_INCLUDE

@@ -1,3 +1,11 @@
+//
+//  SnapKey.cpp
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:12:11.
+//	
+//
+
 #include "SnapKey.h"
 #include <kvs/glut/Screen>
 #include <kvs/ColorImage>

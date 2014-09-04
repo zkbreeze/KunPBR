@@ -1,18 +1,13 @@
-/*****************************************************************************/
-/**
- *  @file   ParticleBasedRendererGLSL.h
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright (c) Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id$
- */
-/*****************************************************************************/
-#pragma once
+//
+//  ParticleBasedRendererGLSL.h
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:10:37.
+//
+//
+
+#ifndef KUN__PARTICLEBASEDRENDERERGLSL_H_INCLUDE
+#define KUN__PARTICLEBASEDRENDERERGLSL_H_INCLUDE
 
 #include <kvs/RendererBase>
 #include <kvs/Module>
@@ -25,10 +20,10 @@
 #include <kvs/Texture1D>
 #include <kvs/TransferFunction>
 
- namespace kvs { class PointObject; }
+namespace kvs { class PointObject; }
 
- namespace kun
- {
+namespace kun
+{
 
 /*===========================================================================*/
 /**
@@ -133,4 +128,8 @@ private:
     void initialize_transfer_function_texture();
 };
 
-} // end of namespace kvsstochasticvis
+} // end of namespace kun
+
+#endif // KUN__PARTICLEBASEDRENDERERGLSL_H_INCLUDE
+
+

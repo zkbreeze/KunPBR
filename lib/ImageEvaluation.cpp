@@ -1,3 +1,11 @@
+//
+//  ImageEvaluation.cpp
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:09:06.
+//
+//
+
 #include "ImageEvaluation.h"
 #include <kvs/RGBColor>
 

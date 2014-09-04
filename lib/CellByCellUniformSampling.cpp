@@ -1,17 +1,11 @@
-/****************************************************************************/
-/**
- *  @file   CellByCellUniformSampling.cpp
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright (c) Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id: CellByCellUniformSampling.cpp 1766 2014-05-10 15:22:50Z naohisa.sakamoto@gmail.com $
- */
-/****************************************************************************/
+//
+//  CellByCellUniformSampling.cpp
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:08:35.
+//  
+//
+
 #include "CellByCellUniformSampling.h"
 #include <vector>
 #include <kvs/DebugNew>
@@ -25,11 +19,8 @@
 #include <kvs/QuadraticHexahedralCell>
 #include <kvs/PyramidalCell>
 #include <kvs/PrismaticCell>
-//#include <kvs/PrismaticCell>
-
 
 namespace Generator = kvs::CellByCellParticleGenerator;
-
 
 namespace kun
 {

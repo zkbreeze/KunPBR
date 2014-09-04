@@ -1,17 +1,11 @@
-/****************************************************************************/
-/**
- *  @file   PointObject.h
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright (c) Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id: PointObject.h 1763 2014-05-07 04:58:07Z naohisa.sakamoto@gmail.com $
- */
-/****************************************************************************/
+//
+//  PointObject.h
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:11:48.
+//
+//
+
 #ifndef KVS__POINT_OBJECT_H_INCLUDE
 #define KVS__POINT_OBJECT_H_INCLUDE
 

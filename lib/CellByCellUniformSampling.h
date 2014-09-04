@@ -1,17 +1,11 @@
-/****************************************************************************/
-/**
- *  @file   CellByCellUniformSampling.h
- *  @author Naohisa Sakamoto
- */
-/*----------------------------------------------------------------------------
- *
- *  Copyright (c) Visualization Laboratory, Kyoto University.
- *  All rights reserved.
- *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
- *
- *  $Id: CellByCellUniformSampling.h 1721 2014-03-12 15:27:38Z naohisa.sakamoto@gmail.com $
- */
-/****************************************************************************/
+//
+//  CellByCellUniformSampling.h
+//
+//
+//  Created by Kun Zhao on 2014-09-04 16:08:14.
+//
+//
+
 #ifndef KUN__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
 #define KUN__CELL_BY_CELL_UNIFORM_SAMPLING_H_INCLUDE
 
