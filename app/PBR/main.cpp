@@ -22,8 +22,8 @@
 #include "ParticleBasedRendererGLSL.h"
 #include "JetImporter.h"
 
-#include "PointImporter.h"
 #include <kvs/KVSMLObjectPoint>
+#include "PointImporter.h"
 #include "PointExporter.h"
 
 #include "load_ucd.h"
