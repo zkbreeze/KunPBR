@@ -1,8 +1,9 @@
+*
+!*.*
 *.[ao]
 .DS_Store
 Makefile.kvs
 *.bmp
-*/*
 *.kvsml
 *.dat
 *.bin
