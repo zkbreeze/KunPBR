@@ -355,22 +355,15 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
         const size_t quo = nvertices / repetitionLevel();
         const size_t count = quo + ( repetitionCount() < rem ? 1 : 0 );
         const size_t coord_size = count * sizeof(kvs::Real32) * 3;
-        const size_t color_size = count * sizeof(kvs::UInt8) * 3;
-        
         const size_t normal_size = m_has_normal ? ( count * sizeof(kvs::Real32) * 3 ) : 0;
 
         const size_t coord_offset = 0;
-        const size_t color_offset = coord_offset + coord_size;
-        const size_t normal_offset = color_offset + color_size;
+        const size_t normal_offset = coord_offset + coord_size;
         const size_t size_offset = normal_offset + normal_size;
  
         // Enable coords.
         KVS_GL_CALL( glEnableClientState( GL_VERTEX_ARRAY ) );
         KVS_GL_CALL( glVertexPointer( 3, GL_FLOAT, 0, (GLbyte*)NULL + coord_offset ) );
-
-        // Enable colors.
-        KVS_GL_CALL( glEnableClientState( GL_COLOR_ARRAY ) );
-        KVS_GL_CALL( glColorPointer( 3, GL_UNSIGNED_BYTE, 0, (GLbyte*)NULL + color_offset ) );
 
         // Enable normals.
         if ( m_has_normal )
@@ -395,9 +388,6 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 
         // Disable coords.
         KVS_GL_CALL( glDisableClientState( GL_VERTEX_ARRAY ) );
-
-        // Disable colors.
-        KVS_GL_CALL( glDisableClientState( GL_COLOR_ARRAY ) );
 
         // Disable normals.
         if ( m_has_normal )
@@ -473,10 +463,8 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
-    KVS_ASSERT( point->coords().size() == point->colors().size() );
 
     kvs::ValueArray<kvs::Real32> coords = point->coords();
-    kvs::ValueArray<kvs::UInt8> colors = point->colors();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
     kvs::ValueArray<kvs::Real32> sizes = point->sizes();
     
@@ -484,7 +472,6 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
     {
         kvs::UInt32 seed = 12345678;
         coords = ::ShuffleArray<3>( point->coords(), seed );
-        colors = ::ShuffleArray<3>( point->colors(), seed );
         if ( m_has_normal )
         {
             normals = ::ShuffleArray<3>( point->normals(), seed );
@@ -506,23 +493,21 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
         const size_t count = quo + ( i < rem ? 1 : 0 );
         const size_t first = quo * i + kvs::Math::Min( i, rem );
         const size_t coord_size = count * sizeof(kvs::Real32) * 3;
-        const size_t color_size = count * sizeof(kvs::UInt8) * 3;
         const size_t normal_size = m_has_normal ? count * sizeof(kvs::Real32) * 3 : 0;
         const size_t size_size = m_has_size ? count * sizeof(kvs::Real32) : 0;
         
-        const size_t byte_size = coord_size + color_size + normal_size + size_size;
+        const size_t byte_size = coord_size + normal_size + size_size;
         m_vbo[i].create( byte_size );
 
         m_vbo[i].bind();
         m_vbo[i].load( coord_size, coords.data() + first * 3, 0 );
-        m_vbo[i].load( color_size, colors.data() + first * 3, coord_size );
         if ( m_has_normal )
         {
-            m_vbo[i].load( normal_size, normals.data() + first * 3, coord_size + color_size );
+            m_vbo[i].load( normal_size, normals.data() + first * 3, coord_size );
         }
         if ( m_has_size )
         {
-            m_vbo[i].load( size_size, sizes.data() + first, coord_size + color_size + normal_size );
+            m_vbo[i].load( size_size, sizes.data() + first, coord_size + normal_size );
         }
         
         m_vbo[i].unbind();

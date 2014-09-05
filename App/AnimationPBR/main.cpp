@@ -218,10 +218,6 @@ class TimerEvent : public kvs::TimerEventListener
         {
             renderer->disableShading();
         }
-        else
-        {
-            renderer->setShader( kvs::Shader::Phong( 0.5, 0.5, 0.8, 15.0 ) );
-        }
         renderer->setTransferFunction( tfunc );
         renderer->setRepetitionLevel( repetition );
         renderer->setBaseOpacity( ::base_opacity );
@@ -360,7 +356,7 @@ int main( int argc, char** argv )
     //screen.scene()->camera()->setPosition( kvs::Vector3f(0, 0, 3), kvs::Vector3f(1, 0, 0) );
     
     screen.registerObject( object_first, renderer );
-    //screen.setBackgroundColor( kvs::RGBColor( 0, 0, 0) );
+    screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255) );
 
     screen.addEvent( &key_press_event );
     screen.addTimerEvent( &timer_event, glut_timer );
