@@ -37,34 +37,32 @@
 #define PRISM 6
 
 
-kun::PointObject** object;
-kun::PointObject** object_fine;
-bool isHaveFinePoint = false;
-
-kvs::glut::Timer* glut_timer;
-std::vector<std::string> fine_filename;
-std::string objectname = "ParticleObject";
-kvs::TransferFunction tfunc( 256 );
-
-kvs::RGBColor label_color = kvs::RGBColor( 0, 0, 0 );
-
-int    msec;
-int    nsteps;
-int    time_step;
-
-size_t repetition;
-size_t fine_repetition;
-
-bool ShadingFlag = true;
-
-struct timeval start,end,start2;
-
 namespace
 {
+    kun::PointObject** object;
+    bool isHaveFinePoint = false;
+
+    kvs::glut::Timer* glut_timer;
+    std::vector<std::string> fine_filename;
+    std::string objectname = "ParticleObject";
+    kvs::TransferFunction tfunc( 256 );
+
+    kvs::RGBColor label_color = kvs::RGBColor( 0, 0, 0 );
+
+    int    msec;
+    int    nsteps;
+    int    time_step;
+
+    size_t repetition;
+    size_t fine_repetition;
+
+    bool ShadingFlag = true;
+
     float base_opacity = 0.2;
+
+    const std::string ObjectName( "ParticleObject" ); 
+    const std::string RendererName( "ParticleRenderer" );
 }
-namespace { const std::string ObjectName( "ParticleObject" ); }
-namespace { const std::string RendererName( "ParticleRenderer" ); }
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
 {
@@ -171,10 +169,6 @@ public:
         {
             renderer->disableShading();
         }
-        else
-        {
-            renderer->setShader( kvs::Shader::Phong( 0.5, 0.5, 0.8, 15.0 ) );
-        }
 
         renderer->setName( ::RendererName );
         renderer->setBaseOpacity( ::base_opacity );
@@ -209,8 +203,6 @@ class TimerEvent : public kvs::TimerEventListener
     void update( kvs::TimeEvent* event )
     {
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        // kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
-        // kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
         kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 
         renderer->setName( ::RendererName );
