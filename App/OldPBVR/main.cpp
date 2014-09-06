@@ -13,6 +13,7 @@
 #include "SnapKey.h"
 #include <kvs/PointObject>
 #include <kvs/PointImporter>
+#include "FPS.h"
 
 #define TETRA 4
 #define PRISM 6
@@ -33,8 +34,10 @@ int main(int argc, char** argv)
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
 
-	SnapKey key_event;
+	kun::SnapKey key_event;
+	kun::FPS fps;
 	screen.addEvent( &key_event );
+	screen.addEvent( &fps );
 
 	kvs::CommandLine param( argc, argv );
 	// Parameter

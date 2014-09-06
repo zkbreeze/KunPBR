@@ -14,10 +14,15 @@ kvsmake -g util
 
 kvsmake lib
 
-==============
+
 
 Then, get into other folder
 
 kvsmake -G
 
 kvsmake
+
+======================
+Usage for shell script:
+
+./run/run_xxx.sh

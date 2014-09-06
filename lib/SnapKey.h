@@ -11,9 +11,14 @@
 
 #include <kvs/KeyPressEventListener>
 
+namespace kun
+{
+
 class SnapKey : public kvs::KeyPressEventListener 
 {
 	void update( kvs::KeyEvent* event );
 };
+
+} // end of namespace kun
 
 #endif // KUN__SNAPKEY_H_INCLUDE

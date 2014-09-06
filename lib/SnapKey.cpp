@@ -11,6 +11,9 @@
 #include <kvs/ColorImage>
 #include <kvs/Camera>
 
+namespace kun
+{
+
 void SnapKey::update( kvs::KeyEvent* event )
 {
 	switch( event->key() )
@@ -24,3 +27,6 @@ void SnapKey::update( kvs::KeyEvent* event )
 		}
 	}
 }
+
+} // end of namespace kun
+

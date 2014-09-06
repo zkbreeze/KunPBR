@@ -32,17 +32,15 @@
 #include <kvs/Timer>
 #include <kvs/ColorImage>
 #include "SnapKey.h"
+#include "FPS.h"
 
 #define TETRA 4
 #define PRISM 6
 
 
-bool ShadingFlag = true;
-
-struct timeval start,end,start2;
-
 namespace
 {
+	bool ShadingFlag = true;
 	float base_opacity = 0.2;
 }
 
@@ -79,7 +77,6 @@ kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpi
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
 	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
-	point->print( std::cout );
 	return point;
 }
 
@@ -91,8 +88,10 @@ int main( int argc, char** argv )
 	kvs::CommandLine param( argc, argv );
 	param.addHelpOption();
 
-	SnapKey key;
+	kun::SnapKey key;
 	screen.addEvent( &key );
+	kun::FPS fps;
+	screen.addEvent( &fps );
 
 	// Parameter
 	param.addOption( "s", "Subpixel Level", 1, false );
