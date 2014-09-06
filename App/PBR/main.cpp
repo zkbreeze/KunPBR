@@ -228,6 +228,10 @@ int main( int argc, char** argv )
 
 	renderer->setBaseOpacity( ::base_opacity );
 	screen.registerObject( point, renderer );
+	screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255 ) );
+	// enlarge the view
+	if( param.hasOption( "u-prism-ball" ) )
+		screen.scene()->camera()->translate( kvs::Vec3( 0.0, 0.0, -5.0 ) );
 	screen.show();
 
 	// Set the transfer function editor
