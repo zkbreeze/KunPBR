@@ -5,5 +5,8 @@ Makefile.kvs
 *.kvsml
 *.dat
 *.bin
-APP/AnimationPBR/AnimationPBR
-APP/PBR/PBR
+App/AnimationPBR/AnimationPBR
+App/PBR/PBR
+App/AnimationRay/AnimationRay
+App/ImageEvaluation/ImageEvaluation
+App/OldPBVR/OldPBVR

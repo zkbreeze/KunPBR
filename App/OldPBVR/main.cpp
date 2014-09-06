@@ -9,18 +9,19 @@
 #include <kvs/UnstructuredVolumeImporter>
 #include <kvs/KeyPressEventListener>
 #include <kvs/CommandLine>
-#include "PointImporter.h"
 #include "load_ucd.h"
 #include "SnapKey.h"
+#include <kvs/PointObject>
+#include <kvs/PointImporter>
 
 #define TETRA 4
 #define PRISM 6
 
-kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
+kvs::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
 {
 	kvs::Timer time;
 	time.start();
-	kun::PointObject* point = new kvs::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
+	kvs::PointObject* point = new kvs::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
 	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
@@ -56,12 +57,12 @@ int main(int argc, char** argv)
 	if ( param.hasOption( "s" ) )
 		subpixel_level = param.optionValue<size_t>( "s" ) ;
 
-	kun::PointObject* point = NULL;
+	kvs::PointObject* point = NULL;
 
 	// Data Input
 	if( param.hasOption( "point" ) )
 	{
-		point = new kun::PointImporter(param.optionValue<std::string>( "point" )	);
+		point = new kvs::PointImporter(param.optionValue<std::string>( "point" )	);
 	}
 	else if ( param.hasOption( "u" ) )
 	{
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
 
 		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,PRISM);
 
-		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base );
+		kvs::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base );
 		delete(volume2);
 		point->add(*point2);
 	}
@@ -116,6 +117,9 @@ int main(int argc, char** argv)
 	kvs::glsl::ParticleBasedRenderer* renderer = new kvs::glsl::ParticleBasedRenderer();
 	renderer->setRepetitionLevel( subpixel_level * subpixel_level );
 	screen.registerObject( point, renderer );
+	screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255 ) );
+	if( param.hasOption( "u-prism-ball" ))
+		screen.scene()->camera()->translate( kvs::Vec3( 0.0, 0.0, -5.0 ) );
 	screen.show();
 
 	return app.run();
