@@ -41,10 +41,10 @@
 namespace
 {
     kun::PointObject** object;
-    bool isHaveFinePoint = false;
+    bool isLODRendering = false;
 
     kvs::glut::Timer* glut_timer;
-    std::vector<std::string> fine_filename;
+    std::vector<std::string> file_name;
     kvs::TransferFunction tfunc( 256 );
 
     kvs::RGBColor label_color = kvs::RGBColor( 0, 0, 0 );
@@ -54,7 +54,7 @@ namespace
     int    time_step;
 
     size_t repetition;
-    size_t fine_repetition;
+    size_t repetition_low;
 
     bool ShadingFlag = true;
 
@@ -94,7 +94,7 @@ public:
 
 TransferFunctionEditor* editor = NULL;
 
-void initialize( std::string filename )
+void initialize( std::string filename, float fraction = 0.0 )
 {
     ::time_step = 0;
     ::msec = 20;
@@ -102,7 +102,7 @@ void initialize( std::string filename )
     kvs::Directory directory( filename );
     const kvs::FileList files = directory.fileList();
     int file_length = files.size();
-    std::vector<std::string> file_name;
+
     for ( int i = 0; i < file_length; i++ )
     {
         const kvs::File file = files[i];
@@ -119,7 +119,10 @@ void initialize( std::string filename )
     kvs::Timer time;
     time.start();
     for ( int i = 0; i < ::nsteps; i++ )
-    { 
+    {
+    if( fraction ) 
+        ::object[i] = new kun::PointImporter( file_name[i], fraction );
+    else
         ::object[i] = new kun::PointImporter( file_name[i] );
         ::object[i]->setName( ::ObjectName );
         std::cout << "\r" << i << std::flush;        
@@ -173,21 +176,16 @@ public:
         renderer->setName( ::RendererName );
         renderer->setBaseOpacity( ::base_opacity );
         renderer->setTransferFunction( ::tfunc );
+        renderer->setRepetitionLevel( ::repetition );
 
-        
         kun::PointObject* object_current = NULL;
-
-        if ( ::isHaveFinePoint )
+        if ( ::isLODRendering )
         {
-            object_current = new kun::PointImporter( ::fine_filename[::time_step] );
+            object_current = new kun::PointImporter( ::file_name[::time_step] );
             object_current->setName( ::ObjectName );
-            renderer->setRepetitionLevel( ::fine_repetition );
         }
         else
-        {
             object_current = ::object[::time_step];
-            renderer->setRepetitionLevel( ::repetition );  
-        }
 
         glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
         glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
@@ -211,13 +209,15 @@ class TimerEvent : public kvs::TimerEventListener
             renderer->disableShading();
         }
         renderer->setTransferFunction( ::tfunc );
-        renderer->setRepetitionLevel( ::repetition );
+        if ( ::isLODRendering )
+            renderer->setRepetitionLevel( ::repetition_low );
+        else
+            renderer->setRepetitionLevel( ::repetition );
         renderer->setBaseOpacity( ::base_opacity );
 
         glut_screen->scene()->objectManager()->change( ::ObjectName, ::object[::time_step++], false );
         glut_screen->scene()->replaceRenderer( ::RendererName, renderer, true );
         slider->setValue( (float)::time_step );
-        std::cout << "\r" << ::time_step <<std::flush;
         glut_screen->redraw();
 
         if( ::time_step == ::nsteps ) 
@@ -244,19 +244,19 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                 else
                 {
                     ::glut_timer->stop();
-                    if ( ::isHaveFinePoint )
+                    if ( ::isLODRendering )
                     {
                         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
                         kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-                        kun::PointObject* object_current = new kun::PointImporter( ::fine_filename[::time_step - 1] );
+                        kun::PointObject* object_current = new kun::PointImporter( ::file_name[::time_step - 1] );
                         object_current->setName( ::ObjectName );
                         std::cout << std::endl;
-                        std::cout << "Finish loading " << ::fine_filename[::time_step - 1] <<std::endl;
+                        std::cout << "Finish loading " << ::file_name[::time_step - 1] <<std::endl;
 
                         renderer->setName( ::RendererName );
                         renderer->setBaseOpacity( ::base_opacity );
                         renderer->setTransferFunction( ::tfunc );
-                        renderer->setRepetitionLevel( ::fine_repetition );
+                        renderer->setRepetitionLevel( ::repetition );
 
                         glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
                         glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
@@ -282,11 +282,10 @@ int main( int argc, char** argv )
     kvs::CommandLine param( argc, argv );
     param.addHelpOption();
     param.addOption( "point", "KVSML Point Data Filename", 1, true );
-    param.addOption( "point_fine", "KVSML Fine Point Data Filename", 1, false );
     param.addOption( "nos", "No Shading", 0, false );
     param.addOption( "o", "base opacity", 1, true );
     param.addOption( "rep", "repetition level", 1, true );
-    param.addOption( "rep_fine", "fine repetition level", 1, false );
+    param.addOption( "rep_low", "low repetition level used for animation", 1, false );
     param.addOption( "trans", "set initial transferfunction", 1, false );
     
     if ( !param.parse() ) return 1;
@@ -294,57 +293,44 @@ int main( int argc, char** argv )
     ::repetition = param.optionValue<size_t>( "rep" );
     ::base_opacity = param.optionValue<float>( "o" );
 
-    // Base transfer function
-    if(param.hasOption("trans"))
+    if( param.hasOption( "rep_low" ) )
     {
-        ::tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
+        ::isLODRendering= true;
+        ::repetition_low = param.optionValue<size_t>( "rep_low" );
     }
 
-    initialize( param.optionValue<std::string>( "point" ).c_str() );
+    std::cout << "fraction: " << (float)::repetition_low / ::repetition << std::endl;
+
+    // Base transfer function
+    if( param.hasOption( "trans" ) )
+        ::tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
+    if ( param.hasOption( "nos" ) ) ::ShadingFlag = false;
+
+    // Time-varying data loading
+    if( ::isLODRendering )
+        initialize( param.optionValue<std::string>( "point" ), (float)::repetition_low / ::repetition );
+    else
+        initialize( param.optionValue<std::string>( "point" ) );
 
     kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
     renderer->setName( ::RendererName );
 
     renderer->setBaseOpacity( ::base_opacity );
     renderer->setTransferFunction( ::tfunc );
-    if ( param.hasOption( "nos" ) )
-    {
-        ::ShadingFlag = false;
-    }
-    if( ::ShadingFlag == false )
-    {
-        renderer->disableShading();
-    }
+    renderer->setRepetitionLevel( ::repetition );
+
+    if( ::ShadingFlag == false ) renderer->disableShading();
 
     kun::PointObject* object_first = NULL;
 
-    // If there are fine point object
-    if ( param.hasOption( "point_fine" ) )
+    // load the point for the first time step
+    if ( param.hasOption( "rep_low" ) )
     {
-        ::isHaveFinePoint = true;
-        kvs::Directory directory( param.optionValue<std::string>( "point_fine" ) );
-        const kvs::FileList files = directory.fileList();
-        int file_length = files.size();
-
-        for ( int i = 0; i < file_length; i++ )
-        {
-            const kvs::File file = files[i];
-            if( file.extension() == "kvsml" )
-            {
-                ::fine_filename.push_back( file.filePath() );
-            }
-        }
-        object_first = new kun::PointImporter( ::fine_filename[0] );
+        object_first = new kun::PointImporter( ::file_name[0] );
         object_first->setName( ::ObjectName );
-
-        ::fine_repetition = param.optionValue<size_t>( "rep_fine" );
-        renderer->setRepetitionLevel( ::fine_repetition );
     }
     else
-    {
-        object_first = object[0];
-        renderer->setRepetitionLevel(param.optionValue<int>( "rep" ) );
-    }
+        object_first = ::object[0];
 
     //screen.scene()->camera()->setPosition( kvs::Vector3f(0, 0, 3), kvs::Vector3f(1, 0, 0) );
     

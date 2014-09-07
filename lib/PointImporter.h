@@ -33,6 +33,7 @@ public:
 
     PointImporter();
     PointImporter( const std::string& filename );
+    PointImporter( const std::string& filename, const float fraction );
     PointImporter( const kvs::FileFormatBase* file_format );
     virtual ~PointImporter();
 

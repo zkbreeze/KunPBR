@@ -18,6 +18,7 @@
 #include <kvs/Module>
 #include <kvs/CellByCellParticleGenerator>
 
+
 namespace kun
 {
 
@@ -40,6 +41,9 @@ private:
     float m_sampling_step; ///< sampling step in the object coordinate
     float m_object_depth; ///< object depth
     kvs::ValueArray<float> m_density_map; ///< density map
+
+    // ADD
+    bool m_shuffle;
 
 public:
 
@@ -69,6 +73,9 @@ public:
     void setSubpixelLevel( const size_t subpixel_level );
     void setSamplingStep( const float sampling_step );
     void setObjectDepth( const float object_depth );
+
+    // ADD
+    void setShuffleParticles();
 
 private:
 

@@ -19,8 +19,39 @@
 #include <kvs/QuadraticHexahedralCell>
 #include <kvs/PyramidalCell>
 #include <kvs/PrismaticCell>
+#include <kvs/Xorshift128>
 
 namespace Generator = kvs::CellByCellParticleGenerator;
+
+namespace
+{
+
+template <int Dim, typename T>
+kvs::ValueArray<T> ShuffleArray( const kvs::ValueArray<T>& values, kvs::UInt32 seed )
+{
+    KVS_ASSERT( Dim > 0 );
+    KVS_ASSERT( values.size() % Dim == 0 );
+
+    kvs::Xorshift128 rng; rng.setSeed( seed );
+    kvs::ValueArray<T> ret;
+    if ( values.unique() ) { ret = values; }
+    else { ret = values.clone(); }
+
+    T* p = ret.data();
+    size_t size = ret.size() / Dim;
+
+    for ( size_t i = 0; i < size; ++i )
+    {
+        size_t j = rng.randInteger() % ( i + 1 );
+        for ( int k = 0; k < Dim; ++k )
+        {
+            std::swap( p[ i * Dim + k ], p[ j * Dim + k ] );
+        }
+    }
+    return ret;
+}
+
+}
 
 namespace kun
 {
@@ -33,7 +64,8 @@ namespace kun
 CellByCellUniformSampling::CellByCellUniformSampling():
     kvs::MapperBase(),
     kun::PointObject(),
-    m_camera( 0 )
+    m_camera( 0 ),
+    m_shuffle( false )
 {
 }
 
@@ -55,7 +87,8 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     const float                  object_depth ):
     kvs::MapperBase( transfer_function ),
     kun::PointObject(),
-    m_camera( 0 )
+    m_camera( 0 ),
+    m_shuffle( false )
 {
     this->setSubpixelLevel( subpixel_level );
     this->setSamplingStep( sampling_step );
@@ -82,7 +115,8 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     const kvs::TransferFunction& transfer_function,
     const float                  object_depth ):
     kvs::MapperBase( transfer_function ),
-    kun::PointObject()
+    kun::PointObject(),
+    m_shuffle( false )
 {
     this->attachCamera( camera ),
     this->setSubpixelLevel( subpixel_level );
@@ -176,6 +210,13 @@ void CellByCellUniformSampling::setSamplingStep( const float sampling_step )
 void CellByCellUniformSampling::setObjectDepth( const float object_depth )
 {
     m_object_depth = object_depth;
+}
+
+// ADD
+
+void CellByCellUniformSampling::setShuffleParticles()
+{
+    m_shuffle = true;
 }
 
 /*===========================================================================*/
@@ -385,9 +426,21 @@ void CellByCellUniformSampling::generate_particles( const kvs::StructuredVolumeO
         } // end of 'y' loop
     } // end of 'z' loop
 
-    SuperClass::setCoords( kvs::ValueArray<kvs::Real32>( vertex_coords ) );
-    SuperClass::setSizes( kvs::ValueArray<kvs::Real32>( vertex_values ) );
-    SuperClass::setNormals( kvs::ValueArray<kvs::Real32>( vertex_normals ) );
+    kvs::ValueArray<kvs::Real32> coords( vertex_coords );
+    kvs::ValueArray<kvs::Real32> normals( vertex_normals );
+    kvs::ValueArray<kvs::Real32> values( vertex_values );
+
+    if ( m_shuffle )
+    {
+        kvs::UInt32 seed = 12345678;
+        coords = ::ShuffleArray<3>( coords, seed );
+        normals = ::ShuffleArray<3>( normals, seed );
+        values = ::ShuffleArray<1>( values, seed );
+    }
+
+    SuperClass::setCoords( coords );
+    SuperClass::setSizes( values );
+    SuperClass::setNormals( normals );
 }
 
 /*===========================================================================*/
@@ -501,9 +554,22 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
             vertex_normals.push_back( normal.z() );
         } // end of 'paricle' for-loop
     } // end of 'cell' for-loop
-    SuperClass::setCoords( kvs::ValueArray<kvs::Real32>( vertex_coords ) );
-    SuperClass::setSizes( kvs::ValueArray<kvs::Real32>( vertex_values ) );
-    SuperClass::setNormals( kvs::ValueArray<kvs::Real32>( vertex_normals ) );
+
+    kvs::ValueArray<kvs::Real32> coords( vertex_coords );
+    kvs::ValueArray<kvs::Real32> normals( vertex_normals );
+    kvs::ValueArray<kvs::Real32> values( vertex_values );
+
+    if ( m_shuffle )
+    {
+        kvs::UInt32 seed = 12345678;
+        coords = ::ShuffleArray<3>( coords, seed );
+        normals = ::ShuffleArray<3>( normals, seed );
+        values = ::ShuffleArray<1>( values, seed );
+    }
+
+    SuperClass::setCoords( coords );
+    SuperClass::setSizes( values );
+    SuperClass::setNormals( normals );
 
     delete cell;
 }

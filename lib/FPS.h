@@ -11,14 +11,12 @@
  
 #include <iostream>
 #include <kvs/PaintEventListener>
-#include <kvs/Timer>
 
 namespace kun
 {
 
 class FPS : public kvs::PaintEventListener
 {
-	kvs::Timer time;
 
 public:
 	void update();

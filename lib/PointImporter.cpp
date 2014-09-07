@@ -12,7 +12,8 @@
 #include <kvs/Math>
 #include <kvs/Vector3>
 #include <string>
-
+#include <kvs/File>
+#include <fstream>
 
 namespace kun
 {
@@ -22,9 +23,9 @@ namespace kun
  *  @brief  Constructs a new PointImporter class.
  */
 /*==========================================================================*/
-PointImporter::PointImporter()
-{
-}
+ PointImporter::PointImporter()
+ {
+ }
 
 /*===========================================================================*/
 /**
@@ -32,8 +33,8 @@ PointImporter::PointImporter()
  *  @param  filename [in] input filename
  */
 /*===========================================================================*/
-PointImporter::PointImporter( const std::string& filename )
-{
+ PointImporter::PointImporter( const std::string& filename )
+ {
     if ( kvs::KVSMLObjectPoint::CheckExtension( filename ) )
     {
         kvs::KVSMLObjectPoint* file_format = new kvs::KVSMLObjectPoint( filename );
@@ -58,7 +59,48 @@ PointImporter::PointImporter( const std::string& filename )
     else
     {
         BaseClass::setSuccess( false );
-        kvsMessageError("Cannot import '%'.",filename.c_str());
+        kvsMessageError("Cannot import '%s'.",filename.c_str());
+        return;
+    }
+}
+
+// Add. To load the point object the repetition part.
+PointImporter::PointImporter( const std::string& filename, const float fraction )
+{
+    if ( kvs::KVSMLObjectPoint::CheckExtension( filename ) )
+    {
+        const kvs::File file( filename );
+
+        // size
+        std::string size_name = file.pathName() + "/" + file.baseName() + "_size.dat";
+        std::ifstream size( size_name, std::ifstream::binary );
+        size.seekg( 0, std::ios::end );
+        size_t end = size.tellg();
+        size.seekg( 0, std::ios::beg );
+        size_t length = ( end / sizeof( float ) ) * fraction;
+        kvs::ValueArray<kvs::Real32>sizes( length );
+        size.read( (char*)sizes.data(), length * sizeof( float ) );
+
+        // coord
+        std::string coord_name = file.pathName() + "/" + file.baseName() + "_coord.dat";
+        std::ifstream coord( coord_name, std::ifstream::binary );
+        kvs::ValueArray<kvs::Real32>coords( length * 3 );
+        coord.read( (char*)coords.data(), length * 3 * sizeof( float ) );
+
+        // normal
+        std::string normal_name = file.pathName() + "/" + file.baseName() + "_normal.dat";
+        std::ifstream normal( normal_name, std::ifstream::binary);
+        kvs::ValueArray<kvs::Real32>normals( length * 3 );
+        normal.read( (char*)normals.data(), length * 3 * sizeof( float ) );
+
+        SuperClass::setSizes( sizes );
+        SuperClass::setCoords( coords );
+        SuperClass::setNormals( normals );
+    }
+    else
+    {
+        BaseClass::setSuccess( false );
+        kvsMessageError("Cannot import '%s'.",filename.c_str());
         return;
     }
 }
@@ -69,8 +111,8 @@ PointImporter::PointImporter( const std::string& filename )
  *  @param file_format [in] pointer to the file format
  */
 /*==========================================================================*/
-PointImporter::PointImporter( const kvs::FileFormatBase* file_format )
-{
+ PointImporter::PointImporter( const kvs::FileFormatBase* file_format )
+ {
     this->exec( file_format );
 }
 
@@ -79,9 +121,9 @@ PointImporter::PointImporter( const kvs::FileFormatBase* file_format )
  *  @brief  Destructs the PointImporter class.
  */
 /*===========================================================================*/
-PointImporter::~PointImporter()
-{
-}
+ PointImporter::~PointImporter()
+ {
+ }
 
 /*===========================================================================*/
 /**
@@ -90,8 +132,8 @@ PointImporter::~PointImporter()
  *  @return pointer to the imported point object
  */
 /*===========================================================================*/
-PointImporter::SuperClass* PointImporter::exec( const kvs::FileFormatBase* file_format )
-{
+ PointImporter::SuperClass* PointImporter::exec( const kvs::FileFormatBase* file_format )
+ {
     if ( !file_format )
     {
         BaseClass::setSuccess( false );
@@ -119,8 +161,8 @@ PointImporter::SuperClass* PointImporter::exec( const kvs::FileFormatBase* file_
  *  @param  kvsml [in] pointer to the KVSML format data
  */
 /*==========================================================================*/
-void PointImporter::import( const kvs::KVSMLObjectPoint* kvsml )
-{
+ void PointImporter::import( const kvs::KVSMLObjectPoint* kvsml )
+ {
     if ( kvsml->objectTag().hasExternalCoord() )
     {
         const kvs::Vector3f min_coord( kvsml->objectTag().minExternalCoord() );
@@ -150,8 +192,8 @@ void PointImporter::import( const kvs::KVSMLObjectPoint* kvsml )
  *  @brief  Calculates the min/max coordinate values.
  */
 /*==========================================================================*/
-void PointImporter::set_min_max_coord()
-{
+ void PointImporter::set_min_max_coord()
+ {
     const float min_x = SuperClass::coords()[0];
     const float min_y = SuperClass::coords()[1];
     const float min_z = SuperClass::coords()[2];

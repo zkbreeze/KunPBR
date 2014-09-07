@@ -70,11 +70,17 @@ public:
 	}
 };
 
-kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc )
+kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc, bool shuffle = 0 )
 {
 	kvs::Timer time;
 	time.start();
-	kun::PointObject* point = new kun::CellByCellUniformSampling( volume, subpixel_level, 0.5, tfunc, 0.0f );
+	kun::CellByCellUniformSampling* sampler = new kun::CellByCellUniformSampling();
+	sampler->setSubpixelLevel( subpixel_level );
+	sampler->setSamplingStep( 0.5 );
+	sampler->setTransferFunction( tfunc );
+	sampler->setObjectDepth( 0.0 );
+	if( shuffle ) sampler->setShuffleParticles();
+	kun::PointObject* point = sampler->exec( volume );
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
 	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
@@ -98,7 +104,10 @@ int main( int argc, char** argv )
 	param.addOption( "s", "Subpixel Level", 1, false );
 	param.addOption( "o", "base opacity", 1, false );
 	param.addOption( "nos", "No Shading", 0, false );
-	param.addOption( "trans", "set initial transferfunction", 1, false );
+	param.addOption( "trans", "set initial transfer function", 1, false );
+	param.addOption( "sg", "shuffle the generated particles", 0, false );
+	param.addOption( "rep", "repetition level", 1, false );
+	param.addOption( "low_rep", "low repeptition lelve", 1, false ),
 
 	// Data input
 	param.addOption( "j", "Jet Data Filename", 1, false );
@@ -116,20 +125,14 @@ int main( int argc, char** argv )
 
 	size_t subpixel_level = 1;
 	kvs::TransferFunction tfunc_base( 256 );
+	bool shuffle_generated_particles = false;
 
 	// Parameter
-	if ( param.hasOption( "s" ) )
-		subpixel_level = param.optionValue<size_t>( "s" ) ;
-	if ( param.hasOption( "o" ) )
-		base_opacity = param.optionValue<float>( "o" );
-	if ( param.hasOption( "nos" ) )
-	{
-		ShadingFlag = false;
-	}
-	if(param.hasOption("trans"))
-	{
-		tfunc_base = kvs::TransferFunction(param.optionValue<std::string>( "trans" ));
-	}
+	if( param.hasOption( "s" ) ) subpixel_level = param.optionValue<size_t>( "s" ) ;
+	if( param.hasOption( "o" ) ) base_opacity = param.optionValue<float>( "o" );
+	if( param.hasOption( "nos" ) ) ShadingFlag = false;
+	if( param.hasOption( "sg" ) ) shuffle_generated_particles = true;
+	if(param.hasOption("trans")) tfunc_base = kvs::TransferFunction(param.optionValue<std::string>( "trans" ));
 	else
 	{
 		kvs::OpacityMap omap( 256 );
@@ -144,48 +147,48 @@ int main( int argc, char** argv )
 		// Data Input
 	if( param.hasOption( "point" ) )
 	{
-		point = new kun::PointImporter(param.optionValue<std::string>( "point" )	);
+		point = new kun::PointImporter( param.optionValue<std::string>( "point" ), (float)param.optionValue<size_t>( "low_rep" ) / param.optionValue<size_t>( "rep" ) );
 	}
 	else if ( param.hasOption( "u" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = new kvs::UnstructuredVolumeImporter( param.optionValue<std::string>( "u" ) );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "k" ) )
 	{
 		kvs::StructuredVolumeObject* volume = new kvs::StructuredVolumeImporter( param.optionValue<std::string>( "k" ) );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "j" ) )
 	{
 		kvs::StructuredVolumeObject* volume = new kun::JetImporter( param.optionValue<std::string>( "j" )	);
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "u-prism-ball" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = new kvs::UnstructuredVolumeImporter( param.optionValue<std::string>( "u-prism-ball" ) );
 		volume->setMinMaxObjectCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
 		volume->setMinMaxExternalCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "tetra" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA);
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "prism" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "prism" ).c_str() ,PRISM);
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if ( param.hasOption( "both" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,TETRA);
-		point = CreatePointObject( volume, subpixel_level, tfunc_base );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 
 		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,PRISM);
 
-		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base );
+		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
 		delete(volume2);
 		point->add(*point2);
 	}
@@ -210,21 +213,16 @@ int main( int argc, char** argv )
 
 	// Rendering
 	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-	if( ShadingFlag == false)
-	{
-		renderer->disableShading();
-	}
+	if( ShadingFlag == false) renderer->disableShading();
 
 	kvs::TransferFunction tfunc( 256 );
 	renderer->setTransferFunction( tfunc );
-	if ( param.hasOption( "rep" ) )
-	{
-		renderer->setRepetitionLevel(param.optionValue<int>( "rep" ) );
-	}
+	if( param.hasOption( "low_rep" ) )
+		renderer->setRepetitionLevel( param.optionValue<size_t>( "low_rep" ) );
+	else if( param.hasOption( "rep" ) )
+		renderer->setRepetitionLevel( param.optionValue<size_t>( "rep" ) );
 	else
-	{
 		renderer->setRepetitionLevel( subpixel_level * subpixel_level );
-	}
 
 	renderer->setBaseOpacity( ::base_opacity );
 	screen.registerObject( point, renderer );

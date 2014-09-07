@@ -29,7 +29,7 @@ kvs::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpi
 	return point;
 }
 
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
