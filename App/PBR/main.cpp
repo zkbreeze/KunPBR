@@ -28,6 +28,7 @@
 
 #include "load_ucd.h"
 #include "PointObject.h"
+#include "PRTObject.h"
 
 #include <kvs/Timer>
 #include <kvs/ColorImage>
@@ -114,6 +115,7 @@ int main( int argc, char** argv )
 	param.addOption( "u", "Unstructured Volume Data Filename", 1, false );
 	param.addOption( "k", "Structured Volume Data Filename", 1, false );
 	param.addOption( "point", "KVSML Point Data Filename", 1, false );
+	param.addOption( "prt", "PRT object", 1, false );
 	param.addOption( "tetra", "Input tetra Volume Object (binary_ucd)", 1, false );
 	param.addOption( "prism", "Input prism Volume Object (binary_ucd)", 1, false );
 	param.addOption( "both", "Input prism and tetra Volume Object (binary_ucd)", 1, false );
@@ -132,7 +134,7 @@ int main( int argc, char** argv )
 	if( param.hasOption( "o" ) ) base_opacity = param.optionValue<float>( "o" );
 	if( param.hasOption( "nos" ) ) ShadingFlag = false;
 	if( param.hasOption( "sg" ) ) shuffle_generated_particles = true;
-	if(param.hasOption("trans")) tfunc_base = kvs::TransferFunction(param.optionValue<std::string>( "trans" ));
+	if( param.hasOption( "trans" ) ) tfunc_base = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
 	else
 	{
 		kvs::OpacityMap omap( 256 );
@@ -147,41 +149,51 @@ int main( int argc, char** argv )
 		// Data Input
 	if( param.hasOption( "point" ) )
 	{
-		point = new kun::PointImporter( param.optionValue<std::string>( "point" ), (float)param.optionValue<size_t>( "low_rep" ) / param.optionValue<size_t>( "rep" ) );
+		if( param.hasOption( "low_rep" ) )
+			point = new kun::PointImporter( param.optionValue<std::string>( "point" ), (float)param.optionValue<size_t>( "low_rep" ) / param.optionValue<size_t>( "rep" ) );
+		else
+			point = new kun::PointImporter( param.optionValue<std::string>( "point" ) );
 	}
-	else if ( param.hasOption( "u" ) )
+	else if( param.hasOption( "prt" ) )
+	{
+		kun::PRTObject* prt = new kun::PRTObject( param.optionValue<std::string>( "prt" ) );
+		point = prt->toPointObject();
+		std::cout << point->numberOfVertices() << std::endl;
+	}
+
+	else if( param.hasOption( "u" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = new kvs::UnstructuredVolumeImporter( param.optionValue<std::string>( "u" ) );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "k" ) )
+	else if( param.hasOption( "k" ) )
 	{
 		kvs::StructuredVolumeObject* volume = new kvs::StructuredVolumeImporter( param.optionValue<std::string>( "k" ) );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "j" ) )
+	else if( param.hasOption( "j" ) )
 	{
 		kvs::StructuredVolumeObject* volume = new kun::JetImporter( param.optionValue<std::string>( "j" )	);
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "u-prism-ball" ) )
+	else if( param.hasOption( "u-prism-ball" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = new kvs::UnstructuredVolumeImporter( param.optionValue<std::string>( "u-prism-ball" ) );
 		volume->setMinMaxObjectCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
 		volume->setMinMaxExternalCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "tetra" ) )
+	else if( param.hasOption( "tetra" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA);
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "prism" ) )
+	else if( param.hasOption( "prism" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "prism" ).c_str() ,PRISM);
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
-	else if ( param.hasOption( "both" ) )
+	else if( param.hasOption( "both" ) )
 	{
 		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,TETRA);
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
