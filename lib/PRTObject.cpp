@@ -91,7 +91,7 @@ namespace kun
         m_max_nutrition = max;
     }
         
-    kun::PointObject* PRTObject::toPointObject( void )
+    kun::PointObject* PRTObject::toKUNPointObject( void )
     {
         kun::PointObject* point = new kun::PointObject();
         
@@ -117,6 +117,33 @@ namespace kun
         
         point->setCoords( coords );
         point->setSizes( sizes );
+        
+        return point;
+    }
+
+    kvs::PointObject* PRTObject::toKVSPointObject( void )
+    {
+        kvs::PointObject* point = new kvs::PointObject();
+        
+        float* coords_buffer = new float[m_size * 3];
+        unsigned char* colors_buffer = new unsigned char[m_size * 3];
+        
+        for( size_t i = 0; i < m_size; i++ )
+        {   
+            coords_buffer[i * 3] = m_x[i];
+            coords_buffer[i * 3 + 1] = m_y[i];
+            coords_buffer[i * 3 + 2] = 0.0;
+
+            colors_buffer[i * 3] = 100;
+            colors_buffer[i * 3 + 1] = 100;
+            colors_buffer[i * 3 + 2] = 100;
+        }
+        
+        kvs::ValueArray<kvs::Real32>coords( coords_buffer, m_size * 3 );
+        kvs::ValueArray<kvs::UInt8>colors( colors_buffer, m_size * 3 );
+        
+        point->setCoords( coords );
+        point->setColors( colors );
         
         return point;
     }

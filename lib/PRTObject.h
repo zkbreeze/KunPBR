@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include "PointObject.h"
+#include <kvs/PointObject>
 
 namespace kun
 {
@@ -48,7 +49,8 @@ public:
     void setMinNutrition( float min );
     void setMaxNutrition( float max );
     
-    kun::PointObject* toPointObject( void );
+    kun::PointObject* toKUNPointObject( void );
+    kvs::PointObject* toKVSPointObject( void );
 };
 
 } // end of namespece kun
