@@ -21,6 +21,8 @@ kvs::UnstructuredVolumeObject* LoadPrismObject_binary_long(const char *filename 
 
 kvs::UnstructuredVolumeObject* CreateUnstructuredVolumeObject(const char* filename,char cell_type );
 
+kvs::UnstructuredVolumeObject* CreateCutPrismObject( const char* filename );
+
 
 void writeStatusToFile(float *coord,unsigned int *connection, float *value, int coord_num, int connection_num, int value_num, char cell_type);
 

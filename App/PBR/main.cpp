@@ -120,6 +120,7 @@ int main( int argc, char** argv )
 	param.addOption( "prism", "Input prism Volume Object (binary_ucd)", 1, false );
 	param.addOption( "both", "Input prism and tetra Volume Object (binary_ucd)", 1, false );
 	param.addOption( "u-prism-ball", "KVSML Data Filename. around ball only", 1, false );
+	param.addOption( "prism-ball", "Input prism Volume Object (binary_ucd) and output the cut ball", 1, false );
 
 	// Output
 	param.addOption( "writepoint", "Output point object filename", 1, false );
@@ -157,7 +158,7 @@ int main( int argc, char** argv )
 	else if( param.hasOption( "prt" ) )
 	{
 		kun::PRTObject* prt = new kun::PRTObject( param.optionValue<std::string>( "prt" ) );
-		point = prt->toPointObject();
+		point = prt->toKUNPointObject();
 		std::cout << point->numberOfVertices() << std::endl;
 	}
 
@@ -183,26 +184,33 @@ int main( int argc, char** argv )
 		volume->setMinMaxExternalCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
+	else if( param.hasOption( "prism-ball" ) )
+	{
+		kvs::UnstructuredVolumeObject* volume = CreateCutPrismObject( param.optionValue<std::string>( "prism-ball" ).c_str() );
+		volume->setMinMaxObjectCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
+		volume->setMinMaxExternalCoords(kvs::Vec3(-30, -30, -30), kvs::Vec3(30, 30, 30) );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
+	}
 	else if( param.hasOption( "tetra" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA);
+		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if( param.hasOption( "prism" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "prism" ).c_str() ,PRISM);
+		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "prism" ).c_str() ,PRISM );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if( param.hasOption( "both" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,TETRA);
+		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,TETRA );
 		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
 
-		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,PRISM);
+		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,PRISM );
 
 		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
-		delete(volume2);
-		point->add(*point2);
+		delete( volume2 );
+		point->add( *point2 );
 	}
 	else 
 	{

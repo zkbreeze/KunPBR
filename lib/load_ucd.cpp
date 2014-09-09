@@ -136,7 +136,7 @@ kvs::UnstructuredVolumeObject* LoadTetraObject_binary_long(const char *filename 
       max_coord[2]=coord_z[i];
     }
   }
-printf("min_coord is %f %f %f\nmax_coord is %f %f %f\n",min_coord[0], min_coord[1], min_coord[2], max_coord[0], max_coord[1], max_coord[2]);
+  printf("min_coord is %f %f %f\nmax_coord is %f %f %f\n",min_coord[0], min_coord[1], min_coord[2], max_coord[0], max_coord[1], max_coord[2]);
 
   /////////////////coord[i*3+0]がcoord[i+0]になってたからエラーになってた
   for(long int i=0;i<coord_num;i++){
@@ -194,7 +194,7 @@ printf("min_coord is %f %f %f\nmax_coord is %f %f %f\n",min_coord[0], min_coord[
   }
   long int tet_connection_num = element_histogram[4];
 
-long int *connection;
+  long int *connection;
 
   connection = (long int *)calloc(element_histogram[4]*4 + element_histogram[6]*6,sizeof(long int));
 
@@ -213,8 +213,8 @@ long int *connection;
   tet_connection = (unsigned int *)calloc(element_histogram[4]*4,sizeof(unsigned int));
 
   long int tet_count=0,prism_count=0;
- count = 0;
- for(long int i=0;i<connection_num;i++){
+  count = 0;
+  for(long int i=0;i<connection_num;i++){
    if(element_type[i] == 4){
      for(long int j=0;j<4;j++){
        tet_connection[tet_count*4+j] = (unsigned int)(connection[count + j]-min_connection);
@@ -288,29 +288,29 @@ long int *connection;
  fread(velocity_v, sizeof(float), value_num, fp);
  fread(velocity_w, sizeof(float), value_num, fp);
 
-  for(long int i=0;i<value_num;i++){
-    ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
-  }
+ for(long int i=0;i<value_num;i++){
+  ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
+}
 
-  fclose(fp);
-
-
-  kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
-  kvs::ValueArray<kvs::UInt32> connections( tet_connection, tet_connection_num*4 );
-  kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
+fclose(fp);
 
 
-  
-  object->setVeclen( 1 );
-  object->setNumberOfNodes( coord_num );
-  object->setNumberOfCells( tet_connection_num );
-  object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
-  object->setCoords( coords );
-  object->setConnections( connections );
-  object->setValues( values );
+kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
+kvs::ValueArray<kvs::UInt32> connections( tet_connection, tet_connection_num*4 );
+kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
+
+
+
+object->setVeclen( 1 );
+object->setNumberOfNodes( coord_num );
+object->setNumberOfCells( tet_connection_num );
+object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
+object->setCoords( coords );
+object->setConnections( connections );
+object->setValues( values );
 
   //writeStatusToFile(coord,tet_connection, ValueArray,coord_num, tet_connection_num, value_num,TETRA);
-  return(object);
+return(object);
 }
 
 
@@ -433,7 +433,7 @@ kvs::UnstructuredVolumeObject* LoadTetraObject_binary_short(const char *filename
   }
   int tet_connection_num = element_histogram[4];
 
-int *connection;
+  int *connection;
 
   connection = (int *)calloc(element_histogram[4]*4 + element_histogram[6]*6,sizeof(int));
 
@@ -450,8 +450,8 @@ int *connection;
   tet_connection = (unsigned int *)calloc(element_histogram[4]*4,sizeof(unsigned int));
 
   int tet_count=0,prism_count=0;
- count = 0;
- for(int i=0;i<connection_num;i++){
+  count = 0;
+  for(int i=0;i<connection_num;i++){
    if(element_type[i] == 4){
      for(int j=0;j<4;j++){
        tet_connection[tet_count*4+j] = (unsigned int)(connection[count + j]-min_connection);
@@ -527,29 +527,29 @@ int *connection;
  fread(velocity_w, sizeof(float), value_num, fp);
 
 
-  for(int i=0;i<value_num;i++){
-    ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
-  }
+ for(int i=0;i<value_num;i++){
+  ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
+}
 
 
-  fclose(fp);
+fclose(fp);
 
-  kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
-  kvs::ValueArray<kvs::UInt32> connections( tet_connection, tet_connection_num*4 );
-  kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
+kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
+kvs::ValueArray<kvs::UInt32> connections( tet_connection, tet_connection_num*4 );
+kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
 
 
-  
-  object->setVeclen( 1 );
-  object->setNumberOfNodes( coord_num );
-  object->setNumberOfCells( tet_connection_num );
-  object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
-  object->setCoords( coords );
-  object->setConnections( connections );
-  object->setValues( values );
+
+object->setVeclen( 1 );
+object->setNumberOfNodes( coord_num );
+object->setNumberOfCells( tet_connection_num );
+object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
+object->setCoords( coords );
+object->setConnections( connections );
+object->setValues( values );
 
   //writeStatusToFile(coord,tet_connection, ValueArray,coord_num, tet_connection_num, value_num,TETRA);
-  return(object);
+return(object);
 }
 
 
@@ -672,7 +672,7 @@ kvs::UnstructuredVolumeObject* LoadPrismObject_binary_short(const char *filename
   }
   int prism_connection_num = element_histogram[6];
 
-int *connection;
+  int *connection;
 
   connection = (int *)calloc(element_histogram[4]*4 + element_histogram[6]*6,sizeof(int));
 
@@ -689,8 +689,8 @@ int *connection;
   prism_connection = (unsigned int *)calloc(6*prism_connection_num,sizeof(unsigned int));
 
   int prism_count=0;
- count = 0;
- for(int i=0;i<connection_num;i++){
+  count = 0;
+  for(int i=0;i<connection_num;i++){
    if(element_type[i] == 6){
      for(int j=0;j<6;j++){
        prism_connection[prism_count*6+j] = (unsigned int)(connection[count + j]-min_connection);
@@ -764,32 +764,32 @@ int *connection;
  fread(velocity_w, sizeof(float), value_num, fp);
 
 
-  for(int i=0;i<value_num;i++){
-    ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
-  }
+ for(int i=0;i<value_num;i++){
+  ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
+}
 
 
-  fclose(fp);
+fclose(fp);
 
 
 
 
-  kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
-  kvs::ValueArray<kvs::UInt32> connections( prism_connection, prism_connection_num*6 );
-  kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
+kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
+kvs::ValueArray<kvs::UInt32> connections( prism_connection, prism_connection_num*6 );
+kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
 
 
-  
-  object->setVeclen( 1 );
-  object->setNumberOfNodes( coord_num );
-  object->setNumberOfCells( prism_connection_num );
-  object->setCellType( kvs::UnstructuredVolumeObject::Prism );
-  object->setCoords( coords );
-  object->setConnections( connections );
-  object->setValues( values );
+
+object->setVeclen( 1 );
+object->setNumberOfNodes( coord_num );
+object->setNumberOfCells( prism_connection_num );
+object->setCellType( kvs::UnstructuredVolumeObject::Prism );
+object->setCoords( coords );
+object->setConnections( connections );
+object->setValues( values );
 
   //writeStatusToFile(coord,prism_connection, ValueArray,coord_num, prism_connection_num, value_num,PRISM);
-  return(object);
+return(object);
 }
 
 
@@ -913,7 +913,7 @@ kvs::UnstructuredVolumeObject* LoadPrismObject_binary_long(const char *filename 
   }
   long int prism_connection_num = element_histogram[6];
 
-long int *connection;
+  long int *connection;
 
   connection = (long int *)calloc(element_histogram[4]*4 + element_histogram[6]*6,sizeof(long int));
 
@@ -932,8 +932,8 @@ long int *connection;
   prism_connection = (unsigned int *)calloc(6*prism_connection_num,sizeof(unsigned int));
 
   long int prism_count=0;
- count = 0;
- for(long int i=0;i<connection_num;i++){
+  count = 0;
+  for(long int i=0;i<connection_num;i++){
    if(element_type[i] == 6){
      for(long int j=0;j<6;j++){
        prism_connection[prism_count*6+j] = (unsigned int)(connection[count + j]-min_connection);
@@ -953,115 +953,115 @@ long int *connection;
  for(long int i=0;i<prism_connection_num;i++){
    for(long int j=0;j<6;j++){
      if(coord[prism_connection[i*6+j]*3+0]<1000 && coord[prism_connection[i*6+j]*3+0]>(-100)){
-           if(ball_min_coord[0]>coord[prism_connection[i*6+j]*3+0]){
-	     ball_min_coord[0]=coord[prism_connection[i*6+j]*3+0];
-	   }
-	   if(ball_min_coord[1]>coord[prism_connection[i*6+j]*3+1]){
-	     ball_min_coord[1]=coord[prism_connection[i*6+j]*3+1];
-	   }
-	   if(ball_min_coord[2]>coord[prism_connection[i*6+j]*3+2]){
-	     ball_min_coord[2]=coord[prism_connection[i*6+j]*3+2];
-	   }
-	   if(ball_max_coord[0]<coord[prism_connection[i*6+j]*3+0]){
-	     ball_max_coord[0]=coord[prism_connection[i*6+j]*3+0];
-	   }
-	   if(ball_max_coord[1]<coord[prism_connection[i*6+j]*3+1]){
-	     ball_max_coord[1]=coord[prism_connection[i*6+j]*3+1];
-	   }
-	   if(ball_max_coord[2]<coord[prism_connection[i*6+j]*3+2]){
-	     ball_max_coord[2]=coord[prism_connection[i*6+j]*3+2];
-	   }
-     }
-   }
- }
-
- printf("ball min %f %f %f\nball max %f %f %f\n",ball_min_coord[0], ball_min_coord[1], ball_min_coord[2], ball_max_coord[0], ball_max_coord[1], ball_max_coord[2]);
-
- int veclen;
- fread(&veclen, sizeof(int), 1, fp);
-
- int value_describing_type;
- fread(&value_describing_type, sizeof(int), 1, fp);
-
- printf("veclen %d  value type %d\n",veclen, value_describing_type);
-
- char *value_name;
- value_name = (char *)calloc(16*veclen, sizeof(char));
-
- char *value_unit;
- value_unit = (char *)calloc(16*veclen, sizeof(char));
-
- int *value_null_setting;
- value_null_setting = (int *)calloc(1*veclen, sizeof(int));
-
- int *value_veclen;
- value_veclen = (int *)calloc(1*veclen, sizeof(int));
-
- for(int i=0;i<veclen;i++){
-   fread(&value_name[i*16], sizeof(char), 16, fp);
-   fread(&value_unit[i*16], sizeof(char), 16, fp);
-   fread(&value_veclen[i*1], sizeof(int), 1, fp);
-   fread(&value_null_setting[i*1], sizeof(int), 1, fp);
-   fseek(fp,1*sizeof(float),SEEK_CUR);
- }
-
- char tmp_name[16]={0};
- char tmp_unit[16]={0};
- for(int i=0;i<veclen;i++){
-   memcpy(tmp_name, &value_name[i*16], 15);
-   memcpy(tmp_unit, &value_unit[i*16], 15);
-   printf("%s 単位は%s 次元は%d null設定は%d\n",tmp_name, tmp_unit, value_veclen[i], value_null_setting[i]);
-   memset(tmp_name, '\0', 16);
-   memset(tmp_unit, '\0', 16);
- }
-
-
- long int value_num = coord_num;
- float *ValueArray;
- ValueArray = (float *)calloc(value_num, sizeof( float ) );
-
- for(int i=0;i<5;i++){
-   fseek(fp, sizeof(float)*value_num, SEEK_CUR);
- }
-
- float *velocity_u;
- float *velocity_v;
- float *velocity_w;
- velocity_u = (float *)calloc(value_num, sizeof(float));
- velocity_v = (float *)calloc(value_num, sizeof(float));
- velocity_w = (float *)calloc(value_num, sizeof(float));
-
- fread(velocity_u, sizeof(float), value_num, fp); 
- fread(velocity_v, sizeof(float), value_num, fp);
- fread(velocity_w, sizeof(float), value_num, fp);
-
-
-  for(long int i=0;i<value_num;i++){
-    ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
+       if(ball_min_coord[0]>coord[prism_connection[i*6+j]*3+0]){
+        ball_min_coord[0]=coord[prism_connection[i*6+j]*3+0];
+      }
+      if(ball_min_coord[1]>coord[prism_connection[i*6+j]*3+1]){
+        ball_min_coord[1]=coord[prism_connection[i*6+j]*3+1];
+      }
+      if(ball_min_coord[2]>coord[prism_connection[i*6+j]*3+2]){
+        ball_min_coord[2]=coord[prism_connection[i*6+j]*3+2];
+      }
+      if(ball_max_coord[0]<coord[prism_connection[i*6+j]*3+0]){
+        ball_max_coord[0]=coord[prism_connection[i*6+j]*3+0];
+      }
+      if(ball_max_coord[1]<coord[prism_connection[i*6+j]*3+1]){
+        ball_max_coord[1]=coord[prism_connection[i*6+j]*3+1];
+      }
+      if(ball_max_coord[2]<coord[prism_connection[i*6+j]*3+2]){
+        ball_max_coord[2]=coord[prism_connection[i*6+j]*3+2];
+      }
+    }
   }
+}
+
+printf("ball min %f %f %f\nball max %f %f %f\n",ball_min_coord[0], ball_min_coord[1], ball_min_coord[2], ball_max_coord[0], ball_max_coord[1], ball_max_coord[2]);
+
+int veclen;
+fread(&veclen, sizeof(int), 1, fp);
+
+int value_describing_type;
+fread(&value_describing_type, sizeof(int), 1, fp);
+
+printf("veclen %d  value type %d\n",veclen, value_describing_type);
+
+char *value_name;
+value_name = (char *)calloc(16*veclen, sizeof(char));
+
+char *value_unit;
+value_unit = (char *)calloc(16*veclen, sizeof(char));
+
+int *value_null_setting;
+value_null_setting = (int *)calloc(1*veclen, sizeof(int));
+
+int *value_veclen;
+value_veclen = (int *)calloc(1*veclen, sizeof(int));
+
+for(int i=0;i<veclen;i++){
+ fread(&value_name[i*16], sizeof(char), 16, fp);
+ fread(&value_unit[i*16], sizeof(char), 16, fp);
+ fread(&value_veclen[i*1], sizeof(int), 1, fp);
+ fread(&value_null_setting[i*1], sizeof(int), 1, fp);
+ fseek(fp,1*sizeof(float),SEEK_CUR);
+}
+
+char tmp_name[16]={0};
+char tmp_unit[16]={0};
+for(int i=0;i<veclen;i++){
+ memcpy(tmp_name, &value_name[i*16], 15);
+ memcpy(tmp_unit, &value_unit[i*16], 15);
+ printf("%s 単位は%s 次元は%d null設定は%d\n",tmp_name, tmp_unit, value_veclen[i], value_null_setting[i]);
+ memset(tmp_name, '\0', 16);
+ memset(tmp_unit, '\0', 16);
+}
 
 
-  fclose(fp);
+long int value_num = coord_num;
+float *ValueArray;
+ValueArray = (float *)calloc(value_num, sizeof( float ) );
+
+for(int i=0;i<5;i++){
+ fseek(fp, sizeof(float)*value_num, SEEK_CUR);
+}
+
+float *velocity_u;
+float *velocity_v;
+float *velocity_w;
+velocity_u = (float *)calloc(value_num, sizeof(float));
+velocity_v = (float *)calloc(value_num, sizeof(float));
+velocity_w = (float *)calloc(value_num, sizeof(float));
+
+fread(velocity_u, sizeof(float), value_num, fp); 
+fread(velocity_v, sizeof(float), value_num, fp);
+fread(velocity_w, sizeof(float), value_num, fp);
+
+
+for(long int i=0;i<value_num;i++){
+  ValueArray[i] = sqrt(velocity_u[i]*velocity_u[i]+velocity_v[i]*velocity_v[i]+velocity_w[i]*velocity_w[i]);
+}
+
+
+fclose(fp);
 
 
 
   //printf("ball min %f %f %f\nball max %f %f %f\n",ball_min_coord[0], ball_min_coord[1], ball_min_coord[2], ball_max_coord[0], ball_max_coord[1], ball_max_coord[2]);
 
-  kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
-  kvs::ValueArray<kvs::UInt32> connections( prism_connection, prism_connection_num*6 );
-  kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
+kvs::ValueArray<kvs::Real32> coords( coord, coord_num*3  );
+kvs::ValueArray<kvs::UInt32> connections( prism_connection, prism_connection_num*6 );
+kvs::ValueArray<kvs::Real32> values( ValueArray, value_num );
 
 
-  object->setVeclen( 1 );
-  object->setNumberOfNodes( coord_num );
-  object->setNumberOfCells( prism_connection_num );
-  object->setCellType( kvs::UnstructuredVolumeObject::Prism );
-  object->setCoords( coords );
-  object->setConnections( connections );
-  object->setValues( values );
-  object->setMinMaxObjectCoords(kvs::Vec3(ball_min_coord[0], ball_min_coord[1], ball_min_coord[2]),kvs::Vec3(ball_max_coord[0], ball_max_coord[1], ball_max_coord[2]) );
+object->setVeclen( 1 );
+object->setNumberOfNodes( coord_num );
+object->setNumberOfCells( prism_connection_num );
+object->setCellType( kvs::UnstructuredVolumeObject::Prism );
+object->setCoords( coords );
+object->setConnections( connections );
+object->setValues( values );
+object->setMinMaxObjectCoords(kvs::Vec3(ball_min_coord[0], ball_min_coord[1], ball_min_coord[2]),kvs::Vec3(ball_max_coord[0], ball_max_coord[1], ball_max_coord[2]) );
   //writeStatusToFile(coord,prism_connection, ValueArray,coord_num, prism_connection_num, value_num,PRISM);
-  return(object);
+return(object);
 }
 
 
@@ -1092,6 +1092,41 @@ kvs::UnstructuredVolumeObject* CreateUnstructuredVolumeObject( const char* filen
   return(object);
 }
 
+kvs::UnstructuredVolumeObject* CreateCutPrismObject( const char* filename )
+{
+  kvs::UnstructuredVolumeObject* volume = NULL;
+
+  if(CheckFileLong(filename)==0){
+    printf("prism long object\n");
+    volume = LoadPrismObject_binary_long( filename );
+  }
+  else
+  {
+    printf("prism short object\n");
+    volume = LoadPrismObject_binary_short(filename);
+  }
+
+  std::vector<unsigned int> tmp_connection;
+  unsigned int count=0;
+
+  float min_value = -300.0;
+  float max_value = 1000.0;
+  for(unsigned int i=0;i<volume->numberOfCells();i++){
+    if(volume->coords()[3*volume->connections()[i*6] ] < min_value || volume->coords()[3*volume->connections()[i*6] ] > max_value){
+      count++;
+    }else{
+      for(unsigned int j=0;j<6;j++){
+        tmp_connection.push_back(volume->connections()[i*6+j]);
+      }
+    }
+  }
+  printf("count %u\n",count);
+  kvs::ValueArray<kvs::UInt32> connections( tmp_connection.data(), tmp_connection.size() );
+  volume->setConnections( connections );
+  volume->setNumberOfCells( tmp_connection.size() / 6 );
+  return (volume);
+}
+
 
 
 
@@ -1114,38 +1149,38 @@ void writeStatusToFile(float *coord,unsigned int *connection, float *value, int 
 
 
   if(cell_type == TETRA){
-  fprintf(fp_write,"%d %d 1 0 0\n",coord_num, connection_num);
+    fprintf(fp_write,"%d %d 1 0 0\n",coord_num, connection_num);
 
-  for(int i=0;i<coord_num;i++){
-    fprintf(fp_write,"%d %f %f %f\n",i+1, coord[i*3+0], coord[i*3+1], coord[i*3+2] );
-  }
-  for(int i=0;i<connection_num;i++){
-    fprintf(fp_write,"%d 1 tet %u %u %u %u\n",i+1, connection[i*4+0], connection[i*4+1], connection[i*4+2], connection[i*4+3]);
-  }
-  fprintf(fp_write,"1 1\ndensity\n");
+    for(int i=0;i<coord_num;i++){
+      fprintf(fp_write,"%d %f %f %f\n",i+1, coord[i*3+0], coord[i*3+1], coord[i*3+2] );
+    }
+    for(int i=0;i<connection_num;i++){
+      fprintf(fp_write,"%d 1 tet %u %u %u %u\n",i+1, connection[i*4+0], connection[i*4+1], connection[i*4+2], connection[i*4+3]);
+    }
+    fprintf(fp_write,"1 1\ndensity\n");
 
-  for(int i=0;i<coord_num;i++){
-    fprintf(fp_write,"%d %f\n",i+1, value[i]);
-  }
-  fclose(fp_write);
+    for(int i=0;i<coord_num;i++){
+      fprintf(fp_write,"%d %f\n",i+1, value[i]);
+    }
+    fclose(fp_write);
   }
 
 
   if(cell_type == PRISM){
-  fprintf(fp_write,"%d %d 1 0 0\n",coord_num, connection_num);
+    fprintf(fp_write,"%d %d 1 0 0\n",coord_num, connection_num);
 
-  for(int i=0;i<coord_num;i++){
-    fprintf(fp_write,"%d %f %f %f\n",i+1, coord[i*3+0], coord[i*3+1], coord[i*3+2] );
-  }
-  for(int i=0;i<connection_num;i++){
-    fprintf(fp_write,"%d 1 prism %u %u %u %u %u %u\n",i+1, connection[i*4+0], connection[i*4+1], connection[i*4+2], connection[i*4+3], connection[i*4+4], connection[i*4+5]);
-  }
-  fprintf(fp_write,"1 1\ndensity\n");
+    for(int i=0;i<coord_num;i++){
+      fprintf(fp_write,"%d %f %f %f\n",i+1, coord[i*3+0], coord[i*3+1], coord[i*3+2] );
+    }
+    for(int i=0;i<connection_num;i++){
+      fprintf(fp_write,"%d 1 prism %u %u %u %u %u %u\n",i+1, connection[i*4+0], connection[i*4+1], connection[i*4+2], connection[i*4+3], connection[i*4+4], connection[i*4+5]);
+    }
+    fprintf(fp_write,"1 1\ndensity\n");
 
-  for(int i=0;i<coord_num;i++){
-    fprintf(fp_write,"%d %f\n",i+1, value[i]);
-  }
-  fclose(fp_write);
+    for(int i=0;i<coord_num;i++){
+      fprintf(fp_write,"%d %f\n",i+1, value[i]);
+    }
+    fclose(fp_write);
   }
 
 #endif
@@ -1241,97 +1276,97 @@ kvs::UnstructuredVolumeObject* LoadPrismObject_ascii( const char* filename )
     }
     if(cell_type == TETRA){
       if(strstr(cell_type2, "tet") != NULL){
-	connection_cell_type[count_cell_type] = 1;
-	sscanf(line, "%*d %*d %*s %u %u %u %u",&connection[count],&connection[count+1],&connection[count+2],&connection[count+3]);
-	count = count + 4;
-	if(count == 4*tet_connection_num){
-	  break;
-	}
-      }
-    }
-    if(cell_type == PRISM){
-      if(strstr(cell_type2, "prism") != NULL){
-	sscanf(line, "%*d %*d %*s %u %u %u %u %u %u",&connection[count],&connection[count+1],&connection[count+2],&connection[count+3], &connection[count+4], &connection[count+5]);
-	count = count + 6;
-	if(count == 6*prism_connection_num){
-	  break;
-	}
-      }
-    }
-    count_cell_type++;
-  }
+       connection_cell_type[count_cell_type] = 1;
+       sscanf(line, "%*d %*d %*s %u %u %u %u",&connection[count],&connection[count+1],&connection[count+2],&connection[count+3]);
+       count = count + 4;
+       if(count == 4*tet_connection_num){
+         break;
+       }
+     }
+   }
+   if(cell_type == PRISM){
+    if(strstr(cell_type2, "prism") != NULL){
+     sscanf(line, "%*d %*d %*s %u %u %u %u %u %u",&connection[count],&connection[count+1],&connection[count+2],&connection[count+3], &connection[count+4], &connection[count+5]);
+     count = count + 6;
+     if(count == 6*prism_connection_num){
+       break;
+     }
+   }
+ }
+ count_cell_type++;
+}
 
   /////connection と coordは入った
   //  connection_cell_type[i] = 1ならi-th cell is tetra,  0ならcell is prism
 
 
-  unsigned int temp_connection_num=0;
+unsigned int temp_connection_num=0;
 
 
 
 
   ////////////////ここをtemp = TETRA,temp=PRISMにしてた 
-  if(cell_type == TETRA){
-    temp_connection_num = tet_connection_num;
-  }else{
-    temp_connection_num = prism_connection_num;
-  }
+if(cell_type == TETRA){
+  temp_connection_num = tet_connection_num;
+}else{
+  temp_connection_num = prism_connection_num;
+}
 
 
-  float *value;
+float *value;
 
-  value = (float *)calloc(coord_num, sizeof(float) );
-
-
-
-  char temp_line[128];
-  while(fgets(line,256,fp)!=NULL){
-    if(sscanf(line, "%s %*s", temp_line) == 1){
-      if(strstr(temp_line,"HPC_region") != NULL){
-	break;
-      }
-    }
-  }
-
-  count = 0;
-  for(unsigned int i=0;i<(unsigned int)coord_num;i++){
-    fgets(line,256,fp);
-    sscanf(line, "%*d %f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f", &value[i]);
-  }
+value = (float *)calloc(coord_num, sizeof(float) );
 
 
 
-  kvs::ValueArray<kvs::Real32> kvs_coords( coord, coord_num*3  );
-  kvs::ValueArray<kvs::UInt32> kvs_connections( connection, cell_type*temp_connection_num );
-  kvs::ValueArray<kvs::Real32> kvs_values( value, coord_num );
+char temp_line[128];
+while(fgets(line,256,fp)!=NULL){
+  if(sscanf(line, "%s %*s", temp_line) == 1){
+    if(strstr(temp_line,"HPC_region") != NULL){
+     break;
+   }
+ }
+}
 
-  
-  object->setVeclen( 1 );
-  object->setNumberOfNodes( coord_num );
-  if(cell_type == TETRA){
-    object->setNumberOfCells( tet_connection_num );
-    object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
-  }
-  if(cell_type == PRISM){
-    object->setNumberOfCells( prism_connection_num  );
-    object->setCellType( kvs::UnstructuredVolumeObject::Prism );
-  }
-  object->setCoords( kvs_coords );
-  object->setConnections( kvs_connections );
-  object->setValues( kvs_values );
+count = 0;
+for(unsigned int i=0;i<(unsigned int)coord_num;i++){
+  fgets(line,256,fp);
+  sscanf(line, "%*d %f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f %*f", &value[i]);
+}
+
+
+
+kvs::ValueArray<kvs::Real32> kvs_coords( coord, coord_num*3  );
+kvs::ValueArray<kvs::UInt32> kvs_connections( connection, cell_type*temp_connection_num );
+kvs::ValueArray<kvs::Real32> kvs_values( value, coord_num );
+
+
+object->setVeclen( 1 );
+object->setNumberOfNodes( coord_num );
+if(cell_type == TETRA){
+  object->setNumberOfCells( tet_connection_num );
+  object->setCellType( kvs::UnstructuredVolumeObject::Tetrahedra );
+}
+if(cell_type == PRISM){
+  object->setNumberOfCells( prism_connection_num  );
+  object->setCellType( kvs::UnstructuredVolumeObject::Prism );
+}
+object->setCoords( kvs_coords );
+object->setConnections( kvs_connections );
+object->setValues( kvs_values );
 
 
   // printf("%f \n%u \n",object->coords()[20], object->connections()[0]);
 
-  writeStatusToFile(coord, connection, value, coord_num, temp_connection_num, coord_num, cell_type);
+writeStatusToFile(coord, connection, value, coord_num, temp_connection_num, coord_num, cell_type);
 
-  if(cell_type == TETRA){
-    printf("tetra load finish\n");
-  }else{
-    printf("prism load finish\n");
-  }
+if(cell_type == TETRA){
+  printf("tetra load finish\n");
+}else{
+  printf("prism load finish\n");
+}
 
-  return( object );
+return( object );
 }
 
 
