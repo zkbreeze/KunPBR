@@ -94,7 +94,7 @@ public:
 
 TransferFunctionEditor* editor = NULL;
 
-void initialize( std::string filename, float fraction = 0.0 )
+void initialize( std::string filename, float fraction = 0.0, size_t input_timestep = 0 )
 {
     ::time_step = 0;
     ::msec = 20;
@@ -112,6 +112,9 @@ void initialize( std::string filename, float fraction = 0.0 )
             file_name.push_back( file.filePath() );
         }
     }
+
+    if( input_timestep )
+        ::nsteps = input_timestep;
     
     ::object = new kun::PointObject*[::nsteps];
     std::cout << ::nsteps << std::endl;
@@ -287,6 +290,7 @@ int main( int argc, char** argv )
     param.addOption( "rep", "repetition level", 1, true );
     param.addOption( "rep_low", "low repetition level used for animation", 1, false );
     param.addOption( "trans", "set initial transferfunction", 1, false );
+    param.addOption( "nsteps", "set n time steps to load", 1, false );
     
     if ( !param.parse() ) return 1;
 
@@ -307,10 +311,12 @@ int main( int argc, char** argv )
     if ( param.hasOption( "nos" ) ) ::ShadingFlag = false;
 
     // Time-varying data loading
+    size_t input_timestep = 0;
+    if( param.hasOption( "nsteps" ) ) input_timestep = param.optionValue<size_t>( "nsteps" );
     if( ::isLODRendering )
-        initialize( param.optionValue<std::string>( "point" ), (float)::repetition_low / ::repetition );
+        initialize( param.optionValue<std::string>( "point" ), (float)::repetition_low / ::repetition, input_timestep );
     else
-        initialize( param.optionValue<std::string>( "point" ) );
+        initialize( param.optionValue<std::string>( "point" ), 0.0, input_timestep );
 
     kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
     renderer->setName( ::RendererName );
