@@ -219,6 +219,14 @@ void CellByCellUniformSampling::setShuffleParticles()
     m_shuffle = true;
 }
 
+// ADD
+// Use kun sampling step, which equals to 0.5 pixel.
+
+void CellByCellUniformSampling::setKunSamplingStep()
+{
+    #define USE_KUN_SAMPLING_STEP
+}
+
 /*===========================================================================*/
 /**
  *  @brief  Executes the mapper process.

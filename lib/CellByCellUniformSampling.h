@@ -16,7 +16,7 @@
 #include <kvs/StructuredVolumeObject>
 #include <kvs/UnstructuredVolumeObject>
 #include <kvs/Module>
-#include <kvs/CellByCellParticleGenerator>
+#include "CellByCellParticleGenerator.h"
 
 
 namespace kun
@@ -76,6 +76,7 @@ public:
 
     // ADD
     void setShuffleParticles();
+    void setKunSamplingStep();
 
 private:
 

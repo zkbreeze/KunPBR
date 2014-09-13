@@ -1067,28 +1067,32 @@ return(object);
 
 kvs::UnstructuredVolumeObject* CreateUnstructuredVolumeObject( const char* filename,char cell_type )
 {
-  kvs::UnstructuredVolumeObject* object = new kvs::UnstructuredVolumeObject();
+  kvs::UnstructuredVolumeObject* object = NULL;
   
   if(cell_type == TETRA ){
     if(CheckFileLong(filename)==0){
       printf("tetra long object\n");
-      return(LoadTetraObject_binary_long(filename) );
+      object = LoadTetraObject_binary_long(filename);
     }else{
       printf("tetra short object\n");
-      return(LoadTetraObject_binary_short(filename) );
+      object = LoadTetraObject_binary_short(filename);
     }
   }
   
   if(cell_type == PRISM ){
     if(CheckFileLong(filename)==0){
       printf("prism long object\n");
-      return(LoadPrismObject_binary_long(filename) );
+      object = LoadPrismObject_binary_long(filename);
     }else{
       printf("prism short object\n");
-      return(LoadPrismObject_binary_short(filename) );
+      object = LoadPrismObject_binary_short(filename);
     }
     //return(LoadPrismObject_ascii(filename) );
   }
+
+  object->updateMinMaxCoords();
+  object->updateMinMaxValues();
+
   return(object);
 }
 
