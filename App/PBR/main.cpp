@@ -222,8 +222,9 @@ int main( int argc, char** argv )
 	// Data output. If there is output, the program will be ended
 	if ( param.hasOption( "writepoint" ) )
 	{
+		point->shuffle();
 
-		kvs::KVSMLObjectPoint* kvsml = new kun::PointExporter<kvs::KVSMLObjectPoint>(point);
+		kvs::KVSMLObjectPoint* kvsml = new kun::PointExporter<kvs::KVSMLObjectPoint>( point );
 		kvsml -> setWritingDataType(kvs::KVSMLObjectPoint::ExternalBinary);
 		std::string point_filename = param.optionValue<std::string>( "writepoint" );
 		kvsml -> write( point_filename.c_str());

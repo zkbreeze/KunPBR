@@ -11,7 +11,37 @@
 #include <kvs/LineObject>
 #include <kvs/PolygonObject>
 #include <kvs/Assert>
+#include <kvs/Xorshift128>
 
+namespace
+{
+
+template <int Dim, typename T>
+kvs::ValueArray<T> ShuffleArray( const kvs::ValueArray<T>& values, kvs::UInt32 seed )
+{
+    KVS_ASSERT( Dim > 0 );
+    KVS_ASSERT( values.size() % Dim == 0 );
+
+    kvs::Xorshift128 rng; rng.setSeed( seed );
+    kvs::ValueArray<T> ret;
+    if ( values.unique() ) { ret = values; }
+    else { ret = values.clone(); }
+
+    T* p = ret.data();
+    size_t size = ret.size() / Dim;
+
+    for ( size_t i = 0; i < size; ++i )
+    {
+        size_t j = rng.randInteger() % ( i + 1 );
+        for ( int k = 0; k < Dim; ++k )
+        {
+            std::swap( p[ i * Dim + k ], p[ j * Dim + k ] );
+        }
+    }
+    return ret;
+}
+
+}
 
 namespace kun
 {
@@ -432,6 +462,20 @@ std::ostream& operator << ( std::ostream& os, const PointObject& object )
     os << "Number of sizes:  " << object.numberOfSizes();
 
     return os;
+}
+
+void PointObject::shuffle()
+{
+    kvs::UInt32 seed = 12345678;
+
+    kvs::ValueArray<kvs::Real32> coords = ::ShuffleArray<3>( this->coords(), seed );
+    kvs::ValueArray<kvs::Real32> normals = ::ShuffleArray<3>( this->normals(), seed );
+    kvs::ValueArray<kvs::Real32> sizes = ::ShuffleArray<1>( this->sizes(), seed );
+
+    this->setCoords( coords );
+    this->setNormals( normals );
+    this->setSizes( sizes );
+
 }
 
 } // end of namespace kun
