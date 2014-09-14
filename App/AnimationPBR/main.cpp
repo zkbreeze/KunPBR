@@ -88,6 +88,7 @@ public:
         ::tfunc.setColorMap(transferFunction().colorMap() );
         renderer->setTransferFunction( transferFunction() );
         renderer->setBaseOpacity( ::base_opacity );
+        std::cout << "TF renderer time: " << renderer->timer().msec() << std::endl;
         screen()->redraw();
     }
 };

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./AnimationPBR -point /Volumes/WORK_1TB/heatSphere/both_pointdata_binary/ -o 0.9 -rep 36 -rep_low 9
+./AnimationPBR -point /Volumes/WORK_1TB/heatSphere/both_pointdata_binary/ -o 0.3 -rep 144 -rep_low 20

@@ -66,7 +66,7 @@ public:
 		}
 		renderer->setTransferFunction( transferFunction() );
 		renderer->setBaseOpacity( ::base_opacity );
-		std::cout << "Renderer time: " << renderer->timer().msec() << std::endl;
+		std::cout << "TF Renderer time: " << renderer->timer().msec() << std::endl;
 		screen()->redraw();
 	}
 };
