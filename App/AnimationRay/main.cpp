@@ -25,6 +25,7 @@
 #include <kvs/objectManager>
 #include <kvs/rendererManager>
 #include <kvs/TimerEventListener>
+#include "JetImporter.h"
 
 kvs::StructuredVolumeObject** object;
 kvs::glut::Timer* glut_timer;
@@ -34,14 +35,17 @@ kvs::TransferFunction tfunc( 256 );
 float MIN = FLT_MAX;
 float MAX = -FLT_MAX;
 
+bool isJetData = false;
+
 int    msec;
 int    nsteps;
 int    time_step;
 
-void initialize( std::string filename )
+void initialize( std::string filename, int start_of_step = 0, int end_of_step = 0 )
 {
     time_step = 0;
 //    filename = "5/Density";
+    int input_number_of_steps = end_of_step - start_of_step;
 
     msec = 20;
     nsteps = 0;
@@ -52,28 +56,37 @@ void initialize( std::string filename )
     for ( int i = 0; i < file_length; i++ )
     {
         const kvs::File file = files[i];
-        if( file.extension() == "kvsml" )
+        if( file.extension() == "kvsml" || file.extension() == "dat" )
         {
             nsteps++;
             file_name.push_back( file.filePath() );
         }
     }
-    
+
+    if( input_number_of_steps ) 
+    {
+        if( input_number_of_steps > nsteps ) exit( 0 );
+        else
+            nsteps = input_number_of_steps;
+    }
+
     object = new kvs::StructuredVolumeObject*[nsteps];
-    std::cout << nsteps << std::endl;
-    
+    std::cout << "There are " << nsteps << " time steps" << std::endl;
+
     kvs::Timer time;
     time.start();
     for ( int i = 0; i < nsteps; i++ )
-    { 
-        object[i] = new kvs::StructuredVolumeImporter( file_name[i] );
+    {
+        if( isJetData ) object[i] = new kun::JetImporter( file_name[i + start_of_step] ); 
+        else
+            object[i] = new kvs::StructuredVolumeImporter( file_name[i + start_of_step] );
         object[i]->setName( "object" );
         std::cout << "\r" << i << std::flush;        
     }
     time.stop();
     std::cout << "\r" << "                           " << std::flush;
     std::cout << "\r" << "Finish Reading." << std::endl;
-    std::cout <<"Loading time: " <<time.msec()<<"msec"<<std::endl;
+    std::cout << "Loading time: " << time.msec() << "msec" << std::endl;
     time_step = 0;
 }
 
@@ -176,13 +189,32 @@ class KeyPressEvent : public kvs::KeyPressEventListener
 };
 
 int main( int argc, char** argv )
-{
-    initialize( argv[1] );
-    if ( argc > 2 )
-        tfunc = kvs::TransferFunction( argv[2]);
-    
+{   
     kvs::glut::Application app( argc, argv );
     
+    kvs::CommandLine param( argc, argv );
+    param.addHelpOption();
+    param.addOption( "f", "Folder name of the KVSML objects", 1, false );
+    param.addOption( "j", "Folder name of the jet data", 1, false );
+    param.addOption( "t", "Transfer function", 1, false );
+    param.addOption( "s", "Start time step you want to render", 1, false );
+    param.addOption( "e", "End time step you want to render", 1, false );
+
+    if( !param.parse() ) return 1;
+
+    std::string input_file;
+    if( param.hasOption( "f" ) ) input_file = param.optionValue<std::string>( "f" );
+    if( param.hasOption( "j" ) ) 
+    {
+        isJetData = true;
+        input_file = param.optionValue<std::string>( "j" );
+    }
+    if( param.hasOption( "t" ) ) tfunc = kvs::TransferFunction( param.optionValue<std::string>( "t" ) );
+
+    if( param.hasOption( "s" ) && param.hasOption( "e") ) initialize( input_file, param.optionValue<int>( "s" ), param.optionValue<int>( "e" ) );
+    else
+        initialize( input_file );
+
     KeyPressEvent     key_press_event;
     TimerEvent        timer_event;
 
