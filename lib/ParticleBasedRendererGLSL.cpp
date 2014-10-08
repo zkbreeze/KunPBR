@@ -447,18 +447,21 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
+    // std::cout << "Start to create buffer object." << std::endl;
+    // std::cout << m_has_normal << std::endl;
 
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
+    std::cout << point->values().size() << std::endl;
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
 
+    // std::cout << "aaaaa" << std::endl;
     /*ADD*/
     // Normalize the values
     float* pvalue = values.data();
     for( size_t i = 0; i < point->numberOfVertices(); i++ )
     {
         pvalue[i] = ( pvalue[i] - point->minValue() ) / ( point->maxValue() - point->minValue() );   
-        std::cout << pvalue[i] << std::endl;     
     }
 
     if ( m_enable_shuffle )

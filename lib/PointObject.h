@@ -62,6 +62,7 @@ public:
     void setSize( const kvs::Real32 size );
 
     size_t numberOfSizes() const { return m_sizes.size(); }
+    size_t numberOfValues() const { return m_values.size(); }
 
     kvs::Real32 size( const size_t index = 0 ) const { return m_sizes[index]; }
     const kvs::ValueArray<kvs::Real32>& sizes() const { return m_sizes; }

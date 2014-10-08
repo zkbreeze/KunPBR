@@ -511,6 +511,7 @@ std::ostream& operator << ( std::ostream& os, const PointObject& object )
     os << static_cast<const kvs::GeometryObjectBase&>( object ) << std::endl;
 #endif
     os << "Number of sizes:  " << object.numberOfSizes();
+    os << "Number of values:  " << object.numberOfValues();
 
     return os;
 }
