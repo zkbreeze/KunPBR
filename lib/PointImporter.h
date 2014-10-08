@@ -12,7 +12,7 @@
 #include <kvs/ImporterBase>
 #include <kvs/Module>
 #include "PointObject.h"
-#include <kvs/KVSMLObjectPoint>
+#include "KVSMLObjectKunPoint.h"
 
 
 namespace kun
@@ -41,7 +41,7 @@ public:
 
 private:
 
-    void import( const kvs::KVSMLObjectPoint* kvsml );
+    void import( const kun::KVSMLObjectKunPoint* kvsml );
     void set_min_max_coord();
 };
 

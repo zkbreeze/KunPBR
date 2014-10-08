@@ -8,7 +8,7 @@
 
 #include "PointImporter.h"
 #include <kvs/DebugNew>
-#include <kvs/KVSMLObjectPoint>
+#include "KVSMLObjectKunPoint.h"
 #include <kvs/Math>
 #include <kvs/Vector3>
 #include <string>
@@ -35,9 +35,9 @@ namespace kun
 /*===========================================================================*/
  PointImporter::PointImporter( const std::string& filename )
  {
-    if ( kvs::KVSMLObjectPoint::CheckExtension( filename ) )
+    if ( kun::KVSMLObjectKunPoint::CheckExtension( filename ) )
     {
-        kvs::KVSMLObjectPoint* file_format = new kvs::KVSMLObjectPoint( filename );
+        kun::KVSMLObjectKunPoint* file_format = new kun::KVSMLObjectKunPoint( filename );
         if( !file_format )
         {
             BaseClass::setSuccess( false );
@@ -67,19 +67,20 @@ namespace kun
 // Add. To load the point object the repetition part.
 PointImporter::PointImporter( const std::string& filename, const float fraction )
 {
-    if ( kvs::KVSMLObjectPoint::CheckExtension( filename ) )
+    if ( kun::KVSMLObjectKunPoint::CheckExtension( filename ) )
     {
         const kvs::File file( filename );
 
-        // size
-        std::string size_name = file.pathName() + "/" + file.baseName() + "_size.dat";
-        std::ifstream size( size_name, std::ifstream::binary );
-        size.seekg( 0, std::ios::end );
-        size_t end = size.tellg();
-        size.seekg( 0, std::ios::beg );
+        // value
+        std::string value_name = file.pathName() + "/" + file.baseName() + "_value.dat";
+        std::ifstream value( value_name, std::ifstream::binary );
+        value.seekg( 0, std::ios::end );
+        size_t end = value.tellg();
+        value.seekg( 0, std::ios::beg );
         size_t length = ( end / sizeof( float ) ) * fraction;
-        kvs::ValueArray<kvs::Real32>sizes( length );
-        size.read( (char*)sizes.data(), length * sizeof( float ) );
+        kvs::AnyValueArray values;
+        values.allocate<kvs::Real32>( length );
+        value.read( (char*)values.data(), length * sizeof( float ) );
 
         // coord
         std::string coord_name = file.pathName() + "/" + file.baseName() + "_coord.dat";
@@ -93,7 +94,7 @@ PointImporter::PointImporter( const std::string& filename, const float fraction 
         kvs::ValueArray<kvs::Real32>normals( length * 3 );
         normal.read( (char*)normals.data(), length * 3 * sizeof( float ) );
 
-        SuperClass::setSizes( sizes );
+        SuperClass::setValues( values );
         SuperClass::setCoords( coords );
         SuperClass::setNormals( normals );
     }
@@ -141,7 +142,7 @@ PointImporter::PointImporter( const std::string& filename, const float fraction 
         return NULL;
     }
 
-    if ( const kvs::KVSMLObjectPoint* point = dynamic_cast<const kvs::KVSMLObjectPoint*>( file_format ) )
+    if ( const kun::KVSMLObjectKunPoint* point = dynamic_cast<const kun::KVSMLObjectKunPoint*>( file_format ) )
     {
         this->import( point );
     }
@@ -161,7 +162,7 @@ PointImporter::PointImporter( const std::string& filename, const float fraction 
  *  @param  kvsml [in] pointer to the KVSML format data
  */
 /*==========================================================================*/
- void PointImporter::import( const kvs::KVSMLObjectPoint* kvsml )
+ void PointImporter::import( const kun::KVSMLObjectKunPoint* kvsml )
  {
     if ( kvsml->objectTag().hasExternalCoord() )
     {

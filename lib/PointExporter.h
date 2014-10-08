@@ -10,7 +10,7 @@
 #define KUN__POINTEXPORTER_H_INCLUDE
  
 #include "PointObject.h"
-#include <kvs/KVSMLObjectPoint>
+#include "KVSMLObjectKunPoint.h"
 #include <kvs/ExporterBase>
 
 
@@ -38,13 +38,13 @@ public:
  */
 /*===========================================================================*/
 template <>
-class PointExporter<kvs::KVSMLObjectPoint> :
+class PointExporter<kun::KVSMLObjectKunPoint> :
         public kvs::ExporterBase,
-        public kvs::KVSMLObjectPoint
+        public kun::KVSMLObjectKunPoint
 {
 public:
     PointExporter( const kun::PointObject* object );
-    kvs::KVSMLObjectPoint* exec( const kvs::ObjectBase* object );
+    kun::KVSMLObjectKunPoint* exec( const kvs::ObjectBase* object );
 };
 
 } // end of namespace kun

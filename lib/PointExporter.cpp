@@ -19,7 +19,7 @@ namespace kun
  *  @param  object [in] pointer to the input point object
  */
 /*===========================================================================*/
-PointExporter<kvs::KVSMLObjectPoint>::PointExporter( const kun::PointObject* object )
+PointExporter<kun::KVSMLObjectKunPoint>::PointExporter( const kun::PointObject* object )
 {
     this->exec( object );
 }
@@ -31,7 +31,7 @@ PointExporter<kvs::KVSMLObjectPoint>::PointExporter( const kun::PointObject* obj
  *  @return pointer to the KVSMLObjectPoint format
  */
 /*===========================================================================*/
-kvs::KVSMLObjectPoint* PointExporter<kvs::KVSMLObjectPoint>::exec( const kvs::ObjectBase* object )
+kun::KVSMLObjectKunPoint* PointExporter<kun::KVSMLObjectKunPoint>::exec( const kvs::ObjectBase* object )
 {
     BaseClass::setSuccess( true );
 
@@ -54,6 +54,7 @@ kvs::KVSMLObjectPoint* PointExporter<kvs::KVSMLObjectPoint>::exec( const kvs::Ob
     this->setColors( point->colors() );
     this->setNormals( point->normals() );
     this->setSizes( point->sizes() );
+    this->setValues( point->values() );
 
     return this;
 }

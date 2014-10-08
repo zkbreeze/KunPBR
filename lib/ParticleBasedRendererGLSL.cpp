@@ -152,8 +152,6 @@ void ParticleBasedRenderer::setBaseOpacity( float base_opacity )
 /*===========================================================================*/
 ParticleBasedRenderer::Engine::Engine():
     m_has_normal( false ),
-    m_has_size( false ),
-    m_has_transfer_function( false ),
     m_enable_shuffle( true ),
     m_random_index( 0 ),
     m_initial_modelview( kvs::Mat4::Zero() ),
@@ -176,8 +174,6 @@ ParticleBasedRenderer::Engine::Engine():
 /*===========================================================================*/
 ParticleBasedRenderer::Engine::Engine( const kvs::Mat4& m, const kvs::Mat4& p, const kvs::Vec4& v ):
     m_has_normal( false ),
-    m_has_size( false ),
-    m_has_transfer_function( false ),
     m_enable_shuffle( true ),
     m_random_index( 0 ),
     m_initial_modelview( m ),
@@ -218,7 +214,6 @@ void ParticleBasedRenderer::Engine::setScale( float scale )
 
 void ParticleBasedRenderer::Engine::setTransferFunction( kvs::TransferFunction tfunc )
 {
-    m_has_transfer_function = true;
     m_tfunc = tfunc;
     if ( m_transfer_function_texture.isLoaded() )
     {
@@ -245,7 +240,6 @@ void ParticleBasedRenderer::Engine::create( kvs::ObjectBase* object, kvs::Camera
     m_has_normal = point->normals().size() > 0;
     if ( !m_has_normal ) setEnabledShading( false );
 
-    m_has_size = point->sizes().size() == point->numberOfVertices();
     float PI = 3.14159265359;
     float sampling_step = 0.5;
     m_max_alpha = 1.0 - std::exp( - ( PI * sampling_step )  );
@@ -304,7 +298,7 @@ void ParticleBasedRenderer::Engine::setup( kvs::ObjectBase* object, kvs::Camera*
     kvs::OpenGL::Enable( GL_DEPTH_TEST );
     kvs::OpenGL::Enable( GL_VERTEX_PROGRAM_POINT_SIZE );
     m_random_index = m_shader_program.attributeLocation("random_index");
-    m_size_location = m_shader_program.attributeLocation("value");
+    m_value_location = m_shader_program.attributeLocation("value");
 }
 
 /*===========================================================================*/
@@ -319,7 +313,7 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 {
     kun::PointObject* point = kun::PointObject::DownCast( object );
     
-    if( m_has_transfer_function ) this->initialize_transfer_function_texture();
+    this->initialize_transfer_function_texture();
 
     kvs::VertexBufferObject::Binder bind1( m_vbo[ repetitionCount() ] );
     kvs::ProgramObject::Binder bind2( m_shader_program );
@@ -359,7 +353,7 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 
         const size_t coord_offset = 0;
         const size_t normal_offset = coord_offset + coord_size;
-        const size_t size_offset = normal_offset + normal_size;
+        const size_t value_offset = normal_offset + normal_size;
  
         // Enable coords.
         KVS_GL_CALL( glEnableClientState( GL_VERTEX_ARRAY ) );
@@ -372,12 +366,9 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
             KVS_GL_CALL( glNormalPointer( GL_FLOAT, 0, (GLbyte*)NULL + normal_offset ) );
         }
 
-        // Enable sizes.
-        if ( m_has_size )
-        {
-            KVS_GL_CALL( glEnableVertexAttribArray( m_size_location ) );
-            KVS_GL_CALL( glVertexAttribPointer( m_size_location, 1, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL + size_offset ) );
-        }
+        // Enable values.
+        KVS_GL_CALL( glEnableVertexAttribArray( m_value_location ) );
+        KVS_GL_CALL( glVertexAttribPointer( m_value_location, 1, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL + value_offset ) );
 
         // Enable random index.
         KVS_GL_CALL( glEnableVertexAttribArray( m_random_index ) );
@@ -395,11 +386,8 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
             KVS_GL_CALL( glDisableClientState( GL_NORMAL_ARRAY ) );
         }
 
-        // Disable sizes.
-        if ( m_has_size )
-        {
-            KVS_GL_CALL( glDisableVertexAttribArray( m_size_location ) );
-        }
+        // Disable values.
+        KVS_GL_CALL( glDisableVertexAttribArray( m_value_location ) );
 
         // Disable random index.
         KVS_GL_CALL( glDisableVertexAttribArray( m_random_index ) );
@@ -417,6 +405,9 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 {
     std::string vert_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.vert" );
     std::string frag_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.frag" );
+    // std::string vert_shader_source = std::string( "/Users/breeze/Work/ParticleBasedRendering/lib/Shader/kun_PBR_zooming.vert");
+    // std::string frag_shader_source = std::string( "/Users/breeze/Work/ParticleBasedRendering/lib/Shader/kun_PBR_zooming.frag");
+
     kvs::ShaderSource vert( vert_shader_source );
     kvs::ShaderSource frag( frag_shader_source );
 
@@ -436,15 +427,7 @@ void ParticleBasedRenderer::Engine::create_shader_program()
         }
     }
 
-    if ( m_has_size )
-    {
-        vert.define("ENABLE_PARTICLE_SIZE");
-    }
-    
-    if( m_has_transfer_function )
-    {
-        vert.define("ENABLE_TRANSFER_FUNCTION");
-    }
+    vert.define("ENABLE_TRANSFER_FUNCTION");
 
     m_shader_program.build( vert, frag );
     m_shader_program.bind();
@@ -453,6 +436,7 @@ void ParticleBasedRenderer::Engine::create_shader_program()
     m_shader_program.setUniform( "shading.Ks", shader().Ks );
     m_shader_program.setUniform( "shading.S",  shader().S );
     m_shader_program.unbind();
+
 }
 
 /*===========================================================================*/
@@ -466,8 +450,17 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
 
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
-    kvs::ValueArray<kvs::Real32> sizes = point->sizes();
-    
+    kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
+
+    /*ADD*/
+    // Normalize the values
+    float* pvalue = values.data();
+    for( size_t i = 0; i < point->numberOfVertices(); i++ )
+    {
+        pvalue[i] = ( pvalue[i] - point->minValue() ) / ( point->maxValue() - point->minValue() );   
+        std::cout << pvalue[i] << std::endl;     
+    }
+
     if ( m_enable_shuffle )
     {
         kvs::UInt32 seed = 12345678;
@@ -476,11 +469,7 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
         {
             normals = ::ShuffleArray<3>( point->normals(), seed );
         }
-        if ( m_has_size )
-        {
-            sizes = ::ShuffleArray<1>( point->sizes(), seed );
-        }
-        
+        values = ::ShuffleArray<1>( values, seed );
     }
     
     if ( !m_vbo ) m_vbo = new kvs::VertexBufferObject [ repetitionLevel() ];
@@ -494,9 +483,9 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
         const size_t first = quo * i + kvs::Math::Min( i, rem );
         const size_t coord_size = count * sizeof(kvs::Real32) * 3;
         const size_t normal_size = m_has_normal ? count * sizeof(kvs::Real32) * 3 : 0;
-        const size_t size_size = m_has_size ? count * sizeof(kvs::Real32) : 0;
+        const size_t value_size = count * sizeof(kvs::Real32);
         
-        const size_t byte_size = coord_size + normal_size + size_size;
+        const size_t byte_size = coord_size + normal_size + value_size;
         m_vbo[i].create( byte_size );
 
         m_vbo[i].bind();
@@ -505,10 +494,7 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject
         {
             m_vbo[i].load( normal_size, normals.data() + first * 3, coord_size );
         }
-        if ( m_has_size )
-        {
-            m_vbo[i].load( size_size, sizes.data() + first, coord_size + normal_size );
-        }
+        m_vbo[i].load( value_size, values.data() + first, coord_size + normal_size );
         
         m_vbo[i].unbind();
     }

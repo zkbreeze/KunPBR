@@ -411,7 +411,6 @@ void CellByCellUniformSampling::generate_particles( const kvs::StructuredVolumeO
                     // Calculate a scalar value.
                     interpolator.attachPoint( coord );
                     float scalar = interpolator.scalar<T>();
-                    scalar = ( scalar - volume->minValue() ) / ( volume->maxValue() - volume->minValue() );
 
                     // Calculate a normal.
                     kvs::Vector3f normal( interpolator.gradient<T>() );
@@ -446,9 +445,12 @@ void CellByCellUniformSampling::generate_particles( const kvs::StructuredVolumeO
         values = ::ShuffleArray<1>( values, seed );
     }
 
+    SuperClass::setVeclen( 1 );
     SuperClass::setCoords( coords );
-    SuperClass::setSizes( values );
+    SuperClass::setValues( values );
     SuperClass::setNormals( normals );
+    SuperClass::updateMinMaxValues();
+
 }
 
 /*===========================================================================*/
@@ -541,7 +543,6 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
 
             // Calculate a value.
             float scalar = cell->scalar();
-            scalar = ( scalar - volume->minValue() ) / ( volume->maxValue() - volume->minValue() );
 
             // Calculate a normal.
             /* NOTE: The gradient vector of the cell is reversed for shading on the rendering process.
@@ -575,9 +576,11 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
         values = ::ShuffleArray<1>( values, seed );
     }
 
+    SuperClass::setVeclen( 1 );
     SuperClass::setCoords( coords );
-    SuperClass::setSizes( values );
+    SuperClass::setValues( values );
     SuperClass::setNormals( normals );
+    SuperClass::updateMinMaxValues();
 
     delete cell;
 }

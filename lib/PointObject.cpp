@@ -12,6 +12,8 @@
 #include <kvs/PolygonObject>
 #include <kvs/Assert>
 #include <kvs/Xorshift128>
+#include <kvs/Range>
+#include <kvs/VolumeObjectBase>
 
 namespace
 {
@@ -41,6 +43,54 @@ kvs::ValueArray<T> ShuffleArray( const kvs::ValueArray<T>& values, kvs::UInt32 s
     return ret;
 }
 
+template<typename T>
+kvs::Range GetMinMaxValues( const kun::PointObject* point )
+{
+    KVS_ASSERT( point->values().size() != 0 );
+    KVS_ASSERT( point->values().size() == point->veclen() * point->numberOfVertices() );
+
+    const T* value = reinterpret_cast<const T*>( point->values().data() );
+    const T* const end = value + point->numberOfVertices() * point->veclen();
+
+    if ( point->veclen() == 1 )
+    {
+        T min_value = *value;
+        T max_value = *value;
+
+        while ( value < end )
+        {
+            min_value = kvs::Math::Min( *value, min_value );
+            max_value = kvs::Math::Max( *value, max_value );
+            ++value;
+        }
+
+        return kvs::Range( static_cast<double>( min_value ), static_cast<double>( max_value ) );
+    }
+    else
+    {
+        kvs::Real64 min_value = kvs::Value<kvs::Real64>::Max();
+        kvs::Real64 max_value = kvs::Value<kvs::Real64>::Min();
+
+        const size_t veclen = point->veclen();
+
+        while ( value < end )
+        {
+            kvs::Real64 magnitude = 0.0;
+            for ( size_t i = 0; i < veclen; ++i )
+            {
+                magnitude += static_cast<kvs::Real64>( ( *value ) * ( *value ) );
+                ++value;
+            }
+
+            min_value = kvs::Math::Min( magnitude, min_value );
+            max_value = kvs::Math::Max( magnitude, max_value );
+        }
+
+        return kvs::Range( std::sqrt( min_value ), std::sqrt( max_value ) );
+    }
+
+}
+
 }
 
 namespace kun
@@ -51,7 +101,8 @@ namespace kun
  *  @brief  Constructs a new PointObject class.
  */
 /*===========================================================================*/
-PointObject::PointObject()
+PointObject::PointObject():
+m_has_min_max_values( false)
 {
     BaseClass::setGeometryType( Point );
     this->setSize( 1 );
@@ -464,6 +515,7 @@ std::ostream& operator << ( std::ostream& os, const PointObject& object )
     return os;
 }
 
+/*ADD*/
 void PointObject::shuffle()
 {
     kvs::UInt32 seed = 12345678;
@@ -476,6 +528,38 @@ void PointObject::shuffle()
     this->setNormals( normals );
     this->setSizes( sizes );
 
+}
+
+/*ADD*/
+void PointObject::setMinMaxValues(
+    const kvs::Real64 min_value,
+    const kvs::Real64 max_value ) const
+{
+    m_min_value = min_value;
+    m_max_value = max_value;
+    m_has_min_max_values = true;
+}
+
+/*ADD*/
+void PointObject::updateMinMaxValues() const
+{
+    kvs::Range range;
+    switch ( m_values.typeID() )
+    {
+    case kvs::Type::TypeInt8:   { range = ::GetMinMaxValues<kvs::Int8  >( this ); break; }
+    case kvs::Type::TypeInt16:  { range = ::GetMinMaxValues<kvs::Int16 >( this ); break; }
+    case kvs::Type::TypeInt32:  { range = ::GetMinMaxValues<kvs::Int32 >( this ); break; }
+    case kvs::Type::TypeInt64:  { range = ::GetMinMaxValues<kvs::Int64 >( this ); break; }
+    case kvs::Type::TypeUInt8:  { range = ::GetMinMaxValues<kvs::UInt8 >( this ); break; }
+    case kvs::Type::TypeUInt16: { range = ::GetMinMaxValues<kvs::UInt16>( this ); break; }
+    case kvs::Type::TypeUInt32: { range = ::GetMinMaxValues<kvs::UInt32>( this ); break; }
+    case kvs::Type::TypeUInt64: { range = ::GetMinMaxValues<kvs::UInt64>( this ); break; }
+    case kvs::Type::TypeReal32: { range = ::GetMinMaxValues<kvs::Real32>( this ); break; }
+    case kvs::Type::TypeReal64: { range = ::GetMinMaxValues<kvs::Real64>( this ); break; }
+    default: break;
+    }
+
+    this->setMinMaxValues( range.lower(), range.upper() );
 }
 
 } // end of namespace kun

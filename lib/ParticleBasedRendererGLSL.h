@@ -73,11 +73,9 @@ private:
  private:
 
     bool m_has_normal; ///< check flag for the normal array
-    bool m_has_size; ///< check flag for the size array
-    bool m_has_transfer_function;
     bool m_enable_shuffle; ///< flag for shuffling particles
     size_t m_random_index; ///< index used for refering the random texture
-    size_t m_size_location; ///< index used for refering the size array
+    size_t m_value_location; ///< index used for refering the size array
     kvs::Mat4 m_initial_modelview; ///< initial modelview matrix
     kvs::Mat4 m_initial_projection; ///< initial projection matrix
     kvs::Vec4 m_initial_viewport; ///< initial viewport

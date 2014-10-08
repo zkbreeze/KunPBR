@@ -20,6 +20,7 @@
 #include <kvs/Deprecated>
 #include <kvs/LineObject>
 #include <kvs/PolygonObject>
+#include <kvs/AnyValueArray>
 
 namespace kun
 {
@@ -36,7 +37,14 @@ class PointObject : public kvs::GeometryObjectBase
 
 private:
 
-    kvs::ValueArray<kvs::Real32> m_sizes; ///< size array
+    kvs::ValueArray<kvs::Real32> m_sizes;
+
+    /*ADD*/
+    kvs::AnyValueArray m_values;
+    mutable kvs::Real64 m_min_value;
+    mutable kvs::Real64 m_max_value;
+    mutable bool m_has_min_max_values;
+    size_t m_veclen;
 
 public:
 
@@ -58,8 +66,25 @@ public:
     kvs::Real32 size( const size_t index = 0 ) const { return m_sizes[index]; }
     const kvs::ValueArray<kvs::Real32>& sizes() const { return m_sizes; }
 
-    // ADD
+    /*ADD*/
+    void setVeclen( const size_t veclen ) { m_veclen = veclen; }
+    size_t veclen() const { return m_veclen; }
+    void setValues( const kvs::AnyValueArray values ) { m_values = values; }
+    kvs::AnyValueArray values() const { return m_values; }
+
+    /*ADD*/
     void shuffle();
+    void setMinMaxValues( const kvs::Real64 min_value, const kvs::Real64 max_value ) const;
+    void updateMinMaxValues() const;
+
+    /*ADD*/
+    kvs::Real64 minValue() const { return m_min_value; }
+    kvs::Real64 maxValue() const { return m_max_value; }
+
+    // /*ADD*/
+    // // Read or write KVSML file
+    // void read( const std::string filename );
+    // void write( const std::string filename );
 
 public:
     KVS_DEPRECATED( PointObject(

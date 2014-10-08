@@ -22,7 +22,7 @@
 #include "ParticleBasedRendererGLSL.h"
 #include "JetImporter.h"
 
-#include <kvs/KVSMLObjectPoint>
+#include "KVSMLObjectKunPoint.h"
 #include "PointImporter.h"
 #include "PointExporter.h"
 
@@ -34,6 +34,7 @@
 #include <kvs/ColorImage>
 #include "SnapKey.h"
 #include "FPS.h"
+#include "TsunamiObject.h"
 
 #define TETRA 4
 #define PRISM 6
@@ -122,6 +123,7 @@ int main( int argc, char** argv )
 	param.addOption( "both", "Input prism and tetra Volume Object (binary_ucd)", 1, false );
 	param.addOption( "u-prism-ball", "KVSML Data Filename. around ball only", 1, false );
 	param.addOption( "prism-ball", "Input prism Volume Object (binary_ucd) and output the cut ball", 1, false );
+	param.addOption( "tsunami", "Input tsunami particle data", 1, false );
 
 	// Output
 	param.addOption( "writepoint", "Output point object filename", 1, false );
@@ -156,6 +158,8 @@ int main( int argc, char** argv )
 			point = new kun::PointImporter( param.optionValue<std::string>( "point" ), (float)param.optionValue<size_t>( "low_rep" ) / param.optionValue<size_t>( "rep" ) );
 		else
 			point = new kun::PointImporter( param.optionValue<std::string>( "point" ) );
+
+		point->print( std::cout );
 	}
 	else if( param.hasOption( "prt" ) )
 	{
@@ -213,6 +217,11 @@ int main( int argc, char** argv )
 		delete( volume2 );
 		point->add( *point2 );
 	}
+	else if( param.hasOption( "tsunami" ) )
+	{
+		kun::TsunamiObject* tsunami = new kun::TsunamiObject( param.optionValue<std::string>( "tsunami" ) );
+		point = tsunami->toKUNPointObject( 1 );
+	}
 	else 
 	{
 		std::cerr << "No input file !!!!!!!" << std::endl;
@@ -224,8 +233,8 @@ int main( int argc, char** argv )
 	{
 		point->shuffle();
 
-		kvs::KVSMLObjectPoint* kvsml = new kun::PointExporter<kvs::KVSMLObjectPoint>( point );
-		kvsml -> setWritingDataType(kvs::KVSMLObjectPoint::ExternalBinary);
+		kun::KVSMLObjectKunPoint* kvsml = new kun::PointExporter<kun::KVSMLObjectKunPoint>( point );
+		kvsml -> setWritingDataType(kvs::kvsml::ExternalBinary);
 		std::string point_filename = param.optionValue<std::string>( "writepoint" );
 		kvsml -> write( point_filename.c_str());
 		std::cout << "Finish writing " << point_filename << std::endl;
@@ -259,7 +268,7 @@ int main( int argc, char** argv )
 	object->setGridType( kvs::StructuredVolumeObject::Uniform );
 	object->setVeclen( 1 );
 	object->setResolution( kvs::Vector3ui( 1, 1, point->numberOfVertices() ) );
-	object->setValues( point->sizes() );
+	object->setValues( point->values() );
 	object->updateMinMaxValues();
 
 	TransferFunctionEditor editor( &screen );
