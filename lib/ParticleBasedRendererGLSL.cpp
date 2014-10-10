@@ -403,10 +403,12 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_shader_program()
 {
-    std::string vert_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.vert" );
-    std::string frag_shader_source = std::getenv( "KUN_SHADER_DIR" ) + std::string( "kun_PBR_zooming.frag" );
-    // std::string vert_shader_source = std::string( "/Users/breeze/Work/ParticleBasedRendering/lib/Shader/kun_PBR_zooming.vert");
-    // std::string frag_shader_source = std::string( "/Users/breeze/Work/ParticleBasedRendering/lib/Shader/kun_PBR_zooming.frag");
+    std::cout << "Start to create shader program." << std::endl;
+    // const std::string shader_dir( std::getenv( "KUN_SHADER_DIR" ) );
+    // std::string vert_shader_source = shader_dir + std::string( "kun_PBR_zooming.vert" );
+    // std::string frag_shader_source = shader_dir + std::string( "kun_PBR_zooming.frag" );
+    std::string vert_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.vert");
+    std::string frag_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.frag");
 
     kvs::ShaderSource vert( vert_shader_source );
     kvs::ShaderSource frag( frag_shader_source );
@@ -447,15 +449,15 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
-    // std::cout << "Start to create buffer object." << std::endl;
-    // std::cout << m_has_normal << std::endl;
+    std::cout << "Start to create buffer object." << std::endl;
+    std::cout << m_has_normal << std::endl;
 
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
     std::cout << point->values().size() << std::endl;
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
 
-    // std::cout << "aaaaa" << std::endl;
+    std::cout << "aaaaa" << std::endl;
     /*ADD*/
     // Normalize the values
     float* pvalue = values.data();

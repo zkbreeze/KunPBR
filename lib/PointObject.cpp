@@ -481,6 +481,7 @@ void PointObject::print( std::ostream& os, const kvs::Indent& indent ) const
     os << indent << "Object type : " << "kun::PointObject" << std::endl;
     BaseClass::print( os, indent );
     os << indent << "Number of sizes : " << this->numberOfSizes() << std::endl;
+    os << "Number of values:  " << this->numberOfValues() << std::endl;
 }
 
 /*===========================================================================*/
@@ -523,11 +524,84 @@ void PointObject::shuffle()
 
     kvs::ValueArray<kvs::Real32> coords = ::ShuffleArray<3>( this->coords(), seed );
     kvs::ValueArray<kvs::Real32> normals = ::ShuffleArray<3>( this->normals(), seed );
-    kvs::ValueArray<kvs::Real32> sizes = ::ShuffleArray<1>( this->sizes(), seed );
+    switch ( this->values().typeID() )
+    {
+        case kvs::Type::TypeInt8:   
+        { 
+            kvs::ValueArray<kvs::Int8> values( static_cast<kvs::Int8*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeInt16:
+        { 
+            kvs::ValueArray<kvs::Int16> values( static_cast<kvs::Int16*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeInt32:
+        { 
+            kvs::ValueArray<kvs::Int32> values( static_cast<kvs::Int32*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break;
+        }
+        case kvs::Type::TypeInt64:
+        { 
+            kvs::ValueArray<kvs::Int64> values( static_cast<kvs::Int64*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeUInt8:
+        { 
+            kvs::ValueArray<kvs::UInt8> values( static_cast<kvs::UInt8*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break;
+        }
+        case kvs::Type::TypeUInt16:
+        { 
+            kvs::ValueArray<kvs::UInt16> values( static_cast<kvs::UInt16*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeUInt32:
+        { 
+            kvs::ValueArray<kvs::UInt32> values( static_cast<kvs::UInt32*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break;
+        }
+        case kvs::Type::TypeUInt64:
+        { 
+            kvs::ValueArray<kvs::UInt64> values( static_cast<kvs::UInt64*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeReal32:
+        { 
+            kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        case kvs::Type::TypeReal64:
+        { 
+            kvs::ValueArray<kvs::Real64> values( static_cast<kvs::Real64*>( this->values().data() ), this->values().size() );
+            values = ::ShuffleArray<1>( values, seed );
+            this->setValues( values );
+            break; 
+        }
+        default: break;
+    }
+
 
     this->setCoords( coords );
     this->setNormals( normals );
-    this->setSizes( sizes );
 
 }
 

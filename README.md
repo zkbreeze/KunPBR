@@ -1,12 +1,6 @@
 ParticleBasedRendering
 ======================
-Set the shader path:
 
-export KUN_SHADER_DIR=/*PATH*/ParticleBasedRendering/lib/Shader
-
-*PATH* is the directory where this source installed.
-
-======================
 Usage: 
 Get into lib folder:
 

@@ -86,6 +86,7 @@ public:
     /*ADD*/
     const kvs::AnyValueArray& values() const { return m_values; }
     void setVeclen( const size_t veclen ) { m_veclen = veclen; }
+    size_t veclen() const { return m_veclen; }
 
     void setWritingDataType( const kvs::kvsml::WritingDataType type ) { m_writing_type = type; }
     void setCoords( const kvs::ValueArray<kvs::Real32>& coords ) { m_coords = coords; }

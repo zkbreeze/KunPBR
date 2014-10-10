@@ -450,6 +450,7 @@ void CellByCellUniformSampling::generate_particles( const kvs::StructuredVolumeO
     SuperClass::setValues( values );
     SuperClass::setNormals( normals );
     SuperClass::updateMinMaxValues();
+    SuperClass::updateMinMaxCoords();
 
 }
 
@@ -581,6 +582,7 @@ void CellByCellUniformSampling::generate_particles( const kvs::UnstructuredVolum
     SuperClass::setValues( values );
     SuperClass::setNormals( normals );
     SuperClass::updateMinMaxValues();
+    SuperClass::updateMinMaxCoords();
 
     delete cell;
 }

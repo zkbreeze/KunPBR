@@ -158,8 +158,6 @@ int main( int argc, char** argv )
 			point = new kun::PointImporter( param.optionValue<std::string>( "point" ), (float)param.optionValue<size_t>( "low_rep" ) / param.optionValue<size_t>( "rep" ) );
 		else
 			point = new kun::PointImporter( param.optionValue<std::string>( "point" ) );
-
-		point->print( std::cout );
 	}
 	else if( param.hasOption( "prt" ) )
 	{
@@ -228,6 +226,9 @@ int main( int argc, char** argv )
 		exit(0);
 	}
 
+	point->print( std::cout );
+
+
 	// Data output. If there is output, the program will be ended
 	if ( param.hasOption( "writepoint" ) )
 	{
@@ -270,6 +271,8 @@ int main( int argc, char** argv )
 	object->setResolution( kvs::Vector3ui( 1, 1, point->numberOfVertices() ) );
 	object->setValues( point->values() );
 	object->updateMinMaxValues();
+
+	object->print( std::cout );
 
 	TransferFunctionEditor editor( &screen );
 	editor.setVolumeObject( object );
