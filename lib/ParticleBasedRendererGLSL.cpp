@@ -429,8 +429,6 @@ void ParticleBasedRenderer::Engine::create_shader_program()
         }
     }
 
-    vert.define("ENABLE_TRANSFER_FUNCTION");
-
     m_shader_program.build( vert, frag );
     m_shader_program.bind();
     m_shader_program.setUniform( "shading.Ka", shader().Ka );
@@ -450,14 +448,12 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
     std::cout << "Start to create buffer object." << std::endl;
-    std::cout << m_has_normal << std::endl;
 
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
-    std::cout << point->values().size() << std::endl;
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
+    std::cout << values.size() << std::endl;
 
-    std::cout << "aaaaa" << std::endl;
     /*ADD*/
     // Normalize the values
     float* pvalue = values.data();
