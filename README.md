@@ -20,3 +20,6 @@ kvsmake
 Usage for shell script:
 
 ./run/run_xxx.sh
+
+
+Open for slack
