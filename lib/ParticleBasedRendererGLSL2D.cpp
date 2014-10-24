@@ -354,7 +354,7 @@ void ParticleBasedRenderer2D::Engine::draw( kvs::ObjectBase* object, kvs::Camera
 
         m_shader_program.setUniform( "object_depth", object_depth );
         m_shader_program.setUniform( "random_texture", 0 );
-        m_shader_program.setUniform( "transfer_function_texture_2d", 1 );
+        m_shader_program.setUniform( "transfer_function_texture", 1 );
         m_shader_program.setUniform( "random_texture_size_inv", 1.0f / randomTextureSize() );
         m_shader_program.setUniform( "screen_scale", kvs::Vec2( width * 0.5f, height * 0.5f ) );
         m_shader_program.setUniform( "scale", m_particle_scale );
@@ -480,8 +480,8 @@ void ParticleBasedRenderer2D::Engine::create_buffer_object( const kun::PointObje
     float* value2 = new float[point->numberOfVertices()];
     for( size_t i = 0; i < point->numberOfVertices(); i++ )
     {
-    	value1[i] = *buf++;
-    	value2[i] = *buf++;
+    	value1[i] = buf[i * 2];
+    	value2[i] = buf[i * 2 + 1];
     }
 
     kvs::ValueArray<kvs::Real32> values( value1, point->numberOfVertices() );
@@ -490,9 +490,23 @@ void ParticleBasedRenderer2D::Engine::create_buffer_object( const kun::PointObje
     /*ADD*/
     // Normalize the values
     float* pvalue = values.data();
+    float* pvalue2 = values2.data();
+    float min_value1 = kvs::Value<kvs::Real32>::Max();
+    float max_value1 = kvs::Value<kvs::Real32>::Min();
+    float min_value2 = kvs::Value<kvs::Real32>::Max();
+    float max_value2 = kvs::Value<kvs::Real32>::Min();
     for( size_t i = 0; i < point->numberOfVertices(); i++ )
     {
-        pvalue[i] = ( pvalue[i] - point->minValue() ) / ( point->maxValue() - point->minValue() );   
+    	if( min_value1 > pvalue[i] ) min_value1 = pvalue[i];
+    	if( max_value1 < pvalue[i] ) max_value1 = pvalue[i];
+    	if( min_value2 > pvalue2[i] ) min_value2 = pvalue2[i];
+    	if( max_value2 < pvalue2[i] ) max_value2 = pvalue2[i];
+    }
+
+    for( size_t i = 0; i < point->numberOfVertices(); i++ )
+    {
+        pvalue[i] = ( pvalue[i] - min_value1 ) / ( max_value1 - min_value1 );
+        pvalue2[i] = ( pvalue2[i] - min_value2 ) / ( max_value2 - min_value2 );
     }
 
     if ( m_enable_shuffle )

@@ -20,6 +20,9 @@
 #include <kvs/CommandLine>
 #include "CellByCellUniformSampling2D.h"
 #include "ParticleBasedRendererGLSL2D.h"
+#include "CellByCellUniformSampling.h"
+#include "ParticleBasedRendererGLSL.h"
+
 #include "JetImporter.h"
 
 #include "KVSMLObjectKunPoint.h"
@@ -46,6 +49,25 @@ namespace
 {
 	bool ShadingFlag = true;
 	float base_opacity = 0.2;
+}
+
+kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc, bool shuffle = 0, bool use_kun_sampling_step = 0 )
+{
+	kvs::Timer time;
+	time.start();
+	kun::CellByCellUniformSampling* sampler = new kun::CellByCellUniformSampling();
+	sampler->setSubpixelLevel( subpixel_level );
+	sampler->setSamplingStep( 0.5 );
+	sampler->setTransferFunction( tfunc );
+	sampler->setObjectDepth( 0.0 );
+
+	if( shuffle ) sampler->setShuffleParticles();
+	if( use_kun_sampling_step ) sampler->setKunSamplingStep();
+	kun::PointObject* point = sampler->exec( volume );
+	time.stop();
+	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
+	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
+	return point;
 }
 
 kun::PointObject* CreatePointObject2D( kvs::UnstructuredVolumeObject* volume1, kvs::UnstructuredVolumeObject* volume2, size_t subpixel_level, kvs::TransferFunction tfunc, bool shuffle = 0, bool use_kun_sampling_step = 0 )
@@ -174,9 +196,9 @@ int main( int argc, char** argv )
 	}
 	else if( param.hasOption( "tetra" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume1 = takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 3 );
-		kvs::UnstructuredVolumeObject* volume2 = takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 1 );
-		point = CreatePointObject( volume1, volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
+		kvs::UnstructuredVolumeObject* volume1 = new takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 3 );
+		kvs::UnstructuredVolumeObject* volume2 = new takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 1 );
+		point = CreatePointObject2D( volume1, volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if( param.hasOption( "prism" ) )
 	{
@@ -185,14 +207,14 @@ int main( int argc, char** argv )
 	}
 	else if( param.hasOption( "both" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume_p1 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 3 );
-		kvs::UnstructuredVolumeObject* volume2_p1 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 1 );
-		point = CreatePointObject( volume_p1, volume2_p1, subpixel_level, tfunc_base, shuffle_generated_particles );
+		kvs::UnstructuredVolumeObject* volume_p1 = new takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 3 );
+		kvs::UnstructuredVolumeObject* volume2_p1 = new takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 1 );
+		point = CreatePointObject2D( volume_p1, volume2_p1, subpixel_level, tfunc_base, shuffle_generated_particles );
 
-		kvs::UnstructuredVolumeObject* volume_p2 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 3 );
-		kvs::UnstructuredVolumeObject* volume2_p2 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 1 );
-		kun::PointObject* point2 = CreatePointObject( volume_p2, volume2_p2, subpixel_level, tfunc_base, shuffle_generated_particles );
-		delete( volume2 );
+		kvs::UnstructuredVolumeObject* volume_p2 = new takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 3 );
+		kvs::UnstructuredVolumeObject* volume2_p2 = new takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 1 );
+		kun::PointObject* point2 = CreatePointObject2D( volume_p2, volume2_p2, subpixel_level, tfunc_base, shuffle_generated_particles );
+
 		point->add( *point2 );
 	}
 	else if( param.hasOption( "tsunami" ) )
@@ -228,21 +250,21 @@ int main( int argc, char** argv )
 	if( ShadingFlag == false) renderer->disableShading();
 
     // set the 2d transfer function
-    size_t width = 64;
-    size_t height = 64;
+    size_t width = 256;
+    size_t height = 256;
     float* tfunc2d = new float[width * height * 4];
     for ( size_t j = 0; j < height; j++ )
         for ( size_t i = 0; i < width; i++ )
         {
             int index = ( i + j * width ) * 4;
-            tfunc2d[index] = (float)i / width; // red
+            tfunc2d[index] = 1 - (float)i / width; // red
             tfunc2d[index + 1] = (float)j / height; // green
-            tfunc2d[index + 2] = 1;              // blue
-            tfunc2d[index + 3] = (float) i * j / ( width * height ); //alpha
+            tfunc2d[index + 2] = 0.1 ;  // blue
+            tfunc2d[index + 3] = ( (float) index / 4 ) / ( width * height ); //alpha
 //            *(tfunc2d++) = 0.01;
         }
 
-	renderer->set2DTransferFunction( tfunc, width, height );
+	renderer->set2DTransferFunction( tfunc2d, width, height );
 	if( param.hasOption( "low_rep" ) )
 		renderer->setRepetitionLevel( param.optionValue<size_t>( "low_rep" ) );
 	else if( param.hasOption( "rep" ) )
