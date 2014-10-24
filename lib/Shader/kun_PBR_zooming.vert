@@ -15,7 +15,7 @@
 uniform float object_depth;
 uniform vec2 screen_scale;
 uniform sampler2D random_texture;
-uniform sampler1D transfer_function_texture;
+uniform sampler2D transfer_function_texture;
 uniform float random_texture_size_inv;
 uniform float scale;
 uniform float max_alpha;
@@ -23,6 +23,7 @@ uniform float base_opacity;
 
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
+attribute float value2;
 
 //const float CIRCLE_THRESHOLD = 3.0;
 const float CIRCLE_THRESHOLD = 0.1;
@@ -54,7 +55,7 @@ float zooming( in vec4 p )
 //     /*ADD*/ s *= size;
 // #endif
 
-    float a = texture1D( transfer_function_texture, value ).a;
+    float a = texture2D( transfer_function_texture, vec2( value, value2 ) ).a;
     if ( a < max_alpha )
         s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
     else
@@ -98,7 +99,7 @@ float zooming( in vec4 p )
 /*===========================================================================*/
 void main()
 {
-    gl_FrontColor = texture1D( transfer_function_texture, value );
+    gl_FrontColor = texture2D( transfer_function_texture, vec2( value, value2 ) );
     
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     gl_PointSize = zooming( gl_Position );
