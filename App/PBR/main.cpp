@@ -18,8 +18,8 @@
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
 #include <kvs/CommandLine>
-#include "CellByCellUniformSampling.h"
-#include "ParticleBasedRendererGLSL.h"
+#include "CellByCellUniformSampling2D.h"
+#include "ParticleBasedRendererGLSL2D.h"
 #include "JetImporter.h"
 
 #include "KVSMLObjectKunPoint.h"
@@ -36,6 +36,8 @@
 #include "FPS.h"
 #include "TsunamiObject.h"
 
+#include "loaducd.h"
+
 #define TETRA 4
 #define PRISM 6
 
@@ -46,44 +48,19 @@ namespace
 	float base_opacity = 0.2;
 }
 
-class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
-{
-
-public:
-
-	TransferFunctionEditor( kvs::ScreenBase* screen ) :
-	kvs::glut::TransferFunctionEditor( screen )
-	{
-	}
-
-	void apply( void )
-	{
-		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
-		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
-		if(ShadingFlag == false)
-		{
-			renderer->disableShading();
-		}
-		renderer->setTransferFunction( transferFunction() );
-		renderer->setBaseOpacity( ::base_opacity );
-		std::cout << "TF Renderer time: " << renderer->timer().msec() << std::endl;
-		screen()->redraw();
-	}
-};
-
-kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpixel_level, kvs::TransferFunction tfunc, bool shuffle = 0, bool use_kun_sampling_step = 0 )
+kun::PointObject* CreatePointObject2D( kvs::UnstructuredVolumeObject* volume1, kvs::UnstructuredVolumeObject* volume2, size_t subpixel_level, kvs::TransferFunction tfunc, bool shuffle = 0, bool use_kun_sampling_step = 0 )
 {
 	kvs::Timer time;
 	time.start();
-	kun::CellByCellUniformSampling* sampler = new kun::CellByCellUniformSampling();
+	kun::CellByCellUniformSampling2D* sampler = new kun::CellByCellUniformSampling2D();
 	sampler->setSubpixelLevel( subpixel_level );
 	sampler->setSamplingStep( 0.5 );
 	sampler->setTransferFunction( tfunc );
 	sampler->setObjectDepth( 0.0 );
+	sampler->setSecondVolume( volume2 );
 	if( shuffle ) sampler->setShuffleParticles();
 	if( use_kun_sampling_step ) sampler->setKunSamplingStep();
-	kun::PointObject* point = sampler->exec( volume );
+	kun::PointObject* point = sampler->exec( volume1);
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
 	std::cout << "Particle number: " << point->numberOfVertices() << std::endl;
@@ -197,8 +174,9 @@ int main( int argc, char** argv )
 	}
 	else if( param.hasOption( "tetra" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
+		kvs::UnstructuredVolumeObject* volume1 = takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 3 );
+		kvs::UnstructuredVolumeObject* volume2 = takami::LoadUcd( param.optionValue<std::string>( "tetra" ).c_str() ,TETRA, 1 );
+		point = CreatePointObject( volume1, volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
 	}
 	else if( param.hasOption( "prism" ) )
 	{
@@ -207,11 +185,13 @@ int main( int argc, char** argv )
 	}
 	else if( param.hasOption( "both" ) )
 	{
-		kvs::UnstructuredVolumeObject* volume = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str() ,TETRA );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
+		kvs::UnstructuredVolumeObject* volume_p1 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 3 );
+		kvs::UnstructuredVolumeObject* volume2_p1 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str() ,TETRA, 1 );
+		point = CreatePointObject( volume_p1, volume2_p1, subpixel_level, tfunc_base, shuffle_generated_particles );
 
-		kvs::UnstructuredVolumeObject* volume2 = CreateUnstructuredVolumeObject( param.optionValue<std::string>( "both" ).c_str(), PRISM );
-		kun::PointObject* point2 = CreatePointObject( volume2, subpixel_level, tfunc_base, shuffle_generated_particles );
+		kvs::UnstructuredVolumeObject* volume_p2 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 3 );
+		kvs::UnstructuredVolumeObject* volume2_p2 = takami::LoadUcd( param.optionValue<std::string>( "both" ).c_str(), PRISM, 1 );
+		kun::PointObject* point2 = CreatePointObject( volume_p2, volume2_p2, subpixel_level, tfunc_base, shuffle_generated_particles );
 		delete( volume2 );
 		point->add( *point2 );
 	}
@@ -244,11 +224,25 @@ int main( int argc, char** argv )
 	}
 
 	// Rendering
-	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
+	kun::ParticleBasedRenderer2D* renderer = new kun::ParticleBasedRenderer2D();
 	if( ShadingFlag == false) renderer->disableShading();
 
-	kvs::TransferFunction tfunc( 256 );
-	renderer->setTransferFunction( tfunc );
+    // set the 2d transfer function
+    size_t width = 64;
+    size_t height = 64;
+    float* tfunc2d = new float[width * height * 4];
+    for ( size_t j = 0; j < height; j++ )
+        for ( size_t i = 0; i < width; i++ )
+        {
+            int index = ( i + j * width ) * 4;
+            tfunc2d[index] = (float)i / width; // red
+            tfunc2d[index + 1] = (float)j / height; // green
+            tfunc2d[index + 2] = 1;              // blue
+            tfunc2d[index + 3] = (float) i * j / ( width * height ); //alpha
+//            *(tfunc2d++) = 0.01;
+        }
+
+	renderer->set2DTransferFunction( tfunc, width, height );
 	if( param.hasOption( "low_rep" ) )
 		renderer->setRepetitionLevel( param.optionValue<size_t>( "low_rep" ) );
 	else if( param.hasOption( "rep" ) )
@@ -259,25 +253,7 @@ int main( int argc, char** argv )
 	renderer->setBaseOpacity( ::base_opacity );
 	screen.registerObject( point, renderer );
 	screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255 ) );
-	// enlarge the view
-	// if( param.hasOption( "u-prism-ball" ) )
-	// 	screen.scene()->camera()->translate( kvs::Vec3( 0.0, 0.0, -5.0 ) );
 	screen.show();
-
-	// Set the transfer function editor
-	kvs::StructuredVolumeObject* object = new kvs::StructuredVolumeObject();
-	object->setGridType( kvs::StructuredVolumeObject::Uniform );
-	object->setVeclen( 1 );
-	object->setResolution( kvs::Vector3ui( 1, 1, point->numberOfVertices() ) );
-	object->setValues( point->values() );
-	object->updateMinMaxValues();
-
-	object->print( std::cout );
-
-	TransferFunctionEditor editor( &screen );
-	editor.setVolumeObject( object );
-	editor.setTransferFunction( tfunc );
-	editor.show();
 
 	return app.run();
 }
