@@ -1,4 +1,5 @@
-ParticleBasedRendering
+KunPBR
+Created by Kun Zhao.
 ======================
 
 Usage: 
