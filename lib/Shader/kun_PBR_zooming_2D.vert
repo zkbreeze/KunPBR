@@ -1,22 +1,23 @@
 //
-//  kun_PBR_zooming.vert
+//  kun_PBR_zooming_2D.vert
 //
 //
-//  Created by Kun Zhao on 2014-11-12 15:36:35.
+//  Created by Kun Zhao on 2014-11-12 15:58:52.
 //
 //
 
 uniform float object_depth;
 uniform vec2 screen_scale;
 uniform sampler2D random_texture;
-uniform sampler1D transfer_function_texture;
+uniform sampler2D transfer_function_texture;
 uniform float random_texture_size_inv;
 uniform float scale;
 uniform float max_alpha;
 uniform float base_opacity;
 
 attribute vec2 random_index;
-/*ADD*/ attribute float value;
+attribute float value1;
+attribute float value2;
 
 //const float CIRCLE_THRESHOLD = 3.0;
 const float CIRCLE_THRESHOLD = 0.1;
