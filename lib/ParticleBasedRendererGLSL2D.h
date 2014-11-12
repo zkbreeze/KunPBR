@@ -17,7 +17,7 @@
 #include <kvs/EnsembleAverageBuffer>
 #include <kvs/StochasticRendererBase>
 #include <kvs/StochasticRenderingEngine>
-#include <kvs/Texture1D>
+#include <kvs/Texture2D>
 #include <kvs/TransferFunction>
 
 namespace kun { class PointObject; }
@@ -55,7 +55,6 @@ public:
     void setParticleScale( float scale );
     void setTransferFunction( kvs::TransferFunction tfunc );
     void setBaseOpacity( float base_opacity );
-    void set2DTransferFunction( float* tfunc2d, float width, float height );
 
 private:
     // Not supported progressive refinement rendering.
@@ -124,7 +123,6 @@ public:
     void setScale( float scale );
     void setTransferFunction( kvs::TransferFunction tfunc );
     void setBaseOpacity( float base_opacity );
-    void set2DTransferFunction( float* tfunc2d, float width, float height );
 
 private:
 

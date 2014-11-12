@@ -144,11 +144,6 @@ void ParticleBasedRenderer2D::setBaseOpacity( float base_opacity )
 {
     static_cast<Engine&>( engine() ).setBaseOpacity( base_opacity );
 }
-
-void ParticleBasedRenderer2D::set2DTransferFunction( float* tfunc2d, float width, float height )
-{
-	static_cast<Engine&>( engine() ).set2DTransferFunction( tfunc2d, width, height );
-}
     
 /*===========================================================================*/
 /**
@@ -220,26 +215,15 @@ void ParticleBasedRenderer2D::Engine::setScale( float scale )
 void ParticleBasedRenderer2D::Engine::setTransferFunction( kvs::TransferFunction tfunc )
 {
     m_tfunc = tfunc;
-    if ( m_transfer_function_texture.isLoaded() )
+    if ( m_transfer_function_texture_2d.isLoaded() )
     {
-        m_transfer_function_texture.release();
+        m_transfer_function_texture_2d.release();
     }
 }
 
 void ParticleBasedRenderer2D::Engine::setBaseOpacity( float base_opacity )
 {
     m_base_opacity = base_opacity;
-}
-
-void ParticleBasedRenderer2D::Engine::set2DTransferFunction( float* tfunc2d, float width, float height )
-{
-	m_tfunc_2d = tfunc2d;
-	m_tfunc_2d_width = width;
-	m_tfunc_2d_height = height;
-	if ( m_transfer_function_texture_2d.isLoaded() )
-	{
-	    m_transfer_function_texture_2d.release();
-	}
 }
     
 /*===========================================================================*/
@@ -431,7 +415,7 @@ void ParticleBasedRenderer2D::Engine::create_shader_program()
     // std::string vert_shader_source = shader_dir + std::string( "kun_PBR_zooming.vert" );
     // std::string frag_shader_source = shader_dir + std::string( "kun_PBR_zooming.frag" );
     std::string vert_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.vert");
-    std::string frag_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.frag");
+    std::string frag_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming_2D.frag");
 
     kvs::ShaderSource vert( vert_shader_source );
     kvs::ShaderSource frag( frag_shader_source );
@@ -552,13 +536,17 @@ void ParticleBasedRenderer2D::Engine::create_buffer_object( const kun::PointObje
     
 void ParticleBasedRenderer2D::Engine::initialize_transfer_function_texture()
 {
+    const size_t size = m_tfunc.resolution();
+    const size_t side_size = std::sqrt( size );
+    const kvs::ValueArray<kvs::Real32> table = m_tfunc.table();
+
     m_transfer_function_texture_2d.release();
     m_transfer_function_texture_2d.setWrapS( GL_CLAMP_TO_EDGE );
     m_transfer_function_texture_2d.setWrapT( GL_CLAMP_TO_EDGE );
     m_transfer_function_texture_2d.setMagFilter( GL_LINEAR );
     m_transfer_function_texture_2d.setMinFilter( GL_LINEAR );
     m_transfer_function_texture_2d.setPixelFormat( GL_RGBA32F_ARB, GL_RGBA, GL_FLOAT  );
-    m_transfer_function_texture_2d.create( m_tfunc_2d_width, m_tfunc_2d_height, m_tfunc_2d );
+    m_transfer_function_texture_2d.create( side_size, side_size, table.data() );
 }
 
 } // end of kun

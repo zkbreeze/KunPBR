@@ -366,12 +366,12 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
 
     // Set a trilinear interpolator.
     kvs::TrilinearInterpolator interpolator( volume );
+    kvs::TrilinearInterpolator interpolator2( m_volume_2 );
 
     // Set parameters for normalization of the node values.
     const float min_value = BaseClass::transferFunction().colorMap().minValue();
     const float max_value = BaseClass::transferFunction().colorMap().maxValue();
 
-    
     const float normalize_factor = BaseClass::transferFunction().resolution() / ( max_value - min_value );
 
     const float* const  density_map = m_density_map.data();
@@ -410,7 +410,9 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
 
                     // Calculate a scalar value.
                     interpolator.attachPoint( coord );
+                    interpolator2.attachPoint( coord );
                     float scalar = interpolator.scalar<T>();
+                    float scalar2 = interpolator2.scalar<T>();
 
                     // Calculate a normal.
                     kvs::Vector3f normal( interpolator.gradient<T>() );
@@ -423,7 +425,7 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
                     vertex_coords.push_back( coord.z() );
 
                     vertex_values.push_back( scalar );
-                    // std::cout << scalar << std::endl;
+                    vertex_values.push_back( scalar2 );
 
                     vertex_normals.push_back( normal.x() );
                     vertex_normals.push_back( normal.y() );
@@ -442,10 +444,10 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
         kvs::UInt32 seed = 12345678;
         coords = ::ShuffleArray<3>( coords, seed );
         normals = ::ShuffleArray<3>( normals, seed );
-        values = ::ShuffleArray<1>( values, seed );
+        values = ::ShuffleArray<2>( values, seed );
     }
 
-    SuperClass::setVeclen( 1 );
+    SuperClass::setVeclen( 2 );
     SuperClass::setCoords( coords );
     SuperClass::setValues( values );
     SuperClass::setNormals( normals );
