@@ -89,12 +89,7 @@ private:
 
     // transfer function
     kvs::TransferFunction m_tfunc;
-    kvs::Texture1D m_transfer_function_texture; ///< transfer function texture
-    // transfer function 2D
-    float* m_tfunc_2d;
     kvs::Texture2D m_transfer_function_texture_2d;
-    float m_tfunc_2d_width;
-    float m_tfunc_2d_height;
 
     // base opacity
     float m_base_opacity;

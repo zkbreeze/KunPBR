@@ -1,8 +1,8 @@
 //
-//	main.cpp
+//  main.cpp
 //
 //
-//	Created by Kun Zhao on 2014/08/29.
+//  Created by Kun Zhao on 2014-11-13 16:27:22.
 //
 //
 
@@ -249,22 +249,33 @@ int main( int argc, char** argv )
 	kun::ParticleBasedRenderer2D* renderer = new kun::ParticleBasedRenderer2D();
 	if( ShadingFlag == false) renderer->disableShading();
 
-    // set the 2d transfer function
-    size_t width = 256;
-    size_t height = 256;
-    float* tfunc2d = new float[width * height * 4];
-    for ( size_t j = 0; j < height; j++ )
-        for ( size_t i = 0; i < width; i++ )
-        {
-            int index = ( i + j * width ) * 4;
-            tfunc2d[index] = 1 - (float)i / width; // red
-            tfunc2d[index + 1] = (float)j / height; // green
-            tfunc2d[index + 2] = 0.1 ;  // blue
-            tfunc2d[index + 3] = ( (float) index / 4 ) / ( width * height ); //alpha
-//            *(tfunc2d++) = 0.01;
-        }
+    // create the 2d transfer function
+    size_t side_size = 10;
+    size_t tfunc_size = side_size * side_size;
+	kvs::TransferFunction tfunc( tfunc_size );
+	kvs::ColorMap cmap( tfunc_size );
+	kvs::OpacityMap omap( tfunc_size );
+    for ( size_t j = 0; j < side_size; j++ )
+    {
+    	for ( size_t i = 0; i < side_size; i++ )
+    	{
+    		int index = i + j * side_size;
+    		
+    		kvs::UInt8 red = ( 1 - (float)i / side_size ) * 255; // red
+    	    kvs::UInt8 green = ( (float)j / side_size ) * 255; // green
+    	    kvs::UInt8 blue = 0.1 * 255 ;  // blue
+    	    kvs::Real32 opacity = (float)index / ( side_size * side_size ); //alpha
 
-	renderer->set2DTransferFunction( tfunc2d, width, height );
+    	    cmap.addPoint( index, kvs::RGBColor( red, green, blue ) );
+    	    omap.addPoint( index, opacity );
+    	}
+    }
+    cmap.create();
+    omap.create();
+    tfunc.setColorMap( cmap );
+    tfunc.setOpacityMap( omap );
+
+	renderer->setTransferFunction( tfunc );
 	if( param.hasOption( "low_rep" ) )
 		renderer->setRepetitionLevel( param.optionValue<size_t>( "low_rep" ) );
 	else if( param.hasOption( "rep" ) )

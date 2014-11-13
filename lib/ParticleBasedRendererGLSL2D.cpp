@@ -414,8 +414,8 @@ void ParticleBasedRenderer2D::Engine::create_shader_program()
     // const std::string shader_dir( std::getenv( "KUN_SHADER_DIR" ) );
     // std::string vert_shader_source = shader_dir + std::string( "kun_PBR_zooming.vert" );
     // std::string frag_shader_source = shader_dir + std::string( "kun_PBR_zooming.frag" );
-    std::string vert_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.vert");
-    std::string frag_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming_2D.frag");
+    std::string vert_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming_2D.vert");
+    std::string frag_shader_source = std::string( "../../lib/Shader/kun_PBR_zooming.frag");
 
     kvs::ShaderSource vert( vert_shader_source );
     kvs::ShaderSource frag( frag_shader_source );

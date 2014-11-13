@@ -99,7 +99,7 @@ float zooming( in vec4 p )
 /*===========================================================================*/
 void main()
 {
-    gl_FrontColor = texture2D( transfer_function_texture, vec2( value, value2 ) );
+    gl_FrontColor = texture2D( transfer_function_texture, vec2( 0.5, 0.5 ) );
     
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     gl_PointSize = zooming( gl_Position );

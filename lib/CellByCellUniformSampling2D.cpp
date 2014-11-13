@@ -364,9 +364,11 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
     std::vector<kvs::Real32> vertex_values;
     std::vector<kvs::Real32> vertex_normals;
 
+    kvs::StructuredVolumeObject* volume_2 = kvs::StructuredVolumeObject::DownCast( m_volume_2 );
+
     // Set a trilinear interpolator.
     kvs::TrilinearInterpolator interpolator( volume );
-    kvs::TrilinearInterpolator interpolator2( m_volume_2 );
+    kvs::TrilinearInterpolator interpolator2( volume_2 );
 
     // Set parameters for normalization of the node values.
     const float min_value = BaseClass::transferFunction().colorMap().minValue();
@@ -464,6 +466,7 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::StructuredVolum
 /*===========================================================================*/
 void CellByCellUniformSampling2D::generate_particles( const kvs::UnstructuredVolumeObject* volume )
 {
+    kvs::UnstructuredVolumeObject* volume_2 = kvs::UnstructuredVolumeObject::DownCast( m_volume_2 );
     // Vertex data arrays. (output)
     std::vector<kvs::Real32> vertex_coords;
     std::vector<kvs::Real32> vertex_values;
@@ -477,37 +480,37 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::UnstructuredVol
     case kvs::UnstructuredVolumeObject::Tetrahedra:
     {
         cell = new kvs::TetrahedralCell( volume );
-        cell2 = new kvs::TetrahedralCell( m_volume_2 );
+        cell2 = new kvs::TetrahedralCell( volume_2 );
         break;
     }
     case kvs::UnstructuredVolumeObject::QuadraticTetrahedra:
     {
         cell = new kvs::QuadraticTetrahedralCell( volume );
-        cell2 = new kvs::QuadraticTetrahedralCell( m_volume_2 );        
+        cell2 = new kvs::QuadraticTetrahedralCell( volume_2 );        
         break;
     }
     case kvs::UnstructuredVolumeObject::Hexahedra:
     {
         cell = new kvs::HexahedralCell( volume );
-        cell2 = new kvs::HexahedralCell( m_volume_2 );
+        cell2 = new kvs::HexahedralCell( volume_2 );
         break;
     }
     case kvs::UnstructuredVolumeObject::QuadraticHexahedra:
     {
         cell = new kvs::QuadraticHexahedralCell( volume );
-        cell2 = new kvs::QuadraticHexahedralCell( m_volume_2 );
+        cell2 = new kvs::QuadraticHexahedralCell( volume_2 );
         break;
     }
     case kvs::UnstructuredVolumeObject::Pyramid:
     {
         cell = new kvs::PyramidalCell( volume );
-        cell2 = new kvs::PyramidalCell( m_volume_2 );
+        cell2 = new kvs::PyramidalCell( volume_2 );
         break;
     }
     case kvs::UnstructuredVolumeObject::Prism:
     {
         cell = new kvs::PrismaticCell( volume );
-        cell2 = new kvs::PrismaticCell( m_volume_2 );
+        cell2 = new kvs::PrismaticCell( volume_2 );
         break;
     }
     default:

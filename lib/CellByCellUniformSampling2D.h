@@ -44,7 +44,7 @@ private:
 
     // ADD
     bool m_shuffle;
-    kvs::UnstructuredVolumeObject* m_volume_2;
+    kvs::VolumeObjectBase* m_volume_2;
 
 public:
 
@@ -65,7 +65,7 @@ public:
     virtual ~CellByCellUniformSampling2D();
 
     /*ADD*/
-    void setSecondVolume( kvs::UnstructuredVolumeObject* volume ){ m_volume_2 = volume; }
+    void setSecondVolume( kvs::VolumeObjectBase* volume ){ m_volume_2 = volume; }
 
     SuperClass* exec( const kvs::ObjectBase* object );
 
