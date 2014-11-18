@@ -37,7 +37,7 @@ namespace kun
 
 bool KVSMLObjectKunPoint::ReadValueData(
     const kvs::XMLNode::SuperClass* parent,
-    const size_t nvalues,
+    const size_t nvertices,
     kvs::AnyValueArray* values )
 {
     // <Value>
@@ -53,7 +53,7 @@ bool KVSMLObjectKunPoint::ReadValueData(
         m_veclen = value_tag.veclen();
 
         // <DataArray>
-        const size_t nelements = nvalues;
+        const size_t nelements = nvertices * m_veclen;
         kvs::kvsml::DataArrayTag data_tag;
         if ( !data_tag.read( value_tag.node(), nelements, values ) )
         {
@@ -302,8 +302,8 @@ bool KVSMLObjectKunPoint::read( const std::string& filename )
 
         /*ADD*/
         // <Value>
-        const size_t nvalues = vertex_tag.nvertices();
-        if ( !this->ReadValueData( parent, nvalues, &m_values ) )
+        const size_t nvertices = vertex_tag.nvertices();
+        if ( !this->ReadValueData( parent, nvertices, &m_values ) )
         {
             return false;
         }

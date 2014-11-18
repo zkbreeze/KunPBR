@@ -39,6 +39,7 @@ public:
     size_t size( void );
     
     kun::PointObject* toKUNPointObject( size_t Parameter_ID );
+    kun::PointObject* toKUNPointObject2Value( size_t Parameter_ID_1, size_t Parameter_ID_2 );
     kvs::PointObject* toKVSPointObject( void );
 };
 

@@ -50,6 +50,7 @@ kun::KVSMLObjectKunPoint* PointExporter<kun::KVSMLObjectKunPoint>::exec( const k
         return NULL;
     }
 
+    this->setVeclen( point->veclen() );
     this->setCoords( point->coords() );
     this->setColors( point->colors() );
     this->setNormals( point->normals() );

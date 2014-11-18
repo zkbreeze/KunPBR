@@ -53,6 +53,9 @@ namespace kun
 		}
 	}
 
+	// Parameter_ID = 1 velocity
+	// Parameter_ID = 2 depth
+	// Parameter_ID = 3 eddy
 	kun::PointObject* TsunamiObject::toKUNPointObject( size_t Parameter_ID )
 	{
 		kun::PointObject* point = new kun::PointObject();
@@ -85,6 +88,59 @@ namespace kun
 		kvs::ValueArray<kvs::Real32>values( values_buffer, m_size );
 
 		point->setVeclen( 1 );
+		point->setCoords( coords );
+		point->setValues( values );
+		point->updateMinMaxValues();
+
+		return point;
+	}
+
+	kun::PointObject* TsunamiObject::toKUNPointObject2Value( size_t Parameter_ID_1, size_t Parameter_ID_2 )
+	{
+		kun::PointObject* point = new kun::PointObject();
+
+		float* coords_buffer = new float[m_size * 3];
+		float* values_buffer = new float[m_size * 2];
+
+		for( size_t i = 0; i < m_size; i++ )
+		{   
+			// first value
+			if( Parameter_ID_1 == 1 )
+			{
+				values_buffer[i * 2] = std::sqrt( m_u[i] * m_u[i] + m_v[i] * m_v[i] + m_w[i] * m_w[i] );
+			}
+			if( Parameter_ID_1 == 2 )
+			{
+				values_buffer[i * 2] = m_depth[i];
+			}
+			if( Parameter_ID_1 == 3 )
+			{
+				values_buffer[i * 2] = std::sqrt( m_eddy_x[i] * m_eddy_x[i] + m_eddy_y[i] * m_eddy_y[i] + m_eddy_z[i] * m_eddy_z[i] );
+			}
+
+			// Second value
+			if( Parameter_ID_2 == 1 )
+			{
+				values_buffer[i * 2 + 1] = std::sqrt( m_u[i] * m_u[i] + m_v[i] * m_v[i] + m_w[i] * m_w[i] );
+			}
+			if( Parameter_ID_2 == 2 )
+			{
+				values_buffer[i * 2 + 1] = m_depth[i];
+			}
+			if( Parameter_ID_2 == 3 )
+			{
+				values_buffer[i * 2 + 1] = std::sqrt( m_eddy_x[i] * m_eddy_x[i] + m_eddy_y[i] * m_eddy_y[i] + m_eddy_z[i] * m_eddy_z[i] );
+			}
+
+			coords_buffer[i * 3] = m_x[i];
+			coords_buffer[i * 3 + 1] = m_y[i];
+			coords_buffer[i * 3 + 2] = m_z[i];
+		}
+
+		kvs::ValueArray<kvs::Real32>coords( coords_buffer, m_size * 3 );
+		kvs::ValueArray<kvs::Real32>values( values_buffer, m_size * 2 );
+
+		point->setVeclen( 2 );
 		point->setCoords( coords );
 		point->setValues( values );
 		point->updateMinMaxValues();
