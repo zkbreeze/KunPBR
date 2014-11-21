@@ -354,7 +354,7 @@ int main( int argc, char** argv )
     pointdummy->setGridType( kvs::StructuredVolumeObject::Uniform );
     pointdummy->setVeclen( 1 );
     pointdummy->setResolution( kvs::Vector3ui( 1, 1, object_first->numberOfVertices() ) );
-    pointdummy->setValues( object_first->sizes() );
+    pointdummy->setValues( object_first->values() );
     pointdummy->updateMinMaxValues();
     std::cout << "Number of points for the first time step: " << pointdummy->numberOfNodes() <<std::endl;
     
