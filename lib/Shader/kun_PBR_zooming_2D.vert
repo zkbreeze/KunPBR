@@ -20,6 +20,10 @@ uniform float random_texture_size_inv;
 uniform float scale;
 uniform float max_alpha;
 uniform float base_opacity;
+uniform float x_min;
+uniform float x_max;
+uniform float y_min;
+uniform float y_max;
 
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
@@ -55,12 +59,31 @@ float zooming( in vec4 p )
 //     /*ADD*/ s *= size;
 // #endif
 
+    #if defined( ENABLE_VALID_RANGE )
+    if( value < x_min || value > x_max || value2 < y_min || value2 > y_max )
+        s = 0.0;
+    else
+    {
+        scale_x = 1.0 / ( x_max - x_min );
+        scale_y = 1.0 / ( y_max - y_min );
+        value = ( value - x_min ) * scale_x;
+        value2 = ( value2 - y_min ) * scale_y;
+        float a = texture2D( transfer_function_texture, vec2( value, value2 ) ).a;
+        if ( a < max_alpha )
+            s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
+        else
+            s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) );   
+    }
+    #else
     float a = texture2D( transfer_function_texture, vec2( value, value2 ) ).a;
     if ( a < max_alpha )
         s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
     else
-        s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) ); 
-    
+        s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) );    
+    #endif
+
+
+
     s *= scale;
     
     float sf = floor( s );       // round-down value of s

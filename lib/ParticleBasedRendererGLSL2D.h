@@ -55,6 +55,7 @@ public:
     void setParticleScale( float scale );
     void setTransferFunction( kvs::TransferFunction tfunc );
     void setBaseOpacity( float base_opacity );
+    void setValidMinMaxRange( float x_min, float x_max, float y_min, float y_max ); /// valid x y range ( 0.0 ~ 1.0 )
 
 private:
     // Not supported progressive refinement rendering.
@@ -93,7 +94,13 @@ private:
 
     // base opacity
     float m_base_opacity;
-    
+
+    // valid min max range;
+    float m_x_min;
+    float m_x_max;
+    float m_y_min;
+    float m_y_max;
+    bool m_enable_valid_range;    
 
 public:
 
@@ -118,6 +125,7 @@ public:
     void setScale( float scale );
     void setTransferFunction( kvs::TransferFunction tfunc );
     void setBaseOpacity( float base_opacity );
+    void setValidMinMaxRange( float x_min, float x_max, float y_min, float y_max );
 
 private:
 

@@ -144,6 +144,11 @@ void ParticleBasedRenderer2D::setBaseOpacity( float base_opacity )
 {
     static_cast<Engine&>( engine() ).setBaseOpacity( base_opacity );
 }
+
+void ParticleBasedRenderer2D::setValidMinMaxRange( float x_min, float x_max, float y_min, float y_max )
+{
+    static_cast<Engine&>( engine() ).setValidMinMaxRange( x_min, x_max, y_min, y_max );
+}
     
 /*===========================================================================*/
 /**
@@ -160,7 +165,8 @@ ParticleBasedRenderer2D::Engine::Engine():
     m_initial_object_depth( 0 ),
     m_vbo( NULL ),
     m_particle_scale( 1.0 ),
-    m_base_opacity( 1.0 )
+    m_base_opacity( 1.0 ),
+    m_enable_valid_range( false )
 {
 }
 
@@ -182,7 +188,8 @@ ParticleBasedRenderer2D::Engine::Engine( const kvs::Mat4& m, const kvs::Mat4& p,
     m_initial_object_depth( 0 ),
     m_vbo( NULL ),
     m_particle_scale( 1.0 ),
-    m_base_opacity( 1.0 )
+    m_base_opacity( 1.0 ),
+    m_enable_valid_range( false )
 {
 }
 
@@ -224,6 +231,15 @@ void ParticleBasedRenderer2D::Engine::setTransferFunction( kvs::TransferFunction
 void ParticleBasedRenderer2D::Engine::setBaseOpacity( float base_opacity )
 {
     m_base_opacity = base_opacity;
+}
+
+void ParticleBasedRenderer2D::Engine::setValidMinMaxRange( float x_min, float x_max, float y_min, float y_max )
+{
+    m_x_min = x_min;
+    m_x_max = x_max;
+    m_y_min = y_min;
+    m_y_max = y_max;
+    m_enable_valid_range = true;
 }
     
 /*===========================================================================*/
@@ -344,6 +360,14 @@ void ParticleBasedRenderer2D::Engine::draw( kvs::ObjectBase* object, kvs::Camera
         m_shader_program.setUniform( "scale", m_particle_scale );
         m_shader_program.setUniform( "max_alpha", m_max_alpha );
         m_shader_program.setUniform( "base_opacity", m_base_opacity );
+
+        if( m_enable_valid_range )
+        {
+            m_shader_program.setUniform( "x_min", m_x_min );
+            m_shader_program.setUniform( "x_max", m_x_max );
+            m_shader_program.setUniform( "y_min", m_y_min );
+            m_shader_program.setUniform( "y_min", m_y_max );
+        }
         
         const size_t nvertices = point->numberOfVertices();
         const size_t rem = nvertices % repetitionLevel();
@@ -435,6 +459,8 @@ void ParticleBasedRenderer2D::Engine::create_shader_program()
             frag.define("ENABLE_TWO_SIDE_LIGHTING");
         }
     }
+
+    if( m_enable_valid_range ) vert.define("ENABLE_VALID_RANGE");
 
     m_shader_program.build( vert, frag );
     m_shader_program.bind();
