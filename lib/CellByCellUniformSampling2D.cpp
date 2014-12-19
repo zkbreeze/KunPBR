@@ -554,7 +554,9 @@ void CellByCellUniformSampling2D::generate_particles( const kvs::UnstructuredVol
         {
             // Calculate a coord.
             const kvs::Vector3f coord = cell->randomSampling();
-            cell2->randomSampling();
+            // cell2->randomSampling();
+            const kvs::Vec3 sampling_location = cell->localPoint();
+            cell2->setLocalPoint( sampling_location );
 
             // Calculate a value.
             float scalar = cell->scalar();
