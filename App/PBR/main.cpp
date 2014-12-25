@@ -35,6 +35,7 @@
 #include "SnapKey.h"
 #include "FPS.h"
 #include "TsunamiObject.h"
+#include <kvs/RGBFormulae>
 
 #define TETRA 4
 #define PRISM 6
@@ -248,6 +249,8 @@ int main( int argc, char** argv )
 	if( ShadingFlag == false) renderer->disableShading();
 
 	kvs::TransferFunction tfunc( 256 );
+	tfunc.setColorMap( kvs::RGBFormulae::Hot( 256 ) );
+
 	renderer->setTransferFunction( tfunc );
 	if( param.hasOption( "low_rep" ) )
 		renderer->setRepetitionLevel( param.optionValue<size_t>( "low_rep" ) );
