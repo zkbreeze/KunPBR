@@ -64,15 +64,14 @@ float zooming( in vec4 p )
         s = 0.0;
     else
     {
-        scale_x = 1.0 / ( x_max - x_min );
-        scale_y = 1.0 / ( y_max - y_min );
-        value = ( value - x_min ) * scale_x;
-        value2 = ( value2 - y_min ) * scale_y;
-        float a = texture2D( transfer_function_texture, vec2( value, value2 ) ).a;
-        if ( a < max_alpha )
-            s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
-        else
-            s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) );   
+        float buf1 = ( value - x_min ) / ( x_max - x_min );
+        float buf2 = ( value2 - y_min ) / ( y_max - y_min );
+        float a = texture2D( transfer_function_texture, vec2( buf1, buf2 ) ).a;
+        // if ( a < max_alpha )
+        //     s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
+        // else
+        //     s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) );   
+        s = 0.5;
     }
     #else
     float a = texture2D( transfer_function_texture, vec2( value, value2 ) ).a;

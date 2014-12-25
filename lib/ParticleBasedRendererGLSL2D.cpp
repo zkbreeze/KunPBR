@@ -363,10 +363,15 @@ void ParticleBasedRenderer2D::Engine::draw( kvs::ObjectBase* object, kvs::Camera
 
         if( m_enable_valid_range )
         {
+            std::cout << m_x_min << std::endl;
+            std::cout << m_x_max << std::endl;
+            std::cout << m_y_min << std::endl;
+            std::cout << m_y_max << std::endl;
+
             m_shader_program.setUniform( "x_min", m_x_min );
             m_shader_program.setUniform( "x_max", m_x_max );
             m_shader_program.setUniform( "y_min", m_y_min );
-            m_shader_program.setUniform( "y_min", m_y_max );
+            m_shader_program.setUniform( "y_max", m_y_max );
         }
         
         const size_t nvertices = point->numberOfVertices();

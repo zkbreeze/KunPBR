@@ -217,7 +217,7 @@ int main( int argc, char** argv )
     		kvs::UInt8 red = ( 1 - (float)i / side_size ) * 255; // red
     	    kvs::UInt8 green = ( (float)j / side_size ) * 255; // green
     	    kvs::UInt8 blue = 1.0 * 255 ;  // blue
-    	    kvs::Real32 opacity = (float)index / ( side_size * side_size ); //alpha
+    	    kvs::Real32 opacity = 0.1; //alpha
 
     	    cmap.addPoint( index, kvs::RGBColor( red, green, blue ) );
     	    omap.addPoint( index, opacity );
@@ -237,6 +237,7 @@ int main( int argc, char** argv )
 		renderer->setRepetitionLevel( subpixel_level * subpixel_level );
 
 	renderer->setBaseOpacity( ::base_opacity );
+	renderer->setValidMinMaxRange( 0.0, 1.0, 0.0, 1.0 );
 	screen.registerObject( point, renderer );
 	screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255 ) );
 	screen.show();
