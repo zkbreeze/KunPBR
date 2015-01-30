@@ -6,6 +6,15 @@ set(KVS_DIR $ENV{KVS_DIR})
 include_directories( ${KVS_DIR}/include )
 link_directories( ${KVS_DIR}/lib )
 
+option(DEBUG "DEBUG" OFF)
+
+if(DEBUG)
+	set(CMAKE_BUILD_TYPE "Debug")
+	add_definitions(-ggdb3)
+	add_definitions(-DKVS_ENABLE_DEBUG)
+	add_definitions(-D_DEBUG)
+endif()
+
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
@@ -28,6 +37,9 @@ target_link_libraries(AnimationRay util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIE
 
 add_executable(ImageEvaluation ${PROJECT_SOURCE_DIR}/App/ImageEvaluation/main.cpp )
 target_link_libraries(ImageEvaluation util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+
+add_executable(OldPBVR ${PROJECT_SOURCE_DIR}/App/OldPBVR/main.cpp )
+target_link_libraries(OldPBVR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 
 # INSTALL(

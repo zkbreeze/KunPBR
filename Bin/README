@@ -1,0 +1,6 @@
+Usage:
+
+cmake [-DDEBUG=ON] ..
+make
+
+./run_***/**.sh

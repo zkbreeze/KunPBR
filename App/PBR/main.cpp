@@ -97,7 +97,7 @@ int main( int argc, char** argv )
 {
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
-	kvsMessageError( "This is an error message." );
+	kvsMessageDebug( "This is an error message." );
 
 	kvs::CommandLine param( argc, argv );
 	param.addHelpOption();
