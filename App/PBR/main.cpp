@@ -36,6 +36,7 @@
 #include "FPS.h"
 #include "TsunamiObject.h"
 #include <kvs/RGBFormulae>
+#include <kvs/TargetChangeEvent>
 
 #define TETRA 4
 #define PRISM 6
@@ -62,6 +63,7 @@ public:
 		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
 		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
+		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 		if(ShadingFlag == false)
 		{
 			renderer->disableShading();
@@ -95,6 +97,7 @@ int main( int argc, char** argv )
 {
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
+	kvsMessageError( "This is an error message." );
 
 	kvs::CommandLine param( argc, argv );
 	param.addHelpOption();
@@ -103,6 +106,8 @@ int main( int argc, char** argv )
 	screen.addEvent( &key );
 	kun::FPS fps;
 	screen.addEvent( &fps );
+	kvs::TargetChangeEvent target;
+	screen.addEvent( &target );
 
 	// Parameter
 	param.addOption( "s", "Subpixel Level", 1, false );
@@ -246,6 +251,7 @@ int main( int argc, char** argv )
 
 	// Rendering
 	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
+	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 	if( ShadingFlag == false) renderer->disableShading();
 
 	kvs::TransferFunction tfunc( 256 );
