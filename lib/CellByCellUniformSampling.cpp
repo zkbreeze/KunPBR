@@ -212,21 +212,6 @@ void CellByCellUniformSampling::setObjectDepth( const float object_depth )
     m_object_depth = object_depth;
 }
 
-// ADD
-
-void CellByCellUniformSampling::setShuffleParticles()
-{
-    m_shuffle = true;
-}
-
-// ADD
-// Use kun sampling step, which equals to 0.5 pixel.
-
-void CellByCellUniformSampling::setKunSamplingStep()
-{
-    #define USE_KUN_SAMPLING_STEP
-}
-
 /*===========================================================================*/
 /**
  *  @brief  Executes the mapper process.
@@ -305,7 +290,8 @@ void CellByCellUniformSampling::mapping( const kvs::Camera* camera, const kvs::S
         BaseClass::volume(),
         static_cast<float>( m_subpixel_level ),
         m_sampling_step,
-        BaseClass::transferFunction().opacityMap() );
+        BaseClass::transferFunction().opacityMap(),
+        m_kun_sampling_step );
 
     // Generate the particles.
     const std::type_info& type = volume->values().typeInfo()->type();
@@ -344,7 +330,8 @@ void CellByCellUniformSampling::mapping( const kvs::Camera* camera, const kvs::U
         BaseClass::volume(),
         static_cast<float>( m_subpixel_level ),
         m_sampling_step,
-        BaseClass::transferFunction().opacityMap() );
+        BaseClass::transferFunction().opacityMap(),
+        m_kun_sampling_step );
 
     // Generate the particles.
     this->generate_particles( volume );    

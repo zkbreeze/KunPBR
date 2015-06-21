@@ -308,18 +308,20 @@ inline const kvs::ValueArray<float> CalculateDensityMap(
     const kvs::ObjectBase* object,
     const float            subpixel_level,
     const float            sampling_step,
-    const kvs::OpacityMap& opacity_map )
+    const kvs::OpacityMap& opacity_map,
+    const bool isKunSamplingStep = false )
 {
     // Calculate suitable subpixel length.
     const float subpixel_length = CalculateSubpixelLength( subpixel_level, *camera, *object );
     float current_sampling_step = sampling_step;
 
     // ADD
-    #ifdef USE_KUN_SAMPLING_STEP
-    const float kun_sampling_step = CalculateSubpixelLength( 1, *camera, *object ) / 2;
-    current_sampling_step = kun_sampling_step;
-
-    #endif
+    if( isKunSamplingStep == true )
+    {
+        const float kun_sampling_step = CalculateSubpixelLength( 1, *camera, *object ) / 2;
+        current_sampling_step = kun_sampling_step;
+        std::cout << "Use the kun sampling step." << std::endl;        
+    }
 
     // Calculate density map from the subpixel length and the opacity map.
     const float max_opacity = 1.0f - std::exp( -current_sampling_step / subpixel_length );

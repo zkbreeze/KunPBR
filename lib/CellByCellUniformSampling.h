@@ -43,6 +43,7 @@ private:
 
     // ADD
     bool m_shuffle;
+    bool m_kun_sampling_step;
 
 public:
 
@@ -74,8 +75,8 @@ public:
     void setObjectDepth( const float object_depth );
 
     // ADD
-    void setShuffleParticles();
-    void setKunSamplingStep();
+    void EnableShuffleParticles(){ m_shuffle = true; }
+    void EnableKunSamplingStep(){ m_kun_sampling_step = true; }
 
 private:
 

@@ -84,8 +84,8 @@ kun::PointObject* CreatePointObject( kvs::VolumeObjectBase* volume, size_t subpi
 	sampler->setSamplingStep( 0.5 );
 	sampler->setTransferFunction( tfunc );
 	sampler->setObjectDepth( 0.0 );
-	if( shuffle ) sampler->setShuffleParticles();
-	if( use_kun_sampling_step ) sampler->setKunSamplingStep();
+	if( shuffle ) sampler->EnableShuffleParticles();
+	if( use_kun_sampling_step ) sampler->EnableKunSamplingStep();
 	kun::PointObject* point = sampler->exec( volume );
 	time.stop();
 	std::cout << "Particle generation time: " << time.msec() << " msec." << std::endl;
@@ -97,7 +97,7 @@ int main( int argc, char** argv )
 {
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
-	kvsMessageDebug( "This is an error message." );
+	kvsMessageDebug( "This is the Debug Mode." );
 
 	kvs::CommandLine param( argc, argv );
 	param.addHelpOption();
@@ -180,7 +180,7 @@ int main( int argc, char** argv )
 	else if( param.hasOption( "k" ) )
 	{
 		kvs::StructuredVolumeObject* volume = new kvs::StructuredVolumeImporter( param.optionValue<std::string>( "k" ) );
-		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles );
+		point = CreatePointObject( volume, subpixel_level, tfunc_base, shuffle_generated_particles, 1 );
 	}
 	else if( param.hasOption( "j" ) )
 	{
@@ -255,7 +255,7 @@ int main( int argc, char** argv )
 	if( ShadingFlag == false) renderer->disableShading();
 
 	kvs::TransferFunction tfunc( 256 );
-	tfunc.setColorMap( kvs::RGBFormulae::Hot( 256 ) );
+	// tfunc.setColorMap( kvs::RGBFormulae::Hot( 256 ) );
 
 	renderer->setTransferFunction( tfunc );
 	if( param.hasOption( "low_rep" ) )
@@ -267,7 +267,7 @@ int main( int argc, char** argv )
 
 	renderer->setBaseOpacity( ::base_opacity );
 	screen.registerObject( point, renderer );
-	screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255 ) );
+	screen.setBackgroundColor( kvs::RGBColor( 0, 0, 0 ) );
 	// enlarge the view
 	// if( param.hasOption( "u-prism-ball" ) )
 	// 	screen.scene()->camera()->translate( kvs::Vec3( 0.0, 0.0, -5.0 ) );

@@ -47,7 +47,7 @@ namespace
     std::vector<std::string> file_name;
     kvs::TransferFunction tfunc( 256 );
 
-    kvs::RGBColor label_color = kvs::RGBColor( 0, 0, 0 );
+    kvs::RGBColor label_color = kvs::RGBColor( 255, 255, 255 );
 
     int    msec;
     int    nsteps;
@@ -153,7 +153,7 @@ public:
     void screenUpdated( void )
     {
         char* buf = new char[256];
-        sprintf( buf, "Time step : %03d", ::time_step );
+        sprintf( buf, "Time step : %03d", ::time_step + 100 );
         setText( std::string( buf ).c_str() );
     }
 };
@@ -342,7 +342,7 @@ int main( int argc, char** argv )
     //screen.scene()->camera()->setPosition( kvs::Vector3f(0, 0, 3), kvs::Vector3f(1, 0, 0) );
     
     screen.registerObject( object_first, renderer );
-    screen.setBackgroundColor( kvs::RGBColor( 255, 255, 255) );
+    screen.setBackgroundColor( kvs::RGBColor( 0, 0, 0) );
 
     screen.addEvent( &fps );
     screen.addEvent( &key_press_event );
@@ -354,7 +354,7 @@ int main( int argc, char** argv )
     pointdummy->setGridType( kvs::StructuredVolumeObject::Uniform );
     pointdummy->setVeclen( 1 );
     pointdummy->setResolution( kvs::Vector3ui( 1, 1, object_first->numberOfVertices() ) );
-    pointdummy->setValues( object_first->sizes() );
+    pointdummy->setValues( object_first->values() );
     pointdummy->updateMinMaxValues();
     std::cout << "Number of points for the first time step: " << pointdummy->numberOfNodes() <<std::endl;
     
