@@ -16,14 +16,20 @@
 #include <kvs/CommandLine>
 #include <kvs/Timer>
 #include "ParticleBasedRendererGLSLPoint.h"
+#include <kvs/TransferFunction>
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
+
+namespace
+{
+	kvs::StructuredVolumeObject* density_volume = NULL;	
+	int repetition_level = 36;
+}
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
 {
 
 public:
-
 	TransferFunctionEditor( kvs::ScreenBase* screen ) :
 	kvs::glut::TransferFunctionEditor( screen )
 	{
@@ -35,6 +41,8 @@ public:
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
 		kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
 		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		renderer->setDensityVolume( ::density_volume );
+		renderer->setRepetitionLevel( ::repetition_level );
 		renderer->setTransferFunction( transferFunction() );
 		std::cout << "TF adjust time: " << renderer->timer().msec() << std::endl;
 		screen()->redraw();
@@ -51,6 +59,7 @@ int main( int argc, char** argv )
 	param.addOption( "m", "Assign max grid number", 1, false );
 	param.addOption( "f", "Input KUN point file name", 1, false );
 	param.addOption( "t", "Input tsunami file name", 1, false );
+	param.addOption( "rep", "Input repetition level", 1, false );
 
 	if( !param.parse() ) return 1;
 
@@ -62,19 +71,42 @@ int main( int argc, char** argv )
 		point = tsunami->toKUNPointObject( 1 );		
 	}
 
+	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
+
 	kvs::Timer time;
 	time.start();
 	kun::DensityCalculator* calculator = new kun::DensityCalculator( point );
 	if( param.hasOption( "m" ) ) calculator->setMaxGrid( param.optionValue<int>( "m") );
-	kvs::StructuredVolumeObject* density_volume = calculator->outputDensityVolume();
+	density_volume = calculator->outputDensityVolume();
 	time.stop();
 	std::cout << "Density calculation time: " << time.msec() << "msec" << std::endl;
 
-	kvs::glsl::RayCastingRenderer* renderer = new kvs::glsl::RayCastingRenderer();
-	renderer->disableShading();
-	screen.registerObject( density_volume, renderer );
+	kvs::TransferFunction tfunc( 256 );
+
+	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+	renderer->setDensityVolume( ::density_volume );
+	renderer->setRepetitionLevel( ::repetition_level );
+	renderer->setTransferFunction( tfunc );
+
+	screen.registerObject( point, renderer );
 	screen.setBackgroundColor( kvs::RGBColor( 0, 0, 0 ) );
 	screen.show();
+
+	// Set the transfer function editor
+	kvs::StructuredVolumeObject* object = new kvs::StructuredVolumeObject();
+	object->setGridType( kvs::StructuredVolumeObject::Uniform );
+	object->setVeclen( 1 );
+	object->setResolution( kvs::Vector3ui( 1, 1, point->numberOfVertices() ) );
+	object->setValues( point->values() );
+	object->updateMinMaxValues();
+
+	object->print( std::cout );
+
+	TransferFunctionEditor editor( &screen );
+	editor.setVolumeObject( object );
+	editor.setTransferFunction( tfunc );
+	editor.show();
 
 	return app.run();
 }
