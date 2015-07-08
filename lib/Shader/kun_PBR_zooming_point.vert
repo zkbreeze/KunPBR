@@ -51,8 +51,8 @@ float zooming( in vec4 p )
 //     /*ADD*/ s *= size;
 // #endif
 
-    float density = ( texture3D( density_volume, p ) ) / repetition_level;
-    float base_opacity = 1 - exp( - 0.5 * PT * R * R * R * density );
+    float density = texture3D( density_volume, vec3( p.x, p.y, p.z ) ).w / float(repetition_level);
+    float base_opacity = 1.0 - exp( - 0.5 * PI * R * R * R * density );
 
     float a = texture1D( transfer_function_texture, value ).a;
     if ( a < max_alpha )
