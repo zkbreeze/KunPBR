@@ -185,7 +185,7 @@ PointImporter::PointImporter( const std::string& filename, const float fraction 
     SuperClass::setValues( kvsml->values() );
     SuperClass::setVeclen( kvsml->veclen() );
     SuperClass::updateMinMaxValues();
-//    SuperClass::updateMinMaxCoords();
+    SuperClass::updateMinMaxCoords();
     this->set_min_max_coord();
 
     BaseClass::setSuccess( true );

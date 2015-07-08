@@ -88,6 +88,10 @@ namespace kun
 		point->setCoords( coords );
 		point->setValues( values );
 		point->updateMinMaxValues();
+		point->updateMinMaxCoords();
+
+		const float* coord = point->coord().data();
+		std::cout << coord[3] << std::endl;
 
 		return point;
 	}
