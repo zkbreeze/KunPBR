@@ -15,6 +15,31 @@
 #include <kvs/RayCastingRenderer>
 #include <kvs/CommandLine>
 #include <kvs/Timer>
+#include "ParticleBasedRendererGLSLPoint.h"
+#include <kvs/glut/TransferFunctionEditor>
+#include <kvs/RendererManager>
+
+class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
+{
+
+public:
+
+	TransferFunctionEditor( kvs::ScreenBase* screen ) :
+	kvs::glut::TransferFunctionEditor( screen )
+	{
+	}
+
+	void apply( void )
+	{
+		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
+		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
+		kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
+		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		renderer->setTransferFunction( transferFunction() );
+		std::cout << "TF adjust time: " << renderer->timer().msec() << std::endl;
+		screen()->redraw();
+	}
+};
 
 int main( int argc, char** argv )
 {
