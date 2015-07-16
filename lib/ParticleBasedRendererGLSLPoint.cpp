@@ -370,7 +370,7 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
         m_shader_program.setUniform( "screen_scale", kvs::Vec2( width * 0.5f, height * 0.5f ) );
         m_shader_program.setUniform( "scale", m_particle_scale );
         m_shader_program.setUniform( "max_alpha", m_max_alpha );
-        m_shader_program.setUniform( "R", radius );
+        m_shader_program.setUniform( "Rad", radius );
         m_shader_program.setUniform( "repetition_level", level );
         
         const size_t nvertices = point->numberOfVertices();

@@ -25,7 +25,7 @@ attribute vec2 random_index;
 const float CIRCLE_THRESHOLD = 0.1;
 const float CIRCLE_SCALE = 0.564189583547756; // 1.0 / sqrt(PI)
 const float PI = 3.14159265359;
-uniform float R;
+uniform float Rad;
 
 varying vec3 position;
 varying vec3 normal;
@@ -55,7 +55,7 @@ float zooming( in vec4 p, in vec4 coord )
 
     vec3 index = ( vec3( coord.x, coord.y, coord.z ) - min ) / ( max - min );
     float density = texture3D( density_volume, index ).w / float(repetition_level);
-    float base_opacity = 1.0 - exp( - 0.5 * PI * R * R * R * density );
+    float base_opacity = 1.0 - exp( - 0.5 * PI * Rad * Rad * Rad * density );
     // float base_opacity = 0.3;
 
     float a = texture1D( transfer_function_texture, value ).a;
