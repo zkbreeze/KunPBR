@@ -15,6 +15,8 @@ uniform float scale;
 uniform float max_alpha;
 uniform sampler3D density_volume;
 uniform int repetition_level;
+uniform vec3 min;
+uniform vec3 max;
 
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
@@ -39,7 +41,7 @@ varying float radius;
  *  @return footprint size [pixel]
  */
 /*===========================================================================*/
-float zooming( in vec4 p )
+float zooming( in vec4 p, in vec4 coord )
 {
     // Depth value. 
     float D = p.z;
@@ -51,8 +53,10 @@ float zooming( in vec4 p )
 //     /*ADD*/ s *= size;
 // #endif
 
-    float density = texture3D( density_volume, vec3( p.x, p.y, p.z ) ).w / float(repetition_level);
+    vec3 index = ( vec3( coord.x, coord.y, coord.z ) - min ) / ( max - min );
+    float density = texture3D( density_volume, index ).w / float(repetition_level);
     float base_opacity = 1.0 - exp( - 0.5 * PI * R * R * R * density );
+    // float base_opacity = 0.3;
 
     float a = texture1D( transfer_function_texture, value ).a;
     if ( a < max_alpha )
@@ -101,7 +105,7 @@ void main()
     gl_FrontColor = texture1D( transfer_function_texture, value );
     
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-    gl_PointSize = zooming( gl_Position );
+    gl_PointSize = zooming( gl_Position, gl_Vertex );
 
     normal = gl_Normal.xyz;
     position = vec3( gl_ModelViewMatrix * gl_Vertex );

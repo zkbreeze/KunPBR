@@ -19,6 +19,8 @@
 #include <kvs/TransferFunction>
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
+#include "FPS.h"
+#include "SnapKey.h"
 
 namespace
 {
@@ -54,6 +56,11 @@ int main( int argc, char** argv )
 	kvs::glut::Application app( argc, argv );
 	kvs::glut::Screen screen( &app );
 
+	kun::FPS fps;
+	screen.addEvent( &fps );
+	kun::SnapKey key;
+	screen.addEvent( &key );
+
 	kvs::CommandLine param( argc, argv );
 	param.addHelpOption();
 	param.addOption( "m", "Assign max grid number", 1, false );
@@ -70,6 +77,8 @@ int main( int argc, char** argv )
 		kun::TsunamiObject* tsunami = new kun::TsunamiObject( param.optionValue<std::string>( "t" ) );
 		point = tsunami->toKUNPointObject( 1 );		
 	}
+
+	point->print( std::cout );
 
 	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
 
@@ -100,8 +109,6 @@ int main( int argc, char** argv )
 	object->setResolution( kvs::Vector3ui( 1, 1, point->numberOfVertices() ) );
 	object->setValues( point->values() );
 	object->updateMinMaxValues();
-
-	object->print( std::cout );
 
 	TransferFunctionEditor editor( &screen );
 	editor.setVolumeObject( object );

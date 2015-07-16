@@ -327,6 +327,7 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
     this->initialize_density_volume_texture();
 
     float radius = kun::RadiusCalculator::CalculateObjectLength( 1.0, *camera, *object );
+    // std::cout << radius << std::endl;
 
     kvs::VertexBufferObject::Binder bind1( m_vbo[ repetitionCount() ] );
     kvs::ProgramObject::Binder bind2( m_shader_program );
@@ -350,11 +351,21 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
         const float object_depth = Cr * Cs * D0;
 
         const int level = repetitionLevel();
-        
+        const float minx = static_cast<float>( point->minObjectCoord().x() );
+        const float miny = static_cast<float>( point->minObjectCoord().y() );
+        const float minz = static_cast<float>( point->minObjectCoord().z() );
+        const float maxx = static_cast<float>( point->maxObjectCoord().x() );
+        const float maxy = static_cast<float>( point->maxObjectCoord().y() );
+        const float maxz = static_cast<float>( point->maxObjectCoord().z() );
+        const kvs::Vec3 coord_min( minx, miny, minz );
+        const kvs::Vec3 coord_max( maxx, maxy, maxz );
+
         m_shader_program.setUniform( "object_depth", object_depth );
         m_shader_program.setUniform( "random_texture", 0 );
         m_shader_program.setUniform( "transfer_function_texture", 1 );
-        m_shader_program.setUniform( "density_volue", 2 );
+        m_shader_program.setUniform( "density_volume", 2 );
+        m_shader_program.setUniform( "min", coord_min );
+        m_shader_program.setUniform( "max", coord_max );
         m_shader_program.setUniform( "random_texture_size_inv", 1.0f / randomTextureSize() );
         m_shader_program.setUniform( "screen_scale", kvs::Vec2( width * 0.5f, height * 0.5f ) );
         m_shader_program.setUniform( "scale", m_particle_scale );
@@ -470,7 +481,6 @@ void ParticleBasedRendererPoint::Engine::create_buffer_object( const kun::PointO
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
-    std::cout << values.size() << std::endl;
 
     /*ADD*/
     // Normalize the values
