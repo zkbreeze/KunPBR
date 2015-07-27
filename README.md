@@ -3,24 +3,16 @@ Created by Kun Zhao.
 ======================
 
 Usage: 
-Get into lib folder:
 
-kvsmake -g util
+Get into Bin
 
-kvsmake lib
+cmake ..
 
-
-
-Then, get into other folder
-
-kvsmake -G
-
-kvsmake
+make
 
 ======================
 Usage for shell script:
 
-./run/run_xxx.sh
+Get into Bin
 
-
-Open for slack
+./run_pbr/run_xxx.sh
