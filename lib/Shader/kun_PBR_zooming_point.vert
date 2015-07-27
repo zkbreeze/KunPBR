@@ -63,6 +63,9 @@ float zooming( in vec4 p, in vec4 coord )
         s *= sqrt( log( 1.0 - a ) / log( 1.0 - base_opacity ) );
     else
         s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) ); 
+
+    // float max_rad = Rad * 5.0;
+    // if ( s > max_rad ) s = max_rad;
     
     s *= scale;
     

@@ -97,6 +97,8 @@ void main( void )
         if ( distance( gl_FragCoord.xy, center ) > radius ) { discard; return; }
     }
 
+    // if ( radius > 3.0 ) { discard; return; }
+
     // Light position.
     vec3 light_position = gl_LightSource[0].position.xyz;
 

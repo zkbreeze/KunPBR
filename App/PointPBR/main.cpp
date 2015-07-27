@@ -21,6 +21,7 @@
 #include <kvs/RendererManager>
 #include "FPS.h"
 #include "SnapKey.h"
+#include <kvs/RGBFormulae>
 
 namespace
 {
@@ -91,6 +92,7 @@ int main( int argc, char** argv )
 	std::cout << "Density calculation time: " << time.msec() << "msec" << std::endl;
 
 	kvs::TransferFunction tfunc( 256 );
+	tfunc.setColorMap( kvs::RGBFormulae::Jet( 256 ) );
 
 	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
 	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
@@ -99,7 +101,7 @@ int main( int argc, char** argv )
 	renderer->setTransferFunction( tfunc );
 
 	screen.registerObject( point, renderer );
-	screen.setBackgroundColor( kvs::RGBColor( 0, 0, 0 ) );
+	screen.setBackgroundColor( kvs::RGBColor::Black() );
 	screen.show();
 
 	// Set the transfer function editor
