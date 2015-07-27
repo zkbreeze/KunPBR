@@ -4,6 +4,8 @@ Created by Kun Zhao.
 
 Usage: 
 
+export KUN_SHADER_DIR=/Users/breeze/Work/KunPBR/lib/Shader/
+
 Get into Bin
 
 cmake ..
