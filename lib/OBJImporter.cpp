@@ -17,7 +17,8 @@ namespace kun
 
 OBJImporter::OBJImporter( std::string filename )
 {
-	this->read( filename ); 
+	m_is_minmax= false;
+	m_filename = filename;
 }
 
 bool OBJImporter::read( std::string filename )
@@ -45,9 +46,19 @@ bool OBJImporter::read( std::string filename )
 					std::cerr << "Coord data is wrong" << std::endl;
 					return false;
 				}
+				if ( m_is_minmax )
+				{
+					if ( coord_temp1 < m_min.x() ) coord_temp1 = m_min.x();
+					if ( coord_temp1 > m_max.x() ) coord_temp1 = m_max.x();
+					if ( coord_temp2 < m_min.y() ) coord_temp2 = m_min.y();
+					if ( coord_temp2 > m_max.y() ) coord_temp2 = m_max.y();
+					if ( coord_temp3 < m_min.z() ) coord_temp3 = m_min.z();
+					if ( coord_temp3 > m_max.z() ) coord_temp3 = m_max.z();
+				}
 				m_coords.push_back( coord_temp1 );
 				m_coords.push_back( coord_temp2 );
 				m_coords.push_back( coord_temp3 );
+
 				break;
 
 				case 'n': // normal file
@@ -83,6 +94,8 @@ bool OBJImporter::read( std::string filename )
 
 kvs::PolygonObject* OBJImporter::toKVSPolygonObject()
 {
+	this->read( m_filename ); 
+
 	kvs::PolygonObject* polygon = new kvs::PolygonObject();
 
 	kvs::UInt8* color_buf = new kvs::UInt8[ m_coords.size() ];
