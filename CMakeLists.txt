@@ -44,6 +44,8 @@ target_link_libraries(OldPBVR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${
 add_executable(PointPBR ${PROJECT_SOURCE_DIR}/App/PointPBR/main.cpp )
 target_link_libraries(PointPBR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
+add_executable(OBJLoader ${PROJECT_SOURCE_DIR}/App/OBJLoader/main.cpp )
+target_link_libraries(OBJLoader util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 # INSTALL(
 # 	TARGETS util
