@@ -1,12 +1,12 @@
 //
-//  OBJImporter.cpp
+//  OBJObject.cpp
 //
 //
 //  Created by Kun Zhao on 2015-07-31 16:41:49.
 //
 //
 
-#include "OBJImporter.h"
+#include "OBJObject.h"
 #include <iostream>
 #include <fstream>
 #include <kvs/ValueArray>
@@ -15,13 +15,13 @@
 namespace kun
 {
 
-OBJImporter::OBJImporter( std::string filename )
+OBJObject::OBJObject( std::string filename )
 {
 	m_is_minmax= false;
 	m_filename = filename;
 }
 
-bool OBJImporter::read( std::string filename )
+bool OBJObject::read( std::string filename )
 {
 	std::ifstream ifs( filename.c_str(), std::ifstream::in );
 	if ( !ifs.is_open() ) 
@@ -92,7 +92,7 @@ bool OBJImporter::read( std::string filename )
 	return true;
 }
 
-kvs::PolygonObject* OBJImporter::toKVSPolygonObject()
+kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 {
 	this->read( m_filename ); 
 

@@ -24,7 +24,7 @@
 #include <kvs/RGBFormulae>
 #include <kvs/StochasticRenderingCompositor>
 #include <kvs/StochasticPolygonRenderer>
-#include "OBJImporter.h"
+#include "OBJObject.h"
 
 namespace
 {
@@ -107,7 +107,7 @@ int main( int argc, char** argv )
 	renderer->setTransferFunction( tfunc );
 
 	// Load land
-	kun::OBJImporter* obj = new kun::OBJImporter( param.optionValue<std::string>( "l" ) );
+	kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
 	obj->setRange( min, max ); // The land data is larger than the tsunami data
 	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
 

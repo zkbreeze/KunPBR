@@ -1,13 +1,13 @@
 //
-//  OBJImporter.h
+//  OBJObject.h
 //
 //
 //  Created by Kun Zhao on 2015-07-31 16:38:10.
 //
 //
 
-#ifndef KUN__OBJIMPORTER_H_INCLUDE
-#define KUN__OBJIMPORTER_H_INCLUDE
+#ifndef KUN__OBJOBJECT_H_INCLUDE
+#define KUN__OBJOBJECT_H_INCLUDE
 
 #include <kvs/PolygonObject>
 #include <kvs/ValueArray>
@@ -15,7 +15,7 @@
 namespace kun
 {
 	
-class OBJImporter
+class OBJObject
 {
 	std::string m_filename;
 	std::vector<kvs::Real32> m_coords;
@@ -27,9 +27,9 @@ class OBJImporter
 	bool m_is_minmax;
 
 public:
-	OBJImporter( void );
-	OBJImporter( std::string filename );
-	~OBJImporter();
+	OBJObject( void );
+	OBJObject( std::string filename );
+	~OBJObject();
 
 	bool read( std::string filename );
 	void setRange( kvs::Vector3f min, kvs::Vector3f max ){ m_is_minmax = true; m_min = min; m_max = max; }
@@ -39,4 +39,4 @@ public:
 
 } // end of namespace kun
  
-#endif // KUN__OBJIMPORTER_H_INCLUDE
+#endif // KUN__OBJOBJECT_H_INCLUDE
