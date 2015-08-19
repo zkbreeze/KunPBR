@@ -47,6 +47,9 @@ target_link_libraries(PointPBR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} $
 add_executable(OBJLoader ${PROJECT_SOURCE_DIR}/App/OBJLoader/main.cpp )
 target_link_libraries(OBJLoader util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
+add_executable(Tsunami ${PROJECT_SOURCE_DIR}/App/Tsunami/main.cpp )
+target_link_libraries(Tsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+
 # INSTALL(
 # 	TARGETS util
 # 	ARCHIEVE DESTINATION ${PROJECT_SOURCE_DIR}/lib

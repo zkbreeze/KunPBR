@@ -22,9 +22,6 @@
 #include "FPS.h"
 #include "SnapKey.h"
 #include <kvs/RGBFormulae>
-#include <kvs/StochasticRenderingCompositor>
-#include <kvs/StochasticPolygonRenderer>
-#include "OBJImporter.h"
 
 namespace
 {
@@ -71,7 +68,6 @@ int main( int argc, char** argv )
 	param.addOption( "f", "Input KUN point file name", 1, false );
 	param.addOption( "t", "Input tsunami file name", 1, false );
 	param.addOption( "rep", "Input repetition level", 1, false );
-	param.addOption( "l", "Input the OBJ land object", 1, false );
 
 	if( !param.parse() ) return 1;
 
@@ -84,8 +80,6 @@ int main( int argc, char** argv )
 	}
 
 	point->print( std::cout );
-	kvs::Vector3f min = point->minObjectCoord();
-	kvs::Vector3f max = point->maxObjectCoord();
 
 	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
 
@@ -103,26 +97,12 @@ int main( int argc, char** argv )
 	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
 	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 	renderer->setDensityVolume( ::density_volume );
-	// renderer->setRepetitionLevel( ::repetition_level );
+	renderer->setRepetitionLevel( ::repetition_level );
 	renderer->setTransferFunction( tfunc );
 
-	// Load land
-	kun::OBJImporter* obj = new kun::OBJImporter( param.optionValue<std::string>( "l" ) );
-	obj->setRange( min, max ); // The land data is larger than the tsunami data
-	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
-
-	kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
-	// polygon_renderer->setPolygonOffset( -1.f );
-
 	screen.registerObject( point, renderer );
-	screen.registerObject( polygon, polygon_renderer );
 	screen.setBackgroundColor( kvs::RGBColor::Black() );
 	screen.show();
-
-	kvs::StochasticRenderingCompositor compositor( screen.scene() );
-	compositor.setRepetitionLevel( ::repetition_level );
-	compositor.enableLODControl();
-	screen.setEvent( &compositor );
 
 	// Set the transfer function editor
 	kvs::StructuredVolumeObject* object = new kvs::StructuredVolumeObject();
