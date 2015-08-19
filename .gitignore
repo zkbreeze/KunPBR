@@ -5,7 +5,7 @@ Makefile.kvs
 *.kvsml
 *.dat
 *.bin
-Bin
+
 
 App/AnimationPBR/AnimationPBR
 App/PBR/PBR
@@ -13,4 +13,4 @@ App/AnimationRay/AnimationRay
 App/ImageEvaluation/ImageEvaluation
 App/OldPBVR/OldPBVR
 Examples/TwoScreens/TwoScreens
-Tsunami/
+WaterMass/
