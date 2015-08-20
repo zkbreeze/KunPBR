@@ -12,11 +12,22 @@
 namespace kun
 {
 
+DensityCalculator::DensityCalculator( void )
+{
+	m_use_given_grid = false;
+	m_max_grid = 200;
+}
+
 DensityCalculator::DensityCalculator( kun::PointObject* point )
 {
 	this->setPointObject( point );
 	m_use_given_grid = false;
 	m_max_grid = 200;
+}
+
+DensityCalculator::~DensityCalculator( void )
+{
+	delete m_table;
 }
 
 void DensityCalculator::exec()
