@@ -68,6 +68,9 @@ namespace
     const std::string RendererName( "ParticleRenderer" );
 
     kvs::Timer fps_time;
+
+    bool isClipping = false;
+    kvs::Vector3f min_range, max_range;
 }
 
 class FPS : public kvs::PaintEventListener
@@ -144,18 +147,23 @@ void initialize( std::string filename, float fraction = 0.0, size_t input_timest
     time.start();
     for ( int i = 0; i < ::nsteps; i++ )
     {
-    if( fraction ) 
-        ::object[i] = new kun::PointImporter( file_name[i], fraction );
-    else
-        ::object[i] = new kun::PointImporter( file_name[i] );
-    kun::DensityCalculator* calculator = new kun::DensityCalculator( ::object[i] );
-    calculator->setMaxGrid( ::max_grid );
-    ::density_volume[i] = calculator->outputDensityVolume();
-    delete calculator;
+        if( fraction ) 
+            ::object[i] = new kun::PointImporter( file_name[i], fraction );
+        else
+            ::object[i] = new kun::PointImporter( file_name[i] );
 
-    ::object[i]->setName( ::ObjectName );
-    std::cout << "\r" << i << std::flush;        
+
+        if( ::isClipping ) ::object[i]->setMinMaxRange( ::min_range, ::max_range );
+
+        kun::DensityCalculator* calculator = new kun::DensityCalculator( ::object[i] );
+        calculator->setMaxGrid( ::max_grid );
+        ::density_volume[i] = calculator->outputDensityVolume();
+        delete calculator;
+
+        ::object[i]->setName( ::ObjectName );
+        std::cout << "\r" << i << std::flush;
     }
+
     time.stop();
     std::cout << "\r" << "                           " << std::flush;
     std::cout << "\r" << "Finish Reading." << std::endl;
@@ -340,7 +348,13 @@ int main( int argc, char** argv )
     param.addOption( "nsteps", "Set n time steps to load", 1, false );
     param.addOption( "m", "Set the Max Grid for Density Calculation", 1, false );
     param.addOption( "l", "Input the Land File", 1, true );
-    
+    param.addOption( "minx", "Input the clip range of min x", 1, false );
+    param.addOption( "miny", "Input the clip range of min y", 1, false );
+    param.addOption( "minz", "Input the clip range of min z", 1, false );
+    param.addOption( "maxx", "Input the clip range of max x", 1, false );
+    param.addOption( "maxy", "Input the clip range of max y", 1, false );
+    param.addOption( "maxz", "Input the clip range of max z", 1, false );
+
     if ( !param.parse() ) return 1;
 
     if( param.hasOption( "rep" ) ) ::repetition = param.optionValue<size_t>( "rep" );
@@ -353,6 +367,14 @@ int main( int argc, char** argv )
     }
 
     std::cout << "fraction: " << (float)::repetition_low / ::repetition << std::endl;
+
+    // Clipping
+    if( param.hasOption( "minx" ) ) 
+    {
+        ::isClipping = true;
+        ::min_range = kvs::Vector3f( param.optionValue<float>( "minx" ), param.optionValue<float>( "miny" ), param.optionValue<float>( "minz" ) );
+        ::max_range = kvs::Vector3f( param.optionValue<float>( "maxx" ), param.optionValue<float>( "maxy" ), param.optionValue<float>( "maxz" ) );
+    }
 
     // Base transfer function
     if( param.hasOption( "trans" ) )
