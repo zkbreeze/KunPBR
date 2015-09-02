@@ -31,12 +31,12 @@
 #include "PointImporter.h"
 #include "PointObject.h"
 #include <kvs/ParticleBasedRenderer>
-#include "FPS.h"
 #include "DensityCalculator.h"
 #include <kvs/RGBFormulae>
 #include <kvs/StochasticRenderingCompositor>
 #include <kvs/StochasticPolygonRenderer>
 #include "OBJObject.h"
+#include <kvs/RGBFormulae>
 
 namespace
 {
@@ -48,7 +48,7 @@ namespace
 
     kvs::glut::Timer* glut_timer;
     std::vector<std::string> file_name;
-    kvs::TransferFunction tfunc( 256 );
+    kvs::TransferFunction tfunc( kvs::RGBFormulae::Ocean( 256 ) );
     kvs::Shader::Phong phong( 0.6, 0.4, 0, 1 );
 
     kvs::RGBColor label_color = kvs::RGBColor( 255, 255, 255 );
@@ -66,7 +66,21 @@ namespace
 
     const std::string ObjectName( "ParticleObject" ); 
     const std::string RendererName( "ParticleRenderer" );
+
+    kvs::Timer fps_time;
 }
+
+class FPS : public kvs::PaintEventListener
+{
+
+public:
+	void update()
+	{	
+		::fps_time.stop();
+		std::cout << "\r" << "FPS: " << fps_time.fps() << std::flush;
+		::fps_time.start();
+	}
+};
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
 {
@@ -81,7 +95,7 @@ public:
     void apply( void )
     {
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
+        kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer( ::RendererName );
         kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
 
         renderer->setShader( phong );
@@ -285,13 +299,35 @@ class KeyPressEvent : public kvs::KeyPressEventListener
     }
 };
 
+class PolygonSlider : public kvs::glut::Slider
+{
+public:
+
+	PolygonSlider( kvs::glut::Screen* screen ) : 
+	kvs::glut::Slider( screen ){}
+
+	void valueChanged( void )
+	{
+		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
+		kvs::ObjectBase* o = glut_screen->scene()->objectManager()->object( "Polygon" );
+		kvs::PolygonObject* polygon = static_cast<kvs::PolygonObject*>( o );
+		polygon->setOpacity( this->value() );
+
+		kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
+		polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		polygon_renderer->setName( "PolygonRenderer" );
+		glut_screen->scene()->rendererManager()->change( "PolygonRenderer", polygon_renderer, false );
+		screen()->redraw();
+	}
+};
+
 int main( int argc, char** argv )
 {
     kvs::glut::Application app( argc, argv );
     kvs::glut::Screen screen( &app );
     KeyPressEvent     key_press_event;
     TimerEvent        timer_event;
-    kun::FPS          fps;
+    FPS               fps;
     ::glut_timer = new kvs::glut::Timer( ::msec );
 
     kvs::CommandLine param( argc, argv );
@@ -356,13 +392,17 @@ int main( int argc, char** argv )
     kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
     obj->setRange( ::object[0]->minObjectCoord(), ::object[0]->maxObjectCoord() ); // The land data is larger than the tsunami data
     land = obj->toKVSPolygonObject();
+    land->setName( "Polygon" );
 
     kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
+    polygon_renderer->setShader( phong );
+    polygon_renderer->setName( "PolygonRenderer" );
     // polygon_renderer->setPolygonOffset( -1.f );
 
     screen.registerObject( object_first, renderer );
     screen.registerObject( land, polygon_renderer );
     screen.setBackgroundColor( kvs::RGBColor::Black() );
+    screen.setSize( 1024, 768 );
     screen.show();
 
     kvs::StochasticRenderingCompositor compositor( screen.scene() );
@@ -374,7 +414,6 @@ int main( int argc, char** argv )
     screen.addEvent( &key_press_event );
     screen.addTimerEvent( &timer_event, ::glut_timer );
 
-    screen.show();
     // Set the transfer function editor
     kvs::StructuredVolumeObject* pointdummy = new kvs::StructuredVolumeObject();
     pointdummy->setGridType( kvs::StructuredVolumeObject::Uniform );
@@ -407,6 +446,18 @@ int main( int argc, char** argv )
     slider->setCaption("");
     slider->setTextColor( ::label_color  );
     slider->show();
+
+    PolygonSlider* polygon_slider = new PolygonSlider( &screen );
+    polygon_slider->setSliderColor( kvs::RGBColor::White() );
+    polygon_slider->setX( screen.width() * 0.25 );
+    polygon_slider->setY( 10 );
+    polygon_slider->setWidth( screen.width() / 2 );
+    polygon_slider->setValue( 255 );
+    polygon_slider->setRange( 0, 255 );
+    polygon_slider->setMargin( 15 );
+    polygon_slider->setCaption("Polygon Opacity");
+    polygon_slider->setTextColor( kvs::RGBColor::White()  );
+    polygon_slider->show();
     
     ::glut_timer->start( ::msec );
     ::glut_timer->stop();

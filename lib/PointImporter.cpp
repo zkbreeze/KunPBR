@@ -14,6 +14,7 @@
 #include <string>
 #include <kvs/File>
 #include <fstream>
+#include <iostream>
 
 namespace kun
 {

@@ -615,6 +615,39 @@ void PointObject::setMinMaxValues(
     m_has_min_max_values = true;
 }
 
+void PointObject::setMinMaxRange( kvs::Vector3f min, kvs::Vector3f max )
+{
+    std::vector<kvs::Real32> coords;
+    std::vector<kvs::Real32> values; // Only float type values is considered
+
+    const kvs::Real32* pcoords = this->coords().data();
+    const kvs::Real32* pvalues = (const kvs::Real32*)this->values().data();
+
+    for( size_t i = 0; i < this->numberOfVertices(); i++ )
+    {
+        int index = i * 3;
+        if( pcoords[index] >= min.x() && pcoords[index] <= max.x()
+            && pcoords[index + 1] >= min.y() && pcoords[index + 1] <= max.y() 
+            && pcoords[index + 2] >= min.z() && pcoords[index + 2] <= max.z() )
+        {
+            coords.push_back( pcoords[index] );
+            coords.push_back( pcoords[index + 1] );
+            coords.push_back( pcoords[index + 2] );
+
+            values.push_back( pvalues[i] );
+        }
+    }
+
+    kvs::ValueArray<kvs::Real32> new_coords( coords.data(), coords.size() );
+    kvs::ValueArray<kvs::Real32> new_values( values.data(), values.size() );
+    this->setCoords( new_coords );
+    this->setValues( new_values );
+    this->updateMinMaxCoords();
+    this->updateMinMaxValues();
+    this->updateMinMaxExternalCoords();
+    std::cout << "The point clip for the min max range was conducted." << std::endl;
+}
+
 /*ADD*/
 void PointObject::updateMinMaxValues() const
 {
@@ -635,6 +668,11 @@ void PointObject::updateMinMaxValues() const
     }
 
     this->setMinMaxValues( range.lower(), range.upper() );
+}
+
+void PointObject::updateMinMaxExternalCoords()
+{
+    this->setMinMaxExternalCoords( this->minObjectCoord(), this->maxObjectCoord() );
 }
 
 } // end of namespace kun

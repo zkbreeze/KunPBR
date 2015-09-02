@@ -77,6 +77,9 @@ public:
     void shuffle();
     void setMinMaxValues( const kvs::Real64 min_value, const kvs::Real64 max_value ) const;
     void updateMinMaxValues() const;
+    void updateMinMaxExternalCoords();
+
+    void setMinMaxRange( kvs::Vector3f min, kvs::Vector3f max ); // Clip the min max range of the point data
 
     /*ADD*/
     kvs::Real64 minValue() const { return m_min_value; }
