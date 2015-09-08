@@ -67,33 +67,33 @@ Plane::Plane( const kvs::Vec3 P1, const kvs::Vec3 P2, const kvs::Vec3 P3 )
 	this->calculateBasePoint();
 }
 
-Plane Plane::ConstructXPlane( float X )
+Plane* Plane::ConstructXPlane( float X )
 {
 	float a = 1;
 	float b = 0;
 	float c = 0;
 	float d = - X;
-	Plane plane( a, b, c, d );
+	Plane* plane = new Plane( a, b, c, d );
 	return plane;
 }
 
-Plane Plane::ConstructYPlane( float Y )
+Plane* Plane::ConstructYPlane( float Y )
 {
 	float a = 0;
 	float b = 1;
 	float c = 0;
 	float d = - Y;
-	Plane plane( a, b, c, d );
+	Plane* plane = new Plane( a, b, c, d );
 	return plane;
 }
 
-Plane Plane::ConstructZPlane( float Z )
+Plane* Plane::ConstructZPlane( float Z )
 {
 	float a = 0;
 	float b = 0;
 	float c = 1;
 	float d = - Z;
-	Plane plane( a, b, c, d );
+	Plane* plane = new Plane( a, b, c, d );
 	return plane;
 }
 
@@ -111,17 +111,24 @@ float Plane::pointDistance( kvs::Vec3 P )
 	return DotProduct( vector, normal.normalized() );
 }
 
+float Plane::pointDistance( kvs::Vec3 P, kvs::Vec3 normal )
+{
+	kvs::Vec3 vector = P - m_V0;
+	return DotProduct( vector, normal.normalized() );
+}
+
 bool Plane::intersectSegLine( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 &intersection )
 {
 	float distanceP1 = this->pointDistance( P1 );
 	float distanceP2 = this->pointDistance( P2 );
-	if( distanceP1 && distanceP2 ) return false;
-	else
+	if( distanceP1 * distanceP2 <= 0 ) 
 	{
 		float u = - distanceP1 / ( distanceP2 - distanceP1 );
 		intersection = P1 + u * ( P2 - P1 );
 		return true;
 	}
+	else
+		return false;
 }
 
 } // end of namespace kun
