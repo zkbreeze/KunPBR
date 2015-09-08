@@ -170,6 +170,7 @@ int main( int argc, char** argv )
 	obj->setRange( min, max ); // The land data is larger than the tsunami data
 	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
 	polygon->setName( "Polygon" );
+	polygon->print( std::cout );
 	// polygon->setOpacity( 100 );
 
 	kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
@@ -211,7 +212,7 @@ int main( int argc, char** argv )
 	slider->setMargin( 15 );
 	slider->setCaption("Polygon Opacity");
 	slider->setTextColor( kvs::RGBColor::White()  );
-	// slider->show();
+	slider->show();
 
 	return app.run();
 }

@@ -97,6 +97,7 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	this->read( m_filename ); 
 
 	kvs::PolygonObject* polygon = new kvs::PolygonObject();
+	polygon->setNormalTypeToVertex();
 
 	kvs::UInt8* color_buf = new kvs::UInt8[ m_coords.size() ];
 	for( size_t i = 0; i < m_coords.size(); i++ ) color_buf[i] = 255; // Assign the building as white
