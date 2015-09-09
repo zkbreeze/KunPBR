@@ -121,14 +121,67 @@ bool Plane::intersectSegLine( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 &intersectio
 {
 	float distanceP1 = this->pointDistance( P1 );
 	float distanceP2 = this->pointDistance( P2 );
-	if( distanceP1 * distanceP2 <= 0 ) 
+	if( distanceP1 * distanceP2 < 0 ) 
 	{
 		float u = - distanceP1 / ( distanceP2 - distanceP1 );
 		intersection = P1 + u * ( P2 - P1 );
 		return true;
 	}
 	else
-		return false;
+	{
+		intersection = kvs::Vec3::All( 0.0 );
+		return false;	
+	}
 }
+
+bool Plane::intersectTriangle( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 P3, kvs::Vec3 &intersection1, kvs::Vec3 &intersection2 )
+{
+	kvs::Vec3 intersection( 0.0, 0.0, 0.0 );
+	if( this->intersectSegLine( P1, P2, intersection) )
+	{
+		intersection1 = intersection;
+		if( this->intersectSegLine( P2, P3, intersection ) )
+		{
+			intersection2 = intersection;			
+		}
+		else if( this->intersectSegLine( P1, P3, intersection ) )
+		{
+			this->intersectSegLine( P1, P3, intersection );
+			intersection2 = intersection;
+		}
+		else // Plane cross the vertex of the triangle
+		{
+			intersection2 = P3;
+		}
+
+		return true;
+	}
+	else if( this->intersectSegLine( P2, P3, intersection ) )
+	{
+		intersection2 = intersection;
+		if( this->intersectSegLine( P1, P3, intersection ) )
+		{
+			intersection1 = intersection;			
+		}
+		else // Plane cross the vertex of the triangle
+		{
+			intersection1 = P1;
+		}
+		return true;
+	}
+	else if( this->intersectSegLine( P1, P3, intersection ) )
+	{
+		intersection1 = intersection;
+		intersection2 = P2;
+		return true;
+	}
+	else
+	{
+		intersection1 = intersection;
+		intersection2 = intersection;
+		return false;
+	}
+}
+
 
 } // end of namespace kun

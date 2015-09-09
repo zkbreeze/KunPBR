@@ -36,10 +36,17 @@ public:
 
 	void calculateBasePoint();
 
-	float pointDistance( kvs::Vec3 P ); // Return the distance between point and plane
+	float pointDistance( kvs::Vec3 P ); // Return the distance between point and plane. Take (m_a, m_b, m_c) as the normal to calculate.
 	float pointDistance( kvs::Vec3 P, kvs::Vec3 normal ); // Calculation with assigned normal of the face
-	bool intersectSegLine( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 &intersection ); // Return true if the segment line is intersected by the plane. 
-																				//Intersection point is written into &intersection
+	bool intersectSegLine( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 &intersection );
+	// Return true if the segment line is intersected by the plane. 
+	//Intersection point is written into &intersection
+	// If there is no intersection, ( 0.0, 0.0, 0.0 ) would be written into &intersection	
+
+	bool intersectTriangle( kvs::Vec3 P1, kvs::Vec3 P2, kvs::Vec3 P3, kvs::Vec3 &intersection1, kvs::Vec3 &intersection2 );
+	// Return true if the triangle is intersected by the plane.
+	// Two intersection points are written into &intersection1 and &intersection2. 
+	// If there are no intersections, ( 0.0, 0.0, 0.0 ) would be written into &intersection1 and &intersection2
 
 	float a(){ return m_a; }
 	float b(){ return m_b; }
