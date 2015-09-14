@@ -19,12 +19,21 @@ class PolygonClipper
 {
 
 public:
-	PolygonClipper();
-	PolygonClipper( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
-	~PolygonClipper();
+	// PolygonClipper();
+	// PolygonClipper( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
+	// ~PolygonClipper();
 
-	static kvs::PolygonObject* ClipBox( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
-	static kvs::PolygonObject* ClipPlane( kvs::PolygonObject* polygon, kun::Plane* plane, kvs::Vec3 plane_normal);
+	enum PlaneDirection 
+	{
+		UP,
+		DOWN,
+	};
+
+	static void ClipBox( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
+	static void ClipXPlane( kvs::PolygonObject* polygon, float X, PlaneDirection direction );
+	static void ClipYPlane( kvs::PolygonObject* polygon, float Y, PlaneDirection direction );
+	static void ClipZPlane( kvs::PolygonObject* polygon, float Z, PlaneDirection direction );
+	static void ClipPlane( kvs::PolygonObject* polygon, kun::Plane* plane, kvs::Vec3 plane_normal);
 };
 
 

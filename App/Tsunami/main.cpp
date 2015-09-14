@@ -28,6 +28,7 @@
 #include <kvs/glut/Slider>
 #include <kvs/ObjectManager>
 #include <kvs/PaintEventListener>
+#include "PolygonClipper.h"
 
 namespace
 {
@@ -159,7 +160,7 @@ int main( int argc, char** argv )
 	tfunc.setColorMap( kvs::RGBFormulae::Ocean( 256 ) );
 
 	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
-	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	renderer->setDensityVolume( ::density_volume );
 	// renderer->setRepetitionLevel( ::repetition_level );
 	renderer->setTransferFunction( tfunc );
@@ -167,14 +168,16 @@ int main( int argc, char** argv )
 
 	// Load land
 	kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
-	obj->setRange( min, max ); // The land data is larger than the tsunami data
 	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
+	// obj->setRange( min, max ); // The land data is larger than the tsunami data
+	// kun::PolygonClipper::ClipBox( polygon, min, max );
+	kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
 	polygon->setName( "Polygon" );
 	polygon->print( std::cout );
 	// polygon->setOpacity( 100 );
 
 	kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
-	polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+	polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	polygon_renderer->setName( "PolygonRenderer" );
 	// polygon_renderer->setPolygonOffset( -1.f );
 

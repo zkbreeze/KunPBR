@@ -11,22 +11,52 @@
 namespace kun
 {
 
-PolygonClipper::PolygonClipper( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max )
+// PolygonClipper::PolygonClipper( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max )
+// {
+// 	ClipBox( polygon, min, max );
+// }
+
+void PolygonClipper::ClipBox(kvs::PolygonObject *polygon, kvs::Vec3 min, kvs::Vec3 max)
 {
-	ClipBox( polygon, min, max );	
+	ClipXPlane( polygon, min.x(), UP );
+	ClipYPlane( polygon, min.y(), UP );
+	ClipZPlane( polygon, min.z(), UP );
+	ClipXPlane( polygon, max.x(), DOWN );
+	ClipYPlane( polygon, max.y(), DOWN );
+	ClipZPlane( polygon, max.z(), DOWN );
 }
 
-kvs::PolygonObject* PolygonClipper::ClipBox(kvs::PolygonObject *polygon, kvs::Vec3 min, kvs::Vec3 max)
+void PolygonClipper::ClipXPlane(kvs::PolygonObject *polygon, float X, PlaneDirection direction )
 {
-	Plane* plane_min_x = Plane::ConstructXPlane( min.x() ); ClipPlane( polygon, plane_min_x, kvs::Vec3( 1, 0, 0 ) );
-	Plane* plane_min_y = Plane::ConstructYPlane( min.y() ); ClipPlane( polygon, plane_min_y, kvs::Vec3( 0, 1, 0 ) );
-	Plane* plane_min_z = Plane::ConstructZPlane( min.z() ); ClipPlane( polygon, plane_min_z, kvs::Vec3( 0, 0, 1 ) );
-	Plane* plane_max_x = Plane::ConstructXPlane( max.x() ); ClipPlane( polygon, plane_max_x, kvs::Vec3( -1, 0, 0 ) );
-	Plane* plane_max_y = Plane::ConstructYPlane( max.y() ); ClipPlane( polygon, plane_max_y, kvs::Vec3( 0, -1, 0 ) );
-	Plane* plane_max_z = Plane::ConstructZPlane( max.z() ); ClipPlane( polygon, plane_max_z, kvs::Vec3( 0, 0, -1 ) );
+	Plane* plane_X = Plane::ConstructXPlane( X );
+	switch ( direction )
+	{
+		case UP: ClipPlane( polygon, plane_X, kvs::Vec3( 1, 0, 0 ) ); break;
+		case DOWN : ClipPlane( polygon, plane_X, kvs::Vec3( -1, 0, 0 ) ); break;
+	}
 }
 
-kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun::Plane* plane, kvs::Vec3 plane_normal)
+void PolygonClipper::ClipYPlane(kvs::PolygonObject *polygon, float Y, PlaneDirection direction )
+{
+	Plane* plane_Y = Plane::ConstructYPlane( Y );
+	switch ( direction )
+	{
+		case UP: ClipPlane( polygon, plane_Y, kvs::Vec3( 0, 1, 0 ) ); break;
+		case DOWN : ClipPlane( polygon, plane_Y, kvs::Vec3( 0, -1, 0 ) ); break;
+	}
+}
+
+void PolygonClipper::ClipZPlane(kvs::PolygonObject *polygon, float Z, PlaneDirection direction )
+{
+	Plane* plane_Z = Plane::ConstructZPlane( Z );
+	switch ( direction )
+	{
+		case UP: ClipPlane( polygon, plane_Z, kvs::Vec3( 0, 0, 1 ) ); break;
+		case DOWN : ClipPlane( polygon, plane_Z, kvs::Vec3( 0, 0, -1 ) ); break;
+	}
+}
+
+void PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun::Plane* plane, kvs::Vec3 plane_normal)
 {
 	const float* pcoord = polygon->coords().data();
 	const float* pnormal = polygon->normals().data();
@@ -63,13 +93,18 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 			table[i] = i - count;
 		}
 		else
-			count++;
+		{
+			// table[i] = i;
+			count++;						
+		}
 	}
 
 	int pcon = coords.size() / 3; // added connections
+	std::cout << pcon << std::endl;
+	std::cout << polygon->numberOfVertices() - count << std::endl;
 
 	// Create new triangle for the clipped faces
-	for( size_t i = 0; i < ( polygon->numberOfConnections() / 3 ); i++ )
+	for( size_t i = 0; i < polygon->numberOfConnections(); i++ )
 	{
 		int connection_index = i * 3;
 		int coord_index_1 = pconnection[connection_index] * 3;
@@ -116,8 +151,8 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 					colors.push_back( pcolor[coord_index_2 + 2] );
 
 					// Create twos triangles for the clipped quadrilateral
-					connections.push_back( table[connection_index] );
-					connections.push_back( table[connection_index + 1] );
+					connections.push_back( table[pconnection[connection_index]] );
+					connections.push_back( table[pconnection[connection_index + 1]] );
 					connections.push_back( pcon++ );
 
 					connections.push_back( table[connection_index + 1] );
@@ -153,8 +188,8 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 					colors.push_back( pcolor[coord_index_3 + 2] );
 
 					// Create twos triangles for the clipped quadrilateral
-					connections.push_back( table[connection_index] );
-					connections.push_back( table[connection_index + 2] );
+					connections.push_back( table[pconnection[connection_index]] );
+					connections.push_back( table[pconnection[connection_index + 2]] );
 					connections.push_back( pcon++ );
 
 					connections.push_back( table[connection_index + 2] );
@@ -190,7 +225,7 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 					colors.push_back( pcolor[coord_index_1 + 2] );
 
 					// Create twos triangles for the clipped quadrilateral
-					connections.push_back( table[connection_index] );
+					connections.push_back( table[pconnection[connection_index]] );
 					connections.push_back( pcon++ );
 					connections.push_back( pcon++ );
 				}
@@ -226,11 +261,11 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 					colors.push_back( pcolor[coord_index_3 + 2] );
 
 					// Create twos triangles for the clipped quadrilateral
-					connections.push_back( table[connection_index + 1] );
-					connections.push_back( table[connection_index + 2] );
+					connections.push_back( table[pconnection[connection_index + 1]] );
+					connections.push_back( table[pconnection[connection_index + 2]] );
 					connections.push_back( pcon++ );
 
-					connections.push_back( table[connection_index + 2] );
+					connections.push_back( table[pconnection[connection_index + 2]] );
 					connections.push_back( pcon );
 					connections.push_back( pcon++ );
 				}
@@ -263,12 +298,12 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 					colors.push_back( pcolor[coord_index_2 + 2] );
 
 					// Create twos triangles for the clipped quadrilateral
-					connections.push_back( table[connection_index + 1] );
+					connections.push_back( table[pconnection[connection_index + 1]] );
 					connections.push_back( pcon++ );
 					connections.push_back( pcon++ );
 				}
 			}
-			else if( plane->pointDistance( V3, plane_normal ) ) // Only V3 inside
+			else if( plane->pointDistance( V3, plane_normal ) > 0 ) // Only V3 inside
 			{
 				coords.push_back( intersection1.x() );
 				coords.push_back( intersection1.y() );
@@ -297,7 +332,7 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 				colors.push_back( pcolor[coord_index_3 + 2] );
 
 				// Create twos triangles for the clipped quadrilateral
-				connections.push_back( table[connection_index + 2] );
+				connections.push_back( table[pconnection[connection_index + 2]] );
 				connections.push_back( pcon++ );
 				connections.push_back( pcon++ );
 			}
@@ -305,9 +340,9 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 		else if( plane->pointDistance( V1, plane_normal ) + plane->pointDistance( V2, plane_normal ) + plane->pointDistance( V3, plane_normal ) >=0 ) 
 		// No intersection and the triangle is inside the plane
 		{
-			connections.push_back( table[connection_index] );
-			connections.push_back( table[connection_index + 1] );
-			connections.push_back( table[connection_index + 2] );
+			connections.push_back( table[pconnection[connection_index]] );
+			connections.push_back( table[pconnection[connection_index + 1]] );
+			connections.push_back( table[pconnection[connection_index + 2]] );
 		}
 	}
 
@@ -323,6 +358,10 @@ kvs::PolygonObject* PolygonClipper::ClipPlane( kvs::PolygonObject* polygon, kun:
 	polygon->setPolygonType( kvs::PolygonObject::Triangle );
 	polygon->setColorType( kvs::PolygonObject::VertexColor );
 	polygon->setNormalType( kvs::PolygonObject::VertexNormal );
+	polygon->updateMinMaxCoords();
+	polygon->updateNormalizeParameters();
+
+	std::cout << "Plane is clipped" << std::endl;
 }
 
 
