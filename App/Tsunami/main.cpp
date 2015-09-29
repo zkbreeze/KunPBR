@@ -168,10 +168,10 @@ int main( int argc, char** argv )
 
 	// Load land
 	kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
+	obj->setRange( min, max ); // The land data is larger than the tsunami data
 	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
-	// obj->setRange( min, max ); // The land data is larger than the tsunami data
 	// kun::PolygonClipper::ClipBox( polygon, min, max );
-	kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
+	// kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
 	polygon->setName( "Polygon" );
 	polygon->print( std::cout );
 	// polygon->setOpacity( 100 );
@@ -214,7 +214,7 @@ int main( int argc, char** argv )
 	slider->setRange( 0, 255 );
 	slider->setMargin( 15 );
 	slider->setCaption("Polygon Opacity");
-	slider->setTextColor( kvs::RGBColor::White()  );
+	slider->setTextColor( kvs::RGBColor::White() );
 	slider->show();
 
 	return app.run();

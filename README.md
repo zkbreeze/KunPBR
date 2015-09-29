@@ -3,7 +3,7 @@ KunPBR
 Particle-based rendering library created by Kun Zhao.
 
 ## Requirements
-* [KVS](https://github.com/naohisas/KVS) 
+* [KVS](https://github.com/zkbreeze/kvs/) 
 * [CMake](http://www.cmake.org/)
 
 ## Settings
