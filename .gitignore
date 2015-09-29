@@ -1,3 +1,4 @@
+# FILE
 *.[ao]
 .DS_Store
 Makefile.kvs
@@ -5,6 +6,9 @@ Makefile.kvs
 *.kvsml
 *.dat
 *.bin
-Bin
 
+
+# FOLDER
 WaterMass/
+TEST/
+Bin/

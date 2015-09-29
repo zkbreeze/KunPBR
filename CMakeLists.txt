@@ -53,6 +53,9 @@ target_link_libraries(Tsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${
 add_executable(AnimationTsunami ${PROJECT_SOURCE_DIR}/App/AnimationTsunami/main.cpp )
 target_link_libraries(AnimationTsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
+add_executable(OpenGLPointRendering ${PROJECT_SOURCE_DIR}/App/OpenGLPointRendering/main.cpp )
+target_link_libraries(OpenGLPointRendering util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+
 # add_executable(PolygonClip ${PROJECT_SOURCE_DIR}/App/PolygonClip/main.cpp )
 # target_link_libraries(PolygonClip util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
