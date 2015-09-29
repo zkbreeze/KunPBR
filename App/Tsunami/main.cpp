@@ -184,6 +184,7 @@ int main( int argc, char** argv )
 	screen.registerObject( point, renderer );
 	screen.registerObject( polygon, polygon_renderer );
 	screen.setBackgroundColor( kvs::RGBColor::Black() );
+	// screen.setControlTargetToLight();
 	// screen.setSize( 1024, 768 );
 	screen.show();
 

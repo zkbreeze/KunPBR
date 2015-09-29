@@ -44,21 +44,11 @@ target_link_libraries(OldPBVR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${
 add_executable(PointPBR ${PROJECT_SOURCE_DIR}/App/PointPBR/main.cpp )
 target_link_libraries(PointPBR util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
-add_executable(OBJLoader ${PROJECT_SOURCE_DIR}/App/OBJLoader/main.cpp )
-target_link_libraries(OBJLoader util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
 add_executable(Tsunami ${PROJECT_SOURCE_DIR}/App/Tsunami/main.cpp )
 target_link_libraries(Tsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(AnimationTsunami ${PROJECT_SOURCE_DIR}/App/AnimationTsunami/main.cpp )
 target_link_libraries(AnimationTsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(OpenGLPointRendering ${PROJECT_SOURCE_DIR}/App/OpenGLPointRendering/main.cpp )
-target_link_libraries(OpenGLPointRendering util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-# add_executable(PolygonClip ${PROJECT_SOURCE_DIR}/App/PolygonClip/main.cpp )
-# target_link_libraries(PolygonClip util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
 
 # INSTALL(
 # 	TARGETS util
