@@ -21,7 +21,6 @@ uniform vec3 max;
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
 
-//const float CIRCLE_THRESHOLD = 3.0;
 const float CIRCLE_THRESHOLD = 0.1;
 const float CIRCLE_SCALE = 0.564189583547756; // 1.0 / sqrt(PI)
 const float PI = 3.14159265359;
@@ -64,8 +63,8 @@ float zooming( in vec4 p, in vec4 coord )
     else
         s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) ); 
 
-    float max_rad = Rad * 5.0;
-    if ( s > max_rad ) s = max_rad;
+    // float max_rad = Rad * 5.0;
+    // if ( s > max_rad ) s = max_rad;
     
     s *= scale;
     
@@ -107,7 +106,7 @@ void main()
 {
     gl_FrontColor = texture1D( transfer_function_texture, value );
     
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_PointSize = zooming( gl_Position, gl_Vertex );
 
     normal = gl_Normal.xyz;
