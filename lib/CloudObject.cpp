@@ -115,27 +115,37 @@ bool CloudObject::read( std::string filename, size_t pe )
 	return true;
 }
 
-kun::PointObject* CloudObject::toKUNPointObject()
+kun::PointObject* CloudObject::toKUNPointObject( int Parameter_ID )
 {
 	kun::PointObject* point = new kun::PointObject();
 	float* coord_buffer = new float[m_num * 3];
 	float* size_buffer = new float[m_num];
+	float* value_buffer = new float[m_num];
 
 	for( size_t i = 0; i < m_num; i++ )
 	{
-		coord_buffer[i * 3] = m_x[i];
-		coord_buffer[i * 3 + 1] = m_y[i];
-		coord_buffer[i * 3 + 2] = m_z[i];
+		coord_buffer[i * 3] = (float)m_x[i];
+		coord_buffer[i * 3 + 1] = (float)m_y[i];
+		coord_buffer[i * 3 + 2] = (float)m_z[i];
 
 		size_buffer[i] = m_r[i];
+
+		switch ( Parameter_ID ) 
+		{
+			case 1: value_buffer[i] = (float)m_vz[i]; break;
+			case 2: value_buffer[i] = (float)m_n[i]; break;
+		}
 	}
 
 	kvs::ValueArray<kvs::Real32> coords( coord_buffer, m_num * 3 );
 	kvs::ValueArray<kvs::Real32> sizes( size_buffer, m_num );
+	kvs::ValueArray<kvs::Real32> values( value_buffer, m_num );
 
 	point->setCoords( coords );
 	point->setSizes( sizes );
+	point->setValues( values );
 	point->updateMinMaxCoords();
+	point->updateMinMaxValues();
 
 	return point;
 }

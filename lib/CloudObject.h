@@ -41,15 +41,9 @@ public:
 
 	int numberOfPoints(){ return m_num; }
 
-	kun::PointObject* toKUNPointObject();
-
+	kun::PointObject* toKUNPointObject( int Parameter_ID );
 };
 
-
-
-
 } // end of namespace kun
-
-
  
 #endif // KUN__CLOUDOBJECT_H_INCLUDE
