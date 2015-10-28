@@ -32,7 +32,7 @@ private:
 	long* m_n;
 
 public:
-	CloudObject();
+	CloudObject(){};
 	CloudObject( std::string filename );
 	CloudObject( std::string filename, size_t pe ); // pe is the MPI process number
 

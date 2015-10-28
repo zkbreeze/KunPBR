@@ -53,6 +53,8 @@ bool CloudObject::read( std::string filename )
 	file.read( (char*)m_asl, sizeof(double) * m_num * m_numasl );
 	file.read( (char*)m_n, sizeof(long) * m_num );
 
+	file.close();
+
 	std::cout << filename << " file is load successfully." << std::endl;
 	return true;
 }
@@ -83,9 +85,9 @@ bool CloudObject::read( std::string filename, size_t pe )
 		file[i].read( (char*)&num_asl[i], sizeof(int) );
 		m_num += num[i];
 		total_num_asl += num[i] * num_asl[i];
+		std::cout << num[i] << std::endl;
+		std::cout << num_asl[i] << std::endl;
 	}
-
-	file[0].read( (char*)&m_numasl, sizeof(int) ); // All processes have the same numasl
 
 	m_x = new double[m_num];
 	m_y = new double[m_num];
@@ -111,7 +113,7 @@ bool CloudObject::read( std::string filename, size_t pe )
 		index_asl += num[i] * num_asl[i];
 	}	
 
-	std::cout << filename << " files are load successfully." << std::endl;
+	std::cout << " Files are load successfully." << std::endl;
 	return true;
 }
 
@@ -141,6 +143,7 @@ kun::PointObject* CloudObject::toKUNPointObject( int Parameter_ID )
 	kvs::ValueArray<kvs::Real32> sizes( size_buffer, m_num );
 	kvs::ValueArray<kvs::Real32> values( value_buffer, m_num );
 
+	point->setVeclen( 1 );
 	point->setCoords( coords );
 	point->setSizes( sizes );
 	point->setValues( values );

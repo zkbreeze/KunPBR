@@ -334,7 +334,10 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
     kun::PointObject* point = kun::PointObject::DownCast( object );
     
     this->initialize_transfer_function_texture();
-    this->initialize_density_volume_texture();
+    if( !m_enable_sizes )
+    {
+        this->initialize_density_volume_texture();        
+    }
 
     float radius = kun::RadiusCalculator::CalculateObjectLength( 1.0, *camera, *object );
     // std::cout << radius << std::endl;

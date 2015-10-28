@@ -50,6 +50,10 @@ target_link_libraries(Tsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${
 add_executable(AnimationTsunami ${PROJECT_SOURCE_DIR}/App/AnimationTsunami/main.cpp )
 target_link_libraries(AnimationTsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
+add_executable(Cloud ${PROJECT_SOURCE_DIR}/App/Cloud/main.cpp )
+target_link_libraries(Cloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+
+
 # INSTALL(
 # 	TARGETS util
 # 	ARCHIEVE DESTINATION ${PROJECT_SOURCE_DIR}/lib
