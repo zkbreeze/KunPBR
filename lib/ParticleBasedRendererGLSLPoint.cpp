@@ -130,6 +130,13 @@ void ParticleBasedRendererPoint::disableShuffle()
 {
     static_cast<Engine&>( engine() ).disableShuffle();
 }
+
+// Sizes mode
+void ParticleBasedRendererPoint::setEnabledSizesMode()
+{
+    static_cast<Engine&>( engine() ).setEnabledSizesMode();
+}
+
     
 void ParticleBasedRendererPoint::setParticleScale( float scale )
 {
@@ -166,7 +173,8 @@ ParticleBasedRendererPoint::Engine::Engine():
     m_initial_viewport( kvs::Vec4::Zero() ),
     m_initial_object_depth( 0 ),
     m_vbo( NULL ),
-    m_particle_scale( 1.0 )
+    m_particle_scale( 1.0 ),
+    m_enable_sizes( false )
 {
 }
 
@@ -187,7 +195,8 @@ ParticleBasedRendererPoint::Engine::Engine( const kvs::Mat4& m, const kvs::Mat4&
     m_initial_viewport( v ),
     m_initial_object_depth( 0 ),
     m_vbo( NULL ),
-    m_particle_scale( 1.0 )
+    m_particle_scale( 1.0 ),
+    m_enable_sizes( false )
 {
 }
 
@@ -309,6 +318,7 @@ void ParticleBasedRendererPoint::Engine::setup( kvs::ObjectBase* object, kvs::Ca
     kvs::OpenGL::Enable( GL_VERTEX_PROGRAM_POINT_SIZE );
     m_random_index = m_shader_program.attributeLocation("random_index");
     m_value_location = m_shader_program.attributeLocation("value");
+    if( m_enable_sizes ) m_size_location = m_shader_program.attributeLocation( "size" );
 }
 
 /*===========================================================================*/
@@ -379,11 +389,13 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
         const size_t count = quo + ( repetitionCount() < rem ? 1 : 0 );
         const size_t coord_size = count * sizeof(kvs::Real32) * 3;
         const size_t normal_size = m_has_normal ? ( count * sizeof(kvs::Real32) * 3 ) : 0;
+        const size_t value_size = count * sizeof(kvs::Real32);
 
         const size_t coord_offset = 0;
         const size_t normal_offset = coord_offset + coord_size;
         const size_t value_offset = normal_offset + normal_size;
- 
+        const size_t size_offset = value_offset + value_size;
+
         // Enable coords.
         KVS_GL_CALL( glEnableClientState( GL_VERTEX_ARRAY ) );
         KVS_GL_CALL( glVertexPointer( 3, GL_FLOAT, 0, (GLbyte*)NULL + coord_offset ) );
@@ -403,6 +415,13 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
         KVS_GL_CALL( glEnableVertexAttribArray( m_random_index ) );
         KVS_GL_CALL( glVertexAttribPointer( m_random_index, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, (GLubyte*)NULL + 0 ) );
 
+        // Enable sizes.
+        if( m_enable_sizes )
+        {
+            KVS_GL_CALL( glEnableVertexAttribArray( m_size_location ) );
+            KVS_GL_CALL( glVertexAttribPointer( m_size_location, 1, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL + size_offset ) );
+        }
+
         // Draw.
         KVS_GL_CALL( glDrawArrays( GL_POINTS, 0, count ) );
 
@@ -420,6 +439,11 @@ void ParticleBasedRendererPoint::Engine::draw( kvs::ObjectBase* object, kvs::Cam
 
         // Disable random index.
         KVS_GL_CALL( glDisableVertexAttribArray( m_random_index ) );
+
+        if( m_enable_sizes )
+        {
+            KVS_GL_CALL( glDisableVertexAttribArray( m_size_location ) );
+        }
     }
 
     // countRepetitions();
@@ -458,6 +482,11 @@ void ParticleBasedRendererPoint::Engine::create_shader_program()
         }
     }
 
+    if( m_enable_sizes )
+    {
+        vert.define( "ENABLE_PARTICLE_SIZE" );
+    }
+
     m_shader_program.build( vert, frag );
     m_shader_program.bind();
     m_shader_program.setUniform( "shading.Ka", shader().Ka );
@@ -481,6 +510,7 @@ void ParticleBasedRendererPoint::Engine::create_buffer_object( const kun::PointO
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );
+    kvs::ValueArray<kvs::Real32> sizes = point->sizes();
 
     /*ADD*/
     // Normalize the values
@@ -512,9 +542,10 @@ void ParticleBasedRendererPoint::Engine::create_buffer_object( const kun::PointO
         const size_t first = quo * i + kvs::Math::Min( i, rem );
         const size_t coord_size = count * sizeof(kvs::Real32) * 3;
         const size_t normal_size = m_has_normal ? count * sizeof(kvs::Real32) * 3 : 0;
-        const size_t value_size = count * sizeof(kvs::Real32);
+        const size_t value_size = count * sizeof( kvs::Real32 );
+        const size_t size_size = m_enable_sizes ? ( count * sizeof( kvs::Real32 ) ) : 0;
         
-        const size_t byte_size = coord_size + normal_size + value_size;
+        const size_t byte_size = coord_size + normal_size + value_size + size_size;
         m_vbo[i].create( byte_size );
 
         m_vbo[i].bind();
@@ -524,6 +555,10 @@ void ParticleBasedRendererPoint::Engine::create_buffer_object( const kun::PointO
             m_vbo[i].load( normal_size, normals.data() + first * 3, coord_size );
         }
         m_vbo[i].load( value_size, values.data() + first, coord_size + normal_size );
+        if( m_enable_sizes )
+        {   
+            m_vbo[i].load( size_size, sizes.data() + first, coord_size + normal_size + value_size );
+        }
         
         m_vbo[i].unbind();
     }

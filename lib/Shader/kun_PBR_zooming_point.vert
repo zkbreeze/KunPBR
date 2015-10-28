@@ -20,6 +20,7 @@ uniform vec3 max;
 
 attribute vec2 random_index;
 /*ADD*/ attribute float value;
+attribute float size;
 
 const float CIRCLE_THRESHOLD = 0.1;
 const float CIRCLE_SCALE = 0.564189583547756; // 1.0 / sqrt(PI)
@@ -48,10 +49,10 @@ float zooming( in vec4 p, in vec4 coord )
 
     // Calculate the footprint size of the particle.
     float s = object_depth / D; // footprint size of the particle in pixel
-// #if defined( ENABLE_PARTICLE_SIZE )
-//     /*ADD*/ s *= size;
-// #endif
 
+#if defined( ENABLE_PARTICLE_SIZE )
+    s *= size;
+#else
     vec3 index = ( vec3( coord.x, coord.y, coord.z ) - min ) / ( max - min );
     float density = texture3D( density_volume, index ).w / float(repetition_level);
     float base_opacity = 1.0 - exp( - 0.5 * PI * Rad * Rad * Rad * density );
@@ -65,7 +66,8 @@ float zooming( in vec4 p, in vec4 coord )
 
     // float max_rad = Rad * 5.0;
     // if ( s > max_rad ) s = max_rad;
-    
+#endif
+
     s *= scale;
     
     float sf = floor( s );       // round-down value of s

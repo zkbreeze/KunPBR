@@ -49,6 +49,9 @@ public:
     void setEnabledShuffle( const bool enable );
     void enableShuffle();
     void disableShuffle();
+    // Sizes mode
+    void setEnabledSizesMode();
+
     const kvs::Mat4& initialModelViewMatrix() const;
     const kvs::Mat4& initialProjectionMatrix() const;
     const kvs::Vec4& initialViewport() const;
@@ -98,6 +101,10 @@ private:
     kvs::StructuredVolumeObject* m_density_volume;    
     kvs::Texture3D m_density_texture;
 
+    // Sizes mode
+    bool m_enable_sizes;
+    size_t m_size_location;
+
 public:
 
     Engine();
@@ -113,6 +120,9 @@ public:
     void setEnabledShuffle( const bool enable ) { m_enable_shuffle = enable; }
     void enableShuffle() { this->setEnabledShuffle( true ); }
     void disableShuffle() { this->setEnabledShuffle( false ); }
+    // Sizes mode
+    void setEnabledSizesMode(){ m_enable_sizes = true; }
+
     const kvs::Mat4& initialModelViewMatrix() const { return m_initial_modelview; }
     const kvs::Mat4& initialProjectionMatrix() const { return m_initial_projection; }
     const kvs::Vec4& initialViewport() const { return m_initial_viewport; }
