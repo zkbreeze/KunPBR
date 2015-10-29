@@ -8,6 +8,7 @@
 
 #include "CloudObject.h"
 #include <kvs/ValueArray>
+#include <kvs/Endian>
 
 namespace kun
 {
@@ -32,7 +33,7 @@ bool CloudObject::read( std::string filename )
 	}
 
 	file.seekg( 4 ); // Fortran header
-	file.read( (char*)&m_num, sizeof(int) );
+	file.read( (char*)&m_num, sizeof(int) ); m_num = 87825; // The particle number in the data is wrong, so the number is set by hand.
 	std::cout << "Particle number: " << m_num << std::endl;
 	file.read( (char*)&m_numasl, sizeof(int) );
 	std::cout << "ASL number: " << m_numasl << std::endl;
@@ -76,12 +77,12 @@ bool CloudObject::read( std::string filename, size_t pe )
 		file[i].open( file_name.c_str(), std::ifstream::binary );
 		if( file[i].fail() )
 		{
-			std::cerr << "Cannot read the file " << file_name[i] << std::endl;
+			std::cout << "Cannot read the file " << file_name << std::endl;
 			return false;
 		}
 
 		file[i].seekg( 4 ); // Fortran header
-		file[i].read( (char*)&num[i], sizeof(int) );
+		file[i].read( (char*)&num[i], sizeof(int) ); num[i] = 87825; // The particle number in the data is wrong, so the number is set by hand.
 		file[i].read( (char*)&num_asl[i], sizeof(int) );
 		m_num += num[i];
 		total_num_asl += num[i] * num_asl[i];
@@ -111,7 +112,7 @@ bool CloudObject::read( std::string filename, size_t pe )
 
 		index += num[i];
 		index_asl += num[i] * num_asl[i];
-	}	
+	}
 
 	std::cout << " Files are load successfully." << std::endl;
 	return true;
@@ -130,10 +131,19 @@ kun::PointObject* CloudObject::toKUNPointObject( int Parameter_ID )
 		coord_buffer[i * 3 + 1] = (float)m_y[i];
 		coord_buffer[i * 3 + 2] = (float)m_z[i];
 
-		size_buffer[i] = m_r[i];
+		if( 1.0e-06 >= m_r[i] && m_r[i] >= 50.0e-06  )
+		{
+			float buf = (float)m_r[i] * 1.0e06;
+			size_buffer[i] = std::sqrt( buf );
+		}
+		else
+			size_buffer[i] = 0.0;
+	
+		// size_buffer[i] = (float)m_r[i] + 0.1;
 
 		switch ( Parameter_ID ) 
 		{
+			case 0: value_buffer[i] = (float)m_r[i]; break;
 			case 1: value_buffer[i] = (float)m_vz[i]; break;
 			case 2: value_buffer[i] = (float)m_n[i]; break;
 		}

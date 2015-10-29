@@ -15,9 +15,16 @@
 #include <kvs/CommandLine>
 #include <kvs/HydrogenVolumeData>
 #include "ParticleBasedRendererGLSLPoint.h"
+#include "ParticleBasedRendererGLSL.h"
 
 #include "CloudObject.h"
 #include "PointObject.h"
+
+namespace
+{
+	int repetition_level = 30;
+	float base_opacity = 0.2;
+} // end of namespace kun
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
 {
@@ -32,11 +39,12 @@ public:
 	{
 		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
-		kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
-		renderer->setEnabledSizesMode();
+		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
+		// renderer->setEnabledSizesMode();
 		// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		renderer->setBaseOpacity( ::base_opacity );
 		renderer->setTransferFunction( transferFunction() );
-		renderer->setRepetitionLevel( 1 );
+		renderer->setRepetitionLevel( ::repetition_level );
 		std::cout << "TF adjust time: " << renderer->timer().msec() << std::endl;
 		screen()->redraw();
 	}
@@ -53,20 +61,33 @@ int main( int argc, char** argv )
 	param.addOption( "f", "Input filename", 1, false );
 	param.addOption( "p", "Part name of the MPI file", 1, false );
 	param.addOption( "n", "Number of processes", 1, false );
+	param.addOption( "rep", "Set repetition level", 1, false );
+	param.addOption( "b", "Set base opacity", 1, false );
 	if( !param.parse() ) return 1;
 
 	kun::CloudObject* cloud = new kun::CloudObject();
-	if( param.hasOption( "f" ) ) cloud->read( param.optionValue<std::string>( "f" ) );
-	if( param.hasOption( "p" ) ) cloud->read( param.optionValue<std::string>( "p" ), param.optionValue<size_t>( "n" ) );
+	bool isRead;
+	if( param.hasOption( "f" ) ) isRead = cloud->read( param.optionValue<std::string>( "f" ) );
+	if( param.hasOption( "p" ) ) isRead = cloud->read( param.optionValue<std::string>( "p" ), param.optionValue<size_t>( "n" ) );
+	if( isRead == false ) 
+	{
+		std::cerr << "File is not load successfully." << std::endl;
+		exit( 1 );
+	}
+	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
+	if( param.hasOption( "b" ) ) ::base_opacity = param.optionValue<float>( "b" );
 
-	kun::PointObject* point = cloud->toKUNPointObject( 1 );
+	kun::PointObject* point = cloud->toKUNPointObject( 0 );
+	point->rotate( kvs::Matrix33f::RotationX( -90 ), kvs::Vec3::All( 0.0 ) );
+	point->print( std::cout );
 
 	kvs::TransferFunction tfunc( 256 );
-	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
-	renderer->setEnabledSizesMode();
+	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
+	// renderer->setEnabledSizesMode();
+	renderer->setBaseOpacity( ::base_opacity );
 	renderer->setTransferFunction( tfunc );
-	renderer->setRepetitionLevel( 1 );
-	renderer->setParticleScale( 10.0 );
+	renderer->setRepetitionLevel( ::repetition_level );
+	// renderer->setParticleScale( 10.0 );
 
 	screen.registerObject( point, renderer );
 	screen.setBackgroundColor( kvs::RGBColor::Black() );
