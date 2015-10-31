@@ -86,8 +86,6 @@ bool CloudObject::read( std::string filename, size_t pe )
 		file[i].read( (char*)&num_asl[i], sizeof(int) );
 		m_num += num[i];
 		total_num_asl += num[i] * num_asl[i];
-		std::cout << num[i] << std::endl;
-		std::cout << num_asl[i] << std::endl;
 	}
 
 	m_x = new double[m_num];
