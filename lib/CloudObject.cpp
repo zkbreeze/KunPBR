@@ -144,6 +144,7 @@ kun::PointObject* CloudObject::toKUNPointObject( int Parameter_ID )
 			case 0: value_buffer[i] = (float)m_r[i]; break;
 			case 1: value_buffer[i] = (float)m_vz[i]; break;
 			case 2: value_buffer[i] = (float)m_n[i]; break;
+			case 3: value_buffer[i] = (float)m_r[i] * m_r[i] * m_n[i]; break;
 		}
 	}
 

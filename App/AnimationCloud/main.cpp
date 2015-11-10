@@ -48,6 +48,8 @@ namespace
     int    nsteps;
     int    time_step;
 
+    int    parameter = 0;
+
     size_t repetition = 5;
 
     bool ShadingFlag = true;
@@ -114,7 +116,7 @@ void initialize( std::string filename, size_t input_timestep = 0 )
     	sprintf( buf, "%04d", i * 60 );
     	std::string name = filename + "sdbin_all0000" + buf + "_";
     	kun::CloudObject* cloud = new kun::CloudObject( name, 8 );
-    	::object[i] = cloud->toKUNPointObject( 0 );
+    	::object[i] = cloud->toKUNPointObject( ::parameter );
         ::object[i]->setName( ::ObjectName );
         delete cloud;
         std::cout << "\r" << i << std::flush;        
@@ -253,6 +255,7 @@ int main( int argc, char** argv )
     param.addOption( "rep", "repetition level", 1, false );
     param.addOption( "trans", "set initial transferfunction", 1, false );
     param.addOption( "nsteps", "set n time steps to load", 1, false );
+    param.addOption( "p", "parameter", 1, false );
     
     if ( !param.parse() ) return 1;
 
@@ -263,6 +266,7 @@ int main( int argc, char** argv )
     if( param.hasOption( "trans" ) )
         ::tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
     if ( param.hasOption( "nos" ) ) ::ShadingFlag = false;
+    if( param.hasOption( "p" ) ) ::parameter = param.optionValue<int>( "p" );
 
     // Time-varying data loading
     size_t input_timestep = 0;
