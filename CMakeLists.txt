@@ -2,9 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 project(KunPBR)
 set($ENV{KUN_SHADER_DIR} "${PROJECT_SOURCE_DIR}/lib/Shader/")
 
+# KVS Library
 set(KVS_DIR $ENV{KVS_DIR})
 include_directories( ${KVS_DIR}/include )
 link_directories( ${KVS_DIR}/lib )
+
+# Adv Library
+set(Adv_DIR $ENV{Adv_DIR})
+include_directories( ${Adv_DIR}/include )
+link_directories( ${Adv_DIR}/lib )
 
 option(DEBUG "DEBUG" OFF)
 
@@ -55,6 +61,9 @@ target_link_libraries(Cloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GL
 
 add_executable(AnimationCloud ${PROJECT_SOURCE_DIR}/App/AnimationCloud/main.cpp )
 target_link_libraries(AnimationCloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+
+
+
 
 # INSTALL(
 # 	TARGETS util
