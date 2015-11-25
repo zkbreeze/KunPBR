@@ -20,8 +20,9 @@ class OBJObject
 	std::string m_filename;
 	std::vector<kvs::Real32> m_coords;
 	std::vector<kvs::UInt8> m_colors;
-	std::vector<kvs::Real32> m_normals;
 	std::vector<kvs::UInt32> m_connections;
+	float* m_normals; // Vertex normal type
+
 	kvs::Vector3f m_min; // Clip edge for the polygon [min]
 	kvs::Vector3f m_max; // Clip edge for the polygon [max]
 	bool m_is_minmax;
