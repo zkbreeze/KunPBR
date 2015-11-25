@@ -93,9 +93,7 @@ bool OBJObject::read( std::string filename )
 			break;
 		}
 	}
-	std::cout << m_coords.size() << std::endl;
-	std::cout << m_normals.size() << std::endl;
-	std::cout << m_coords.size() << std::endl;
+
 	return true;
 }
 
