@@ -30,7 +30,7 @@ public:
 	AdvObject(){}
 	AdvObject( std::string filename );
 
-	bool read( std::string filename );
+	void read( std::string filename );
 	size_t numberOfParticles();
 
 	kun::PointObject* toKUNPointObject();

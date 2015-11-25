@@ -21,7 +21,7 @@ AdvObject::AdvObject( std::string filename )
 	this->read( filename );
 }
 
-bool AdvObject::read( std::string filename )
+void AdvObject::read( std::string filename )
 {
 	AdvDocFile *advfile;
 	AdvDocument *doc;
@@ -120,9 +120,6 @@ kun::PointObject* AdvObject::toKUNPointObject()
 	point->setValues( values );
 	point->updateMinMaxValues();
 	point->updateMinMaxCoords();
-
-	const float* coord = point->coord().data();
-	std::cout << coord[3] << std::endl;
 
 	return point;
 }
