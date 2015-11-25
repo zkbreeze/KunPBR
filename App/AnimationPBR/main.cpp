@@ -28,7 +28,7 @@
 #include <kvs/FileList>
 #include <kvs/glut/Timer>
 #include <kvs/TimerEventListener>
-#include "ParticleBasedRendererGLSL.h"
+#include "ParticleBasedRenderer.h"
 #include "PointImporter.h"
 #include "PointObject.h"
 #include <kvs/ParticleBasedRenderer>

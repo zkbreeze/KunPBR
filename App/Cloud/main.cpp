@@ -14,8 +14,7 @@
 #include <kvs/ObjectManager>
 #include <kvs/CommandLine>
 #include <kvs/HydrogenVolumeData>
-#include "ParticleBasedRendererGLSLPoint.h"
-#include "ParticleBasedRendererGLSL.h"
+#include "ParticleBasedRenderer.h"
 
 #include "CloudObject.h"
 #include "PointObject.h"

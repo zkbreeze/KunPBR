@@ -15,7 +15,7 @@
 #include <kvs/RayCastingRenderer>
 #include <kvs/CommandLine>
 #include <kvs/Timer>
-#include "ParticleBasedRendererGLSLPoint.h"
+#include "ParticleBasedRenderer.h"
 #include <kvs/TransferFunction>
 #include <kvs/glut/TransferFunctionEditor>
 #include <kvs/RendererManager>
@@ -42,8 +42,9 @@ public:
 	{
 		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer();
-		kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
+		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
 		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		renderer->enableDensityMode();
 		renderer->setDensityVolume( ::density_volume );
 		renderer->setRepetitionLevel( ::repetition_level );
 		renderer->setTransferFunction( transferFunction() );
@@ -94,8 +95,9 @@ int main( int argc, char** argv )
 	kvs::TransferFunction tfunc( 256 );
 	tfunc.setColorMap( kvs::RGBFormulae::Jet( 256 ) );
 
-	kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+	renderer->enableDensityMode();
 	renderer->setDensityVolume( ::density_volume );
 	renderer->setRepetitionLevel( ::repetition_level );
 	renderer->setTransferFunction( tfunc );

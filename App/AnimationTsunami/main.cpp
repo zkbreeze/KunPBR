@@ -27,7 +27,7 @@
 #include <kvs/FileList>
 #include <kvs/glut/Timer>
 #include <kvs/TimerEventListener>
-#include "ParticleBasedRendererGLSLPoint.h"
+#include "ParticleBasedRenderer.h"
 #include "PointImporter.h"
 #include "PointObject.h"
 #include <kvs/ParticleBasedRenderer>
@@ -99,7 +99,7 @@ public:
     {
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
         kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer( ::RendererName );
-        kun::ParticleBasedRendererPoint* renderer = static_cast<kun::ParticleBasedRendererPoint*>( r );
+        kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
 
         renderer->setShader( phong );
         if(::ShadingFlag == false)
@@ -108,6 +108,7 @@ public:
         }
         ::tfunc = transferFunction();
         renderer->setTransferFunction( transferFunction() );
+        renderer->enableDensityMode();
         renderer->setDensityVolume( ::density_volume[::time_step] );
         renderer->setRepetitionLevel( ::repetition );
         std::cout << "TF renderer time: " << renderer->timer().msec() << std::endl;
@@ -202,7 +203,7 @@ public:
         ::glut_timer->stop();
         ::time_step = int( this->value() );
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 
         if(::ShadingFlag == false)
         {
@@ -210,6 +211,7 @@ public:
         }
 
         renderer->setName( ::RendererName );
+        renderer->enableDensityMode();
         renderer->setDensityVolume( ::density_volume[::time_step] );
         renderer->setTransferFunction( ::tfunc );
         renderer->setRepetitionLevel( ::repetition );
@@ -237,7 +239,7 @@ class TimerEvent : public kvs::TimerEventListener
     void update( kvs::TimeEvent* event )
     {
         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 
         renderer->setName( ::RendererName );
         if( ::ShadingFlag == false )
@@ -250,6 +252,7 @@ class TimerEvent : public kvs::TimerEventListener
         else
             renderer->setRepetitionLevel( ::repetition );
         
+        renderer->enableDensityMode();
         renderer->setDensityVolume( ::density_volume[::time_step] );
 
         glut_screen->scene()->objectManager()->change( ::ObjectName, ::object[::time_step++], false );
@@ -284,13 +287,14 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                     if ( ::isLODRendering )
                     {
                         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-                        kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+                        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
                         kun::PointObject* object_current = new kun::PointImporter( ::file_name[::time_step - 1] );
                         object_current->setName( ::ObjectName );
                         std::cout << std::endl;
                         std::cout << "Finish loading " << ::file_name[::time_step - 1] <<std::endl;
 
                         renderer->setName( ::RendererName );
+                        renderer->enableDensityMode();
                         renderer->setDensityVolume( ::density_volume[::time_step] );
                         renderer->setTransferFunction( ::tfunc );
                         renderer->setRepetitionLevel( ::repetition );
@@ -389,9 +393,9 @@ int main( int argc, char** argv )
     else
         initialize( param.optionValue<std::string>( "f" ), 0.0, input_timestep );
 
-    kun::ParticleBasedRendererPoint* renderer = new kun::ParticleBasedRendererPoint();
+    kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
     renderer->setName( ::RendererName );
-
+    renderer->enableDensityMode();
     renderer->setDensityVolume( ::density_volume[0] );
     renderer->setTransferFunction( ::tfunc );
     renderer->setRepetitionLevel( ::repetition );

@@ -19,7 +19,7 @@
 #include <kvs/RendererManager>
 #include <kvs/CommandLine>
 #include "CellByCellUniformSampling.h"
-#include "ParticleBasedRendererGLSL.h"
+#include "ParticleBasedRenderer.h"
 #include "JetImporter.h"
 
 #include "KVSMLObjectKunPoint.h"
