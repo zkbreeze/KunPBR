@@ -54,10 +54,10 @@ add_executable(Tsunami ${PROJECT_SOURCE_DIR}/App/Tsunami/main.cpp )
 target_link_libraries(Tsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(AnimationTsunami ${PROJECT_SOURCE_DIR}/App/AnimationTsunami/main.cpp )
-target_link_libraries(AnimationTsunami util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+target_link_libraries(AnimationTsunami util kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(Cloud ${PROJECT_SOURCE_DIR}/App/Cloud/main.cpp )
-target_link_libraries(Cloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+target_link_libraries(Cloud util kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(AnimationCloud ${PROJECT_SOURCE_DIR}/App/AnimationCloud/main.cpp )
 target_link_libraries(AnimationCloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
