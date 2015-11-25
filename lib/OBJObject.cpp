@@ -32,6 +32,7 @@ bool OBJObject::read( std::string filename )
 	std::cout << "File is opened." << std::endl;
 
 	char* buf = new char[256];
+	std::vector<float> normals;
 	while ( ifs.getline( buf, 256 ) )
 	{
 		switch( buf[0] )
@@ -68,9 +69,9 @@ bool OBJObject::read( std::string filename )
 					std::cerr << "Normal data is wrong" << std::endl;
 					return false;
 				}
-				m_normals.push_back( normal_temp1 );
-				m_normals.push_back( normal_temp2 );
-				m_normals.push_back( normal_temp3 );
+				normals.push_back( normal_temp1 );
+				normals.push_back( normal_temp2 );
+				normals.push_back( normal_temp3 );
 				break;
 			}
 			break;
@@ -86,9 +87,15 @@ bool OBJObject::read( std::string filename )
 			m_connections.push_back( connection_temp1 - 1 );
 			m_connections.push_back( connection_temp2 - 1 );
 			m_connections.push_back( connection_temp3 - 1 );
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3] + normals[(nor_temp2 - 1) * 3] + normals[(nor_temp3 - 1 ) * 3] );
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 1] + normals[(nor_temp2 - 1) * 3 + 1] + normals[(nor_temp3 - 1 ) * 3 + 1] );
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 2] + normals[(nor_temp2 - 1) * 3 + 2] + normals[(nor_temp3 - 1 ) * 3 + 2] );
 			break;
 		}
 	}
+	std::cout << m_coords.size() << std::endl;
+	std::cout << m_normals.size() << std::endl;
+	std::cout << m_coords.size() << std::endl;
 	return true;
 }
 
@@ -97,7 +104,6 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	this->read( m_filename ); 
 
 	kvs::PolygonObject* polygon = new kvs::PolygonObject();
-	polygon->setNormalTypeToVertex();
 
 	kvs::UInt8* color_buf = new kvs::UInt8[ m_coords.size() ];
 	for( size_t i = 0; i < m_coords.size(); i++ ) color_buf[i] = 255; // Assign the building as white
@@ -113,7 +119,7 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	polygon->setConnections( connections );
 	polygon->setPolygonType( kvs::PolygonObject::Triangle );
 	polygon->setColorType( kvs::PolygonObject::VertexColor );
-	polygon->setNormalType( kvs::PolygonObject::VertexNormal );
+	polygon->setNormalTypeToPolygon();
 
 	return polygon;
 
