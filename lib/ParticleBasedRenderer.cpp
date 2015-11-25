@@ -162,10 +162,10 @@ void ParticleBasedRenderer::setTransferFunction( kvs::TransferFunction tfunc )
     static_cast<Engine&>( engine() ).setTransferFunction( tfunc );
 }
 
-// void ParticleBasedRenderer::setBaseOpacity( float base_opacity )
-// {
-//     static_cast<Engine&>( engine() ).setBaseOpacity( base_opacity );
-// }
+void ParticleBasedRenderer::setBaseOpacity( float base_opacity )
+{
+    static_cast<Engine&>( engine() ).setBaseOpacity( base_opacity );
+}
 
 void ParticleBasedRenderer::setDensityVolume( kvs::StructuredVolumeObject* volume )
 {

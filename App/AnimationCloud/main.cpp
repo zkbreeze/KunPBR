@@ -30,7 +30,6 @@
 #include "ParticleBasedRenderer.h"
 #include "PointImporter.h"
 #include "PointObject.h"
-#include <kvs/ParticleBasedRenderer>
 #include "FPS.h"
 #include "CloudObject.h"
 
