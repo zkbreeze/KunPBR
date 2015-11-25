@@ -36,6 +36,7 @@ namespace
 	kvs::StructuredVolumeObject* density_volume = NULL;	
 	int repetition_level = 36;
 	kvs::Timer fps_time;
+	bool isAdv = false;
 }
 
 class FPS : public kvs::PaintEventListener
@@ -65,9 +66,13 @@ public:
 		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer( "PointRenderer" );
 		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
-		renderer->enableDensityMode();
+		if( !::isAdv )
+		{
+			renderer->enableDensityMode();
+			renderer->setDensityVolume( ::density_volume );			
+		}
+
 		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
-		renderer->setDensityVolume( ::density_volume );
 		renderer->setRepetitionLevel( ::repetition_level );
 		renderer->setTransferFunction( transferFunction() );
 		std::cout << "TF adjust time: " << renderer->timer().msec() << std::endl;
@@ -111,6 +116,7 @@ int main( int argc, char** argv )
 	param.addHelpOption();
 	param.addOption( "m", "Assign max grid number", 1, false );
 	param.addOption( "f", "Input KUN point file name", 1, false );
+	param.addOption( "adv", "Input Adv Data", 1, false );
 	param.addOption( "t", "Input tsunami file name", 1, false );
 	param.addOption( "rep", "Input repetition level", 1, false );
 	param.addOption( "l", "Input the OBJ land object", 1, false );
@@ -131,6 +137,12 @@ int main( int argc, char** argv )
 		kun::TsunamiObject* tsunami = new kun::TsunamiObject( param.optionValue<std::string>( "t" ) );
 		point = tsunami->toKUNPointObject( 1 );		
 	}
+	if( param.hasOption( "adv" ) )
+	{	
+		::isAdv = true;
+		kun::AdvObject* tsunami = new kun::AdvObject( param.optionValue<std::string>( "adv" ) );
+		point = tsunami->toKUNPointObject();
+	}
 
 	if( param.hasOption( "minx" ) ) 
 	{
@@ -150,21 +162,25 @@ int main( int argc, char** argv )
 
 	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
 
-	kvs::Timer time;
-	time.start();
-	kun::DensityCalculator* calculator = new kun::DensityCalculator( point );
-	if( param.hasOption( "m" ) ) calculator->setMaxGrid( param.optionValue<int>( "m") );
-	density_volume = calculator->outputDensityVolume();
-	time.stop();
-	std::cout << "Density calculation time: " << time.msec() << "msec" << std::endl;
-
 	kvs::TransferFunction tfunc( 256 );
 	tfunc.setColorMap( kvs::RGBFormulae::Ocean( 256 ) );
 
 	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-	renderer->enableDensityMode();
+
+	if( !::isAdv ) // Calculate the particle density
+	{
+		kvs::Timer time;
+		time.start();
+		kun::DensityCalculator* calculator = new kun::DensityCalculator( point );
+		if( param.hasOption( "m" ) ) calculator->setMaxGrid( param.optionValue<int>( "m") );
+		::density_volume = calculator->outputDensityVolume();
+		time.stop();
+		std::cout << "Density calculation time: " << time.msec() << "msec" << std::endl;
+
+		renderer->enableDensityMode();
+		renderer->setDensityVolume( ::density_volume );		
+	}
 	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
-	renderer->setDensityVolume( ::density_volume );
 	renderer->setTransferFunction( tfunc );
 	renderer->setName( "PointRenderer" );
 
