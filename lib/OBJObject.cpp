@@ -33,9 +33,6 @@ bool OBJObject::read( std::string filename )
 
 	char* buf = new char[256];
 	std::vector<float> normals;
-	// Initialize the normal array
-	int number_of_vertex;
-
 	while ( ifs.getline( buf, 256 ) )
 	{
 		switch( buf[0] )
@@ -77,9 +74,6 @@ bool OBJObject::read( std::string filename )
 				normals.push_back( normal_temp3 );
 				break;
 			}
-			number_of_vertex = m_coords.size() / 3;
-			m_normals = new float[number_of_vertex * 3];
-			for( size_t i = 0; i < number_of_vertex * 3; i++ ) m_normals[i] = 0.0; 
 			break;
 
 			case 'f': // connection data
@@ -94,17 +88,9 @@ bool OBJObject::read( std::string filename )
 			m_connections.push_back( connection_temp2 - 1 );
 			m_connections.push_back( connection_temp3 - 1 );
 
-			m_normals[(connection_temp1 - 1) * 3] += normals[(nor_temp1 - 1 ) * 3];
-			m_normals[(connection_temp1 - 1) * 3 + 1] += normals[(nor_temp1 - 1 ) * 3 + 1];
-			m_normals[(connection_temp1 - 1) * 3 + 2] += normals[(nor_temp1 - 1 ) * 3 + 2];
-
-			m_normals[(connection_temp2 - 1) * 3] += normals[(nor_temp2 - 1 ) * 3];
-			m_normals[(connection_temp2 - 1) * 3 + 1] += normals[(nor_temp2 - 1 ) * 3 + 1];
-			m_normals[(connection_temp2 - 1) * 3 + 2] += normals[(nor_temp2 - 1 ) * 3 + 2];
-
-			m_normals[(connection_temp3 - 1) * 3] += normals[(nor_temp3 - 1 ) * 3];
-			m_normals[(connection_temp3 - 1) * 3 + 1] += normals[(nor_temp3 - 1 ) * 3 + 1];
-			m_normals[(connection_temp3 - 1) * 3 + 2] += normals[(nor_temp3 - 1 ) * 3 + 2];
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3] + normals[(nor_temp2 - 1) * 3] + normals[(nor_temp3 - 1 ) * 3] );
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 1] + normals[(nor_temp2 - 1) * 3 + 1] + normals[(nor_temp3 - 1 ) * 3 + 1] );
+			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 2] + normals[(nor_temp2 - 1) * 3 + 2] + normals[(nor_temp3 - 1 ) * 3 + 2] );
 			break;
 		}
 	}
@@ -119,10 +105,10 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	kvs::PolygonObject* polygon = new kvs::PolygonObject();
 
 	kvs::UInt8* color_buf = new kvs::UInt8[ m_coords.size() ];
-	for( size_t i = 0; i < m_coords.size(); i++ ) color_buf[i] = 255; // Assign the building as white
+	for( size_t i = 0; i < m_coords.size(); i++ ) color_buf[i] = 150; // Assign the building as white
 
 	kvs::ValueArray<float> coords( m_coords.data(), m_coords.size() );
-	kvs::ValueArray<float> normals( m_normals, m_coords.size() );
+	kvs::ValueArray<float> normals( m_normals.data(), m_normals.size() );
 	kvs::ValueArray<kvs::UInt32> connections( m_connections.data(), m_connections.size() );
 	kvs::ValueArray<kvs::UInt8> colors( color_buf, m_coords.size() );
 
@@ -132,7 +118,7 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	polygon->setConnections( connections );
 	polygon->setPolygonType( kvs::PolygonObject::Triangle );
 	polygon->setColorType( kvs::PolygonObject::VertexColor );
-	polygon->setNormalTypeToVertex();
+	polygon->setNormalTypeToPolygon();
 
 	return polygon;
 
