@@ -22,7 +22,7 @@
 #include "SnapKey.h"
 #include <kvs/RGBFormulae>
 #include <kvs/StochasticRenderingCompositor>
-#include <kvs/StochasticPolygonRenderer>
+#include "StochasticPolygonRenderer.h"
 #include "OBJObject.h"
 #include <kvs/PolygonObject>
 #include <kvs/glut/Slider>
@@ -94,7 +94,7 @@ public:
 		kvs::PolygonObject* polygon = static_cast<kvs::PolygonObject*>( o );
 		polygon->setOpacity( this->value() );
 
-		kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
+		kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
 		polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 		polygon_renderer->setName( "PolygonRenderer" );
 		glut_screen->scene()->rendererManager()->change( "PolygonRenderer", polygon_renderer, false );
@@ -194,7 +194,7 @@ int main( int argc, char** argv )
 	polygon->print( std::cout );
 	// polygon->setOpacity( 100 );
 
-	kvs::StochasticPolygonRenderer* polygon_renderer = new kvs::StochasticPolygonRenderer();
+	kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
 	polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	polygon_renderer->setName( "PolygonRenderer" );
 	// polygon_renderer->setPolygonOffset( -1.f );
