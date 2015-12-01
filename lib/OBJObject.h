@@ -34,6 +34,8 @@ public:
 	bool read( std::string filename );
 	void setRange( kvs::Vector3f min, kvs::Vector3f max ){ m_is_minmax = true; m_min = min; m_max = max; }
 	kvs::PolygonObject* toKVSPolygonObject();
+
+	// bool write( std::string filename ){};
 };
 
 

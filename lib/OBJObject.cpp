@@ -47,6 +47,10 @@ bool OBJObject::read( std::string filename )
 					std::cerr << "Coord data is wrong" << std::endl;
 					return false;
 				}
+				// // add for 1f_in
+				// coord_temp1 -= ( 106105 + 73 );
+				// coord_temp2 -= ( 158414 + 110 );
+
 				if ( m_is_minmax )
 				{
 					if ( coord_temp1 < m_min.x() ) coord_temp1 = m_min.x();
@@ -124,8 +128,8 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	polygon->updateMinMaxCoords();
 
 	return polygon;
-
 }
 
-	
+// bool OBJObject::write( std::string filename )	
+// {}
 } // end of namespace kun

@@ -30,6 +30,7 @@
 #include <kvs/PaintEventListener>
 #include "PolygonClipper.h"
 #include "AdvObject.h"
+#include "VTKObject.h"
 
 namespace
 {
@@ -120,6 +121,8 @@ int main( int argc, char** argv )
 	param.addOption( "t", "Input tsunami file name", 1, false );
 	param.addOption( "rep", "Input repetition level", 1, false );
 	param.addOption( "l", "Input the OBJ land object", 1, false );
+	param.addOption( "v", "Input the vtk land object", 1, false );
+	param.addOption( "o", "Set the base opacity", 1, false );
 	param.addOption( "minx", "Input the clip range of min x", 1, false );
 	param.addOption( "miny", "Input the clip range of min y", 1, false );
 	param.addOption( "minz", "Input the clip range of min z", 1, false );
@@ -180,14 +183,24 @@ int main( int argc, char** argv )
 		renderer->enableDensityMode();
 		renderer->setDensityVolume( ::density_volume );		
 	}
+	if( param.hasOption( "o" ) ) renderer->setBaseOpacity( param.optionValue<float>( "o" ) );
 	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	renderer->setTransferFunction( tfunc );
 	renderer->setName( "PointRenderer" );
 
 	// Load land
-	kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
-	obj->setRange( min, max ); // The land data is larger than the tsunami data
-	kvs::PolygonObject* polygon = obj->toKVSPolygonObject();
+	kvs::PolygonObject* polygon = NULL;
+	if( param.hasOption( "l" ) )
+	{
+		kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
+		obj->setRange( min, max ); // The land data is larger than the tsunami data
+		polygon = obj->toKVSPolygonObject();		
+	}
+	if( param.hasOption( "v" ) )
+	{
+		kun::VTKObject* land = new kun::VTKObject( param.optionValue<std::string>( "v" ) );
+		polygon = land->toKVSPolygonObject();
+	}
 	// kun::PolygonClipper::ClipBox( polygon, min, max );
 	// kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
 	polygon->setName( "Polygon" );
