@@ -91,6 +91,7 @@ bool OBJObject::read( std::string filename )
 			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3] + normals[(nor_temp2 - 1) * 3] + normals[(nor_temp3 - 1 ) * 3] );
 			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 1] + normals[(nor_temp2 - 1) * 3 + 1] + normals[(nor_temp3 - 1 ) * 3 + 1] );
 			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 2] + normals[(nor_temp2 - 1) * 3 + 2] + normals[(nor_temp3 - 1 ) * 3 + 2] );
+
 			break;
 		}
 	}
@@ -119,6 +120,8 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	polygon->setPolygonType( kvs::PolygonObject::Triangle );
 	polygon->setColorType( kvs::PolygonObject::VertexColor );
 	polygon->setNormalTypeToPolygon();
+
+	polygon->updateMinMaxCoords();
 
 	return polygon;
 
