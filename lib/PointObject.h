@@ -80,6 +80,7 @@ public:
     void updateMinMaxExternalCoords();
 
     void setMinMaxRange( kvs::Vector3f min, kvs::Vector3f max ); // Clip the min max range of the point data
+    kun::PointObject* toPartPoint( float fraction );
 
     /*ADD*/
     kvs::Real64 minValue() const { return m_min_value; }

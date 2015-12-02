@@ -615,6 +615,33 @@ void PointObject::setMinMaxValues(
     m_has_min_max_values = true;
 }
 
+/*ADD*/
+void PointObject::updateMinMaxValues() const
+{
+    kvs::Range range;
+    switch ( m_values.typeID() )
+    {
+    case kvs::Type::TypeInt8:   { range = ::GetMinMaxValues<kvs::Int8  >( this ); break; }
+    case kvs::Type::TypeInt16:  { range = ::GetMinMaxValues<kvs::Int16 >( this ); break; }
+    case kvs::Type::TypeInt32:  { range = ::GetMinMaxValues<kvs::Int32 >( this ); break; }
+    case kvs::Type::TypeInt64:  { range = ::GetMinMaxValues<kvs::Int64 >( this ); break; }
+    case kvs::Type::TypeUInt8:  { range = ::GetMinMaxValues<kvs::UInt8 >( this ); break; }
+    case kvs::Type::TypeUInt16: { range = ::GetMinMaxValues<kvs::UInt16>( this ); break; }
+    case kvs::Type::TypeUInt32: { range = ::GetMinMaxValues<kvs::UInt32>( this ); break; }
+    case kvs::Type::TypeUInt64: { range = ::GetMinMaxValues<kvs::UInt64>( this ); break; }
+    case kvs::Type::TypeReal32: { range = ::GetMinMaxValues<kvs::Real32>( this ); break; }
+    case kvs::Type::TypeReal64: { range = ::GetMinMaxValues<kvs::Real64>( this ); break; }
+    default: break;
+    }
+
+    this->setMinMaxValues( range.lower(), range.upper() );
+}
+
+void PointObject::updateMinMaxExternalCoords()
+{
+    this->setMinMaxExternalCoords( this->minObjectCoord(), this->maxObjectCoord() );
+}
+
 void PointObject::setMinMaxRange( kvs::Vector3f min, kvs::Vector3f max )
 {
     std::vector<kvs::Real32> coords;
@@ -648,31 +675,24 @@ void PointObject::setMinMaxRange( kvs::Vector3f min, kvs::Vector3f max )
     std::cout << "The point clip for the min max range was conducted." << std::endl;
 }
 
-/*ADD*/
-void PointObject::updateMinMaxValues() const
+kun::PointObject* PointObject::toPartPoint( float fraction )
 {
-    kvs::Range range;
-    switch ( m_values.typeID() )
-    {
-    case kvs::Type::TypeInt8:   { range = ::GetMinMaxValues<kvs::Int8  >( this ); break; }
-    case kvs::Type::TypeInt16:  { range = ::GetMinMaxValues<kvs::Int16 >( this ); break; }
-    case kvs::Type::TypeInt32:  { range = ::GetMinMaxValues<kvs::Int32 >( this ); break; }
-    case kvs::Type::TypeInt64:  { range = ::GetMinMaxValues<kvs::Int64 >( this ); break; }
-    case kvs::Type::TypeUInt8:  { range = ::GetMinMaxValues<kvs::UInt8 >( this ); break; }
-    case kvs::Type::TypeUInt16: { range = ::GetMinMaxValues<kvs::UInt16>( this ); break; }
-    case kvs::Type::TypeUInt32: { range = ::GetMinMaxValues<kvs::UInt32>( this ); break; }
-    case kvs::Type::TypeUInt64: { range = ::GetMinMaxValues<kvs::UInt64>( this ); break; }
-    case kvs::Type::TypeReal32: { range = ::GetMinMaxValues<kvs::Real32>( this ); break; }
-    case kvs::Type::TypeReal64: { range = ::GetMinMaxValues<kvs::Real64>( this ); break; }
-    default: break;
-    }
+    kun::PointObject* point = new kun::PointObject();
+    this->shuffle();
+    int nvertices = this->numberOfVertices() * fraction;
 
-    this->setMinMaxValues( range.lower(), range.upper() );
-}
+    const float* pcoord = this->coords().data();
+    const float* pvalues = (const float*)this->values().data();
+    kvs::ValueArray<kvs::Real32> coords( pcoord, nvertices * 3 );
+    kvs::ValueArray<kvs::Real32> values( pvalues, nvertices );
 
-void PointObject::updateMinMaxExternalCoords()
-{
-    this->setMinMaxExternalCoords( this->minObjectCoord(), this->maxObjectCoord() );
+    point->setVeclen( 1 );
+    point->setCoords( coords );
+    point->setValues( values );
+    point->updateMinMaxValues();
+    point->updateMinMaxCoords();
+
+    return point;
 }
 
 } // end of namespace kun
