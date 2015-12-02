@@ -38,6 +38,7 @@ namespace
 	int repetition_level = 36;
 	kvs::Timer fps_time;
 	bool isAdv = false;
+	char polygon_opacity = 50;
 }
 
 class FPS : public kvs::PaintEventListener
@@ -73,7 +74,7 @@ public:
 			renderer->setDensityVolume( ::density_volume );			
 		}
 
-		renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 		renderer->setRepetitionLevel( ::repetition_level );
 		renderer->setTransferFunction( transferFunction() );
 		std::cout << "TF adjust time: " << renderer->timer().msec() << std::endl;
@@ -96,7 +97,7 @@ public:
 		polygon->setOpacity( this->value() );
 
 		kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
-		polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		// polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 		polygon_renderer->setName( "PolygonRenderer" );
 		glut_screen->scene()->rendererManager()->change( "PolygonRenderer", polygon_renderer, false );
 		screen()->redraw();
@@ -166,7 +167,7 @@ int main( int argc, char** argv )
 	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
 
 	kvs::TransferFunction tfunc( 256 );
-	tfunc.setColorMap( kvs::RGBFormulae::Ocean( 256 ) );
+	tfunc.setColorMap( kvs::RGBFormulae::Jet( 256 ) );
 
 	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
 
@@ -184,7 +185,7 @@ int main( int argc, char** argv )
 		renderer->setDensityVolume( ::density_volume );		
 	}
 	if( param.hasOption( "o" ) ) renderer->setBaseOpacity( param.optionValue<float>( "o" ) );
-	renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
+	// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	renderer->setTransferFunction( tfunc );
 	renderer->setName( "PointRenderer" );
 
@@ -193,8 +194,7 @@ int main( int argc, char** argv )
 	if( param.hasOption( "l" ) )
 	{
 		kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
-		obj->setRange( min, max ); // The land data is larger than the tsunami data
-		polygon = obj->toKVSPolygonObject();		
+		polygon = obj->toKVSPolygonObject();
 	}
 	if( param.hasOption( "v" ) )
 	{
@@ -203,12 +203,13 @@ int main( int argc, char** argv )
 	}
 	// kun::PolygonClipper::ClipBox( polygon, min, max );
 	// kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
+	kun::PolygonClipper::ClipBoxCourse( polygon, min, max );
 	polygon->setName( "Polygon" );
+	polygon->setOpacity( ::polygon_opacity );
 	polygon->print( std::cout );
-	// polygon->setOpacity( 100 );
 
 	kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
-	polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
+	// polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	polygon_renderer->setName( "PolygonRenderer" );
 	// polygon_renderer->setPolygonOffset( -1.f );
 
@@ -216,7 +217,7 @@ int main( int argc, char** argv )
 	screen.registerObject( polygon, polygon_renderer );
 	screen.setBackgroundColor( kvs::RGBColor::Black() );
 	// screen.setControlTargetToLight();
-	// screen.setSize( 1024, 768 );
+	screen.setSize( 1024, 768 );
 	screen.show();
 
 	kvs::StochasticRenderingCompositor compositor( screen.scene() );
@@ -242,7 +243,7 @@ int main( int argc, char** argv )
 	slider->setX( screen.width() * 0.25 );
 	slider->setY( screen.height() - 80 );
 	slider->setWidth( screen.width() / 2 );
-	slider->setValue( 255 );
+	slider->setValue( ::polygon_opacity );
 	slider->setRange( 0, 255 );
 	slider->setMargin( 15 );
 	slider->setCaption("Polygon Opacity");

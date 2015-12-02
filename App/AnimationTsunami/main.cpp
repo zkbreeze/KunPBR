@@ -37,6 +37,7 @@
 #include "StochasticPolygonRenderer.h"
 #include "OBJObject.h"
 #include <kvs/RGBFormulae>
+#include "PolygonClipper.h"
 
 namespace
 {
@@ -416,8 +417,8 @@ int main( int argc, char** argv )
     //screen.scene()->camera()->setPosition( kvs::Vector3f(0, 0, 3), kvs::Vector3f(1, 0, 0) );
     // Load land
     kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
-    obj->setRange( ::object[0]->minObjectCoord(), ::object[0]->maxObjectCoord() ); // The land data is larger than the tsunami data
     land = obj->toKVSPolygonObject();
+    kun::PolygonClipper::ClipBoxCourse( land, ::object[0]->minObjectCoord(), ::object[0]->maxObjectCoord() ); // The land data is larger than the tsunami data
     land->setName( "Polygon" );
 
     kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
