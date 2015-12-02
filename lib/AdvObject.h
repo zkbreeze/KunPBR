@@ -29,6 +29,7 @@ class AdvObject
 public:
 	AdvObject(){}
 	AdvObject( std::string filename );
+	~AdvObject();
 
 	void read( std::string filename );
 	size_t numberOfParticles();

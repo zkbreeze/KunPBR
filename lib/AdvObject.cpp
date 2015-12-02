@@ -21,6 +21,17 @@ AdvObject::AdvObject( std::string filename )
 	this->read( filename );
 }
 
+AdvObject::~AdvObject()
+{
+	delete m_x;
+	delete m_y;
+	delete m_z;
+	delete m_u;
+	delete m_v;
+	delete m_w;
+	delete m_type;
+}
+
 void AdvObject::read( std::string filename )
 {
 	AdvDocFile *advfile;
