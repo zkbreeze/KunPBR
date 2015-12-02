@@ -26,6 +26,29 @@ void PolygonClipper::ClipBox(kvs::PolygonObject *polygon, kvs::Vec3 min, kvs::Ve
 	ClipZPlane( polygon, max.z(), DOWN );
 }
 
+void PolygonClipper::ClipBoxCourse(kvs::PolygonObject *polygon, kvs::Vec3 min, kvs::Vec3 max)
+{
+	int nvertices = polygon->numberOfVertices();
+	float* pcoord = new float[nvertices * 3];
+	for( size_t i = 0; i < nvertices; i++ )
+	{
+		int index = i * 3;
+		pcoord[index] = polygon->coords().data()[index];
+		pcoord[index + 1] = polygon->coords().data()[index + 1];
+		pcoord[index + 2] = polygon->coords().data()[index + 2];
+		if ( pcoord[index] < min.x() ) pcoord[index] = min.x();
+		if ( pcoord[index] > max.x() ) pcoord[index] = max.x();
+		if ( pcoord[index + 1] < min.y() ) pcoord[index + 1] = min.y();
+		if ( pcoord[index + 1] > max.y() ) pcoord[index + 1] = max.y();
+		if ( pcoord[index + 2] < min.z() ) pcoord[index + 2] = min.z();
+		if ( pcoord[index + 2] > max.z() ) pcoord[index + 2] = max.z();
+	}
+	kvs::ValueArray<float> coords( pcoord, nvertices * 3);
+	polygon->setCoords( coords );
+	polygon->updateMinMaxCoords();
+	polygon->setMinMaxExternalCoords( polygon->minObjectCoord(), polygon->maxObjectCoord() );
+}
+
 void PolygonClipper::ClipXPlane(kvs::PolygonObject *polygon, float X, PlaneDirection direction )
 {
 	Plane* plane_X = Plane::ConstructXPlane( X );

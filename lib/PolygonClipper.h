@@ -30,6 +30,7 @@ public:
 	};
 
 	static void ClipBox( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
+	static void ClipBoxCourse( kvs::PolygonObject* polygon, kvs::Vec3 min, kvs::Vec3 max );
 	static void ClipXPlane( kvs::PolygonObject* polygon, float X, PlaneDirection direction );
 	static void ClipYPlane( kvs::PolygonObject* polygon, float Y, PlaneDirection direction );
 	static void ClipZPlane( kvs::PolygonObject* polygon, float Z, PlaneDirection direction );
