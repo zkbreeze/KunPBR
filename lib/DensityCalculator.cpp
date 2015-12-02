@@ -65,6 +65,10 @@ void DensityCalculator::exec()
 		size_t index_y = ( coord[i * 3 + 1] - m_point->minObjectCoord().y() ) / size_y;
 		size_t index_z = ( coord[i * 3 + 2] - m_point->minObjectCoord().z() ) / size_z;
 
+		if( index_x >= m_x ) index_x = m_x - 1;
+		if( index_y >= m_y ) index_y = m_y - 1;
+		if( index_z >= m_z ) index_z = m_z - 1;
+
 		m_table[index_x + index_y * m_x + index_z * m_x * m_y] += 1;
 	}
 }
