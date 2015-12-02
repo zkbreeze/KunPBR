@@ -4,7 +4,7 @@
 //
 //  Created by Kun Zhao on 2015-12-01 16:46:39.
 //
-//
+//  This is supposed to load the Tsunami structure, and is not suitable for all VTK data.
 
 #ifndef KUN__VTKOBJECT_H_INCLUDE
 #define KUN__VTKOBJECT_H_INCLUDE
@@ -31,7 +31,6 @@ public:
 	bool read( std::string filename );
 	kvs::PolygonObject* toKVSPolygonObject();
 };
-
 
 } // end of namespace kun
  

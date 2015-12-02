@@ -53,8 +53,6 @@ float zooming( in vec4 p, in vec4 coord )
     else
         s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity_dens ) ); 
 
-    // float max_rad = Rad * 5.0;
-    // if ( s > max_rad ) s = max_rad;
 #elif defined( ENABLE_PARTICLE_SIZE ) // Sizes mode
         s *= size;
 #else // Default mode
@@ -64,6 +62,10 @@ float zooming( in vec4 p, in vec4 coord )
 	else
 	    s *= sqrt( log( 1.0 - max_alpha ) / log( 1.0 - base_opacity ) );
 #endif
+
+    // Avoid too big particle
+    float max_rad = Rad * 10.0;
+    if ( s > max_rad ) s = max_rad;
 
     s *= scale;
     

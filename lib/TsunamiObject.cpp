@@ -90,9 +90,6 @@ namespace kun
 		point->updateMinMaxValues();
 		point->updateMinMaxCoords();
 
-		const float* coord = point->coord().data();
-		std::cout << coord[3] << std::endl;
-
 		return point;
 	}
 
