@@ -124,6 +124,7 @@ int main( int argc, char** argv )
 	param.addOption( "l", "Input the OBJ land object", 1, false );
 	param.addOption( "v", "Input the vtk land object", 1, false );
 	param.addOption( "o", "Set the base opacity", 1, false );
+	param.addOption( "p", "Assign the part [0.0 ~ 1.0] of the particle", 1, false );
 	param.addOption( "minx", "Input the clip range of min x", 1, false );
 	param.addOption( "miny", "Input the clip range of min y", 1, false );
 	param.addOption( "minz", "Input the clip range of min z", 1, false );
@@ -160,6 +161,7 @@ int main( int argc, char** argv )
 		point->setMinMaxRange( kvs::Vector3f( minx, miny, minz ), kvs::Vector3f( maxx, maxy, maxz ) );
 	}
 
+	if( param.hasOption( "p" ) ) point = point->toPartPoint( param.optionValue<float>( "p" ) );
 	point->print( std::cout );
 	kvs::Vector3f min = point->minObjectCoord();
 	kvs::Vector3f max = point->maxObjectCoord();
@@ -170,8 +172,11 @@ int main( int argc, char** argv )
 	tfunc.setColorMap( kvs::RGBFormulae::Jet( 256 ) );
 
 	kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-
-	if( !::isAdv ) // Calculate the particle density
+	if( param.hasOption( "o" ) ) 
+	{
+		renderer->setBaseOpacity( param.optionValue<float>( "o" ) );	
+	}
+	else
 	{
 		kvs::Timer time;
 		time.start();
@@ -184,7 +189,7 @@ int main( int argc, char** argv )
 		renderer->enableDensityMode();
 		renderer->setDensityVolume( ::density_volume );		
 	}
-	if( param.hasOption( "o" ) ) renderer->setBaseOpacity( param.optionValue<float>( "o" ) );
+
 	// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
 	renderer->setTransferFunction( tfunc );
 	renderer->setName( "PointRenderer" );
