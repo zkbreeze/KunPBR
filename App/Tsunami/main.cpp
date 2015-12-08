@@ -124,7 +124,7 @@ int main( int argc, char** argv )
 	param.addOption( "l", "Input the OBJ land object", 1, false );
 	param.addOption( "v", "Input the vtk land object", 1, false );
 	param.addOption( "o", "Set the base opacity", 1, false );
-	param.addOption( "p", "Assign the part [0.0 ~ 1.0] of the particle", 1, false );
+	param.addOption( "lod", "Assign the part [0.0 ~ 1.0] of the particle", 1, false );
 	param.addOption( "minx", "Input the clip range of min x", 1, false );
 	param.addOption( "miny", "Input the clip range of min y", 1, false );
 	param.addOption( "minz", "Input the clip range of min z", 1, false );
@@ -161,7 +161,7 @@ int main( int argc, char** argv )
 		point->setMinMaxRange( kvs::Vector3f( minx, miny, minz ), kvs::Vector3f( maxx, maxy, maxz ) );
 	}
 
-	if( param.hasOption( "p" ) ) point = point->toPartPoint( param.optionValue<float>( "p" ) );
+	if( param.hasOption( "lod" ) ) point = point->toPartPoint( param.optionValue<float>( "lod" ) );
 	point->print( std::cout );
 	kvs::Vector3f min = point->minObjectCoord();
 	kvs::Vector3f max = point->maxObjectCoord();
@@ -187,7 +187,7 @@ int main( int argc, char** argv )
 		std::cout << "Density calculation time: " << time.msec() << "msec" << std::endl;
 
 		renderer->enableDensityMode();
-		renderer->setDensityVolume( ::density_volume );		
+		renderer->setDensityVolume( ::density_volume );
 	}
 
 	// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0.7, 50 ) );
