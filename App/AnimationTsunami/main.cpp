@@ -38,14 +38,16 @@
 #include "OBJObject.h"
 #include <kvs/RGBFormulae>
 #include "PolygonClipper.h"
+#include "AdvObject.h"
+#include "VTKObject.h"
 
 namespace
 {
     kun::PointObject** object = NULL;
     kvs::StructuredVolumeObject** density_volume = NULL;
-    kvs::PolygonObject* land = NULL;
 
     bool isLODRendering = false;
+    float lod = 1.0;
 
     kvs::glut::Timer* glut_timer;
     std::vector<std::string> file_name;
@@ -59,7 +61,6 @@ namespace
     int    time_step;
 
     size_t repetition = 81;
-    size_t repetition_low;
 
     int    max_grid = 200;
 
@@ -119,7 +120,7 @@ public:
 
 TransferFunctionEditor* editor = NULL;
 
-void initialize( std::string filename, float fraction = 0.0, size_t input_timestep = 0 )
+void initialize( std::string filename, size_t input_timestep = 0 )
 {
     ::time_step = 0;
     ::msec = 20;
@@ -127,6 +128,7 @@ void initialize( std::string filename, float fraction = 0.0, size_t input_timest
     kvs::Directory directory( filename );
     const kvs::FileList files = directory.fileList();
     int file_length = files.size();
+    bool isAdv = false;
 
     for ( int i = 0; i < file_length; i++ )
     {
@@ -136,6 +138,12 @@ void initialize( std::string filename, float fraction = 0.0, size_t input_timest
             ::nsteps++;
             file_name.push_back( file.filePath() );
         }
+        if( file.extension() == "adv" )
+        {
+            isAdv = true;
+            ::nsteps++;
+            file_name.push_back( file.filePath() );            
+        }
     }
 
     if( input_timestep )
@@ -143,18 +151,22 @@ void initialize( std::string filename, float fraction = 0.0, size_t input_timest
     
     ::object = new kun::PointObject*[::nsteps];
     ::density_volume = new kvs::StructuredVolumeObject*[::nsteps];
-    std::cout << ::nsteps << std::endl;
+    std::cout << ::nsteps << " time steps." << std::endl;
     
     kvs::Timer time;
     time.start();
     for ( int i = 0; i < ::nsteps; i++ )
     {
-        if( fraction ) 
-            ::object[i] = new kun::PointImporter( file_name[i], fraction );
+        if( isAdv )
+        {
+            kun::AdvObject* adv = new kun::AdvObject( file_name[i] );
+            ::object[i] = adv->toKUNPointObject();
+            delete adv;
+        }
         else
-            ::object[i] = new kun::PointImporter( file_name[i] );
-
-
+        {
+            ::object[i] = new kun::PointImporter( file_name[i] );            
+        }
         if( ::isClipping ) ::object[i]->setMinMaxRange( ::min_range, ::max_range );
 
         kun::DensityCalculator* calculator = new kun::DensityCalculator( ::object[i] );
@@ -187,7 +199,7 @@ public:
     void screenUpdated( void )
     {
         char* buf = new char[256];
-        sprintf( buf, "Time step : %03d", ::time_step + 100 );
+        sprintf( buf, "Time step : %03d", ::time_step );
         setText( std::string( buf ).c_str() );
     }
 };
@@ -217,14 +229,7 @@ public:
         renderer->setTransferFunction( ::tfunc );
         renderer->setRepetitionLevel( ::repetition );
 
-        kun::PointObject* object_current = NULL;
-        if ( ::isLODRendering )
-        {
-            object_current = new kun::PointImporter( ::file_name[::time_step] );
-            object_current->setName( ::ObjectName );
-        }
-        else
-            object_current = ::object[::time_step];
+        kun::PointObject* object_current = ::object[::time_step];
 
         glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
         glut_screen->scene()->rendererManager()->change( ::RendererName, renderer, true );
@@ -239,29 +244,43 @@ class TimerEvent : public kvs::TimerEventListener
 {
     void update( kvs::TimeEvent* event )
     {
-        kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
-        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
+        ::time_step++;
 
+        kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
+        kun::PointObject* object_current = new kun::PointObject();
+        object_current->setName( ::ObjectName );
+
+        kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
         renderer->setName( ::RendererName );
+
         if( ::ShadingFlag == false )
         {
             renderer->disableShading();
         }
         renderer->setTransferFunction( ::tfunc );
         if ( ::isLODRendering )
-            renderer->setRepetitionLevel( ::repetition_low );
+        {
+            object_current = ::object[::time_step]->toPartPoint( ::lod );
+            // renderer->setRepetitionLevel( ::repetition * ::lod );
+            // Supplement for the density.
+            renderer->setParticleScale( 1.0 / ::lod );
+        }
         else
-            renderer->setRepetitionLevel( ::repetition );
+        {
+            object_current = ::object[::time_step];
+            // renderer->setRepetitionLevel( ::repetition );            
+        }
+        object_current->print( std::cout );
         
         renderer->enableDensityMode();
         renderer->setDensityVolume( ::density_volume[::time_step] );
 
-        glut_screen->scene()->objectManager()->change( ::ObjectName, ::object[::time_step++], false );
+        glut_screen->scene()->objectManager()->change( ::ObjectName, object_current, false );
         glut_screen->scene()->replaceRenderer( ::RendererName, renderer, true );
         slider->setValue( (float)::time_step );
         glut_screen->redraw();
 
-        if( ::time_step == ::nsteps ) 
+        if( ::time_step == ::nsteps - 1 ) 
         {
             ::time_step = 0;
             ::glut_timer->stop();
@@ -289,10 +308,8 @@ class KeyPressEvent : public kvs::KeyPressEventListener
                     {
                         kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
                         kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
-                        kun::PointObject* object_current = new kun::PointImporter( ::file_name[::time_step - 1] );
+                        kun::PointObject* object_current = ::object[::time_step];
                         object_current->setName( ::ObjectName );
-                        std::cout << std::endl;
-                        std::cout << "Finish loading " << ::file_name[::time_step - 1] <<std::endl;
 
                         renderer->setName( ::RendererName );
                         renderer->enableDensityMode();
@@ -327,7 +344,7 @@ public:
 		polygon->setOpacity( this->value() );
 
 		kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
-		polygon_renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
+		polygon_renderer->setShader( ::phong );
 		polygon_renderer->setName( "PolygonRenderer" );
 		glut_screen->scene()->rendererManager()->change( "PolygonRenderer", polygon_renderer, false );
 		screen()->redraw();
@@ -345,34 +362,26 @@ int main( int argc, char** argv )
 
     kvs::CommandLine param( argc, argv );
     param.addHelpOption();
-    param.addOption( "f", "KVSML Point Data Directory", 1, true );
+    param.addOption( "f", "Input KUN Point Data Directory", 1, false );
+    param.addOption( "adv", "Input Adv Data Directory", 1, false );
+    param.addOption( "l", "Input the OBJ Land File", 1, false );
+    param.addOption( "v", "Input the vtk land object", 1, false );
     param.addOption( "nos", "No Shading", 0, false );
     param.addOption( "rep", "Set the Repetition Level", 1, false );
-    param.addOption( "rep_low", "Set Low Repetition Level, which is used LOD animation", 1, false );
+    param.addOption( "lod", "Set the LOD level [0.0 ~ 1.0], which is used LOD animation", 1, false );
     param.addOption( "trans", "Set Initial Transferfunction", 1, false );
     param.addOption( "nsteps", "Set n time steps to load", 1, false );
     param.addOption( "m", "Set the Max Grid for Density Calculation", 1, false );
-    param.addOption( "l", "Input the Land File", 1, true );
     param.addOption( "minx", "Input the clip range of min x", 1, false );
     param.addOption( "miny", "Input the clip range of min y", 1, false );
     param.addOption( "minz", "Input the clip range of min z", 1, false );
     param.addOption( "maxx", "Input the clip range of max x", 1, false );
     param.addOption( "maxy", "Input the clip range of max y", 1, false );
     param.addOption( "maxz", "Input the clip range of max z", 1, false );
-
     if ( !param.parse() ) return 1;
 
-    if( param.hasOption( "rep" ) ) ::repetition = param.optionValue<size_t>( "rep" );
-    if( param.hasOption( "m" ) ) ::max_grid = param.optionValue<int>( "m" );
-
-    if( param.hasOption( "rep_low" ) )
-    {
-        ::isLODRendering= true;
-        ::repetition_low = param.optionValue<size_t>( "rep_low" );
-    }
-
-    std::cout << "fraction: " << (float)::repetition_low / ::repetition << std::endl;
-
+    size_t input_timestep = 0;
+    if( param.hasOption( "nsteps" ) ) input_timestep = param.optionValue<size_t>( "nsteps" );
     // Clipping
     if( param.hasOption( "minx" ) ) 
     {
@@ -381,19 +390,45 @@ int main( int argc, char** argv )
         ::max_range = kvs::Vector3f( param.optionValue<float>( "maxx" ), param.optionValue<float>( "maxy" ), param.optionValue<float>( "maxz" ) );
     }
 
-    // Base transfer function
-    if( param.hasOption( "trans" ) )
-        ::tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
     if ( param.hasOption( "nos" ) ) ::ShadingFlag = false;
+    if( param.hasOption( "rep" ) ) ::repetition = param.optionValue<size_t>( "rep" );
+    if( param.hasOption( "lod" ) )
+    {
+        ::isLODRendering= true;
+        ::lod = param.optionValue<float>( "lod" );
+    }
+    if( param.hasOption( "trans" ) ) ::tfunc = kvs::TransferFunction( param.optionValue<std::string>( "trans" ) );
+    if( param.hasOption( "m" ) ) ::max_grid = param.optionValue<int>( "m" );
 
     // Time-varying data loading
-    size_t input_timestep = 0;
-    if( param.hasOption( "nsteps" ) ) input_timestep = param.optionValue<size_t>( "nsteps" );
-    if( ::isLODRendering )
-        initialize( param.optionValue<std::string>( "f" ), (float)::repetition_low / ::repetition, input_timestep );
-    else
-        initialize( param.optionValue<std::string>( "f" ), 0.0, input_timestep );
+    std::string directory;
+    if( param.hasOption( "f" ) ) directory = param.optionValue<std::string>( "f" );
+    if( param.hasOption( "adv" ) ) directory = param.optionValue<std::string>( "adv" );
+    initialize( directory, input_timestep );
+    ::min_range = ::object[0]->minObjectCoord();
+    ::max_range = ::object[0]->maxObjectCoord();
 
+    // Land data loading
+    kvs::PolygonObject* polygon = NULL;
+    if( param.hasOption( "l" ) )
+    {
+        kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
+        polygon = obj->toKVSPolygonObject();
+    }
+    if( param.hasOption( "v" ) )
+    {
+        kun::VTKObject* vtk = new kun::VTKObject( param.optionValue<std::string>( "v" ) );
+        polygon = vtk->toKVSPolygonObject();
+    }
+    // kun::PolygonClipper::ClipBox( polygon, min, max );
+    // kun::PolygonClipper::ClipZPlane( polygon, min.z(), kun::PolygonClipper::UP );
+    polygon->setName( "Polygon" );
+    kun::PolygonClipper::ClipBoxCourse( polygon, ::min_range, ::max_range );
+    float polygon_opacity = 50;
+    polygon->setOpacity( polygon_opacity );
+    polygon->print( std::cout );
+
+    // Renderer
     kun::ParticleBasedRenderer* renderer = new kun::ParticleBasedRenderer();
     renderer->setName( ::RendererName );
     renderer->enableDensityMode();
@@ -401,33 +436,19 @@ int main( int argc, char** argv )
     renderer->setTransferFunction( ::tfunc );
     renderer->setRepetitionLevel( ::repetition );
 
-    if( ::ShadingFlag == false ) renderer->disableShading();
-
-    kun::PointObject* object_first = NULL;
-
-    // load the point for the first time step
-    if ( param.hasOption( "rep_low" ) )
-    {
-        object_first = new kun::PointImporter( ::file_name[0] );
-        object_first->setName( ::ObjectName );
-    }
-    else
-        object_first = ::object[0];
-
-    //screen.scene()->camera()->setPosition( kvs::Vector3f(0, 0, 3), kvs::Vector3f(1, 0, 0) );
-    // Load land
-    kun::OBJObject* obj = new kun::OBJObject( param.optionValue<std::string>( "l" ) );
-    land = obj->toKVSPolygonObject();
-    kun::PolygonClipper::ClipBoxCourse( land, ::object[0]->minObjectCoord(), ::object[0]->maxObjectCoord() ); // The land data is larger than the tsunami data
-    land->setName( "Polygon" );
-
     kun::StochasticPolygonRenderer* polygon_renderer = new kun::StochasticPolygonRenderer();
     polygon_renderer->setShader( phong );
     polygon_renderer->setName( "PolygonRenderer" );
     // polygon_renderer->setPolygonOffset( -1.f );
 
-    screen.registerObject( object_first, renderer );
-    screen.registerObject( land, polygon_renderer );
+    if( ::ShadingFlag == false )
+    {
+        renderer->disableShading();
+        polygon_renderer->disableShading();
+    }
+
+    screen.registerObject( ::object[0], renderer );
+    screen.registerObject( polygon, polygon_renderer );
     screen.setBackgroundColor( kvs::RGBColor::Black() );
     screen.setSize( 1024, 768 );
     screen.show();
@@ -445,8 +466,8 @@ int main( int argc, char** argv )
     kvs::StructuredVolumeObject* pointdummy = new kvs::StructuredVolumeObject();
     pointdummy->setGridType( kvs::StructuredVolumeObject::Uniform );
     pointdummy->setVeclen( 1 );
-    pointdummy->setResolution( kvs::Vector3ui( 1, 1, object_first->numberOfVertices() ) );
-    pointdummy->setValues( object_first->values() );
+    pointdummy->setResolution( kvs::Vector3ui( 1, 1, ::object[0]->numberOfVertices() ) );
+    pointdummy->setValues( ::object[0]->values() );
     pointdummy->updateMinMaxValues();
     std::cout << "Number of points for the first time step: " << pointdummy->numberOfNodes() <<std::endl;
     
@@ -461,25 +482,26 @@ int main( int argc, char** argv )
     label->setY( screen.height() - 80 );
     label->show();
     
-    // slider
+    // Time slider
     slider = new TimeSlider( &screen );
     slider->setSliderColor( ::label_color );
     slider->setX( screen.width() * 0.25 );
     slider->setY( screen.height() - 80 );
     slider->setWidth( screen.width() / 2 );
     slider->setValue( 0.0 );
-    slider->setRange( 0.0, ::nsteps );
+    slider->setRange( 0.0, ::nsteps - 1 );
     slider->setMargin( 15 );
     slider->setCaption("");
     slider->setTextColor( ::label_color  );
     slider->show();
 
+    // Polygon opacity slider
     PolygonSlider* polygon_slider = new PolygonSlider( &screen );
     polygon_slider->setSliderColor( kvs::RGBColor::White() );
     polygon_slider->setX( screen.width() * 0.25 );
     polygon_slider->setY( 10 );
     polygon_slider->setWidth( screen.width() / 2 );
-    polygon_slider->setValue( 255 );
+    polygon_slider->setValue( polygon_opacity );
     polygon_slider->setRange( 0, 255 );
     polygon_slider->setMargin( 15 );
     polygon_slider->setCaption("Polygon Opacity");
