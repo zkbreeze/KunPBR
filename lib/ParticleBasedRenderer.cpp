@@ -464,7 +464,6 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_shader_program()
 {
-    std::cout << "Start to create shader program." << std::endl;
     const std::string shader_dir( std::getenv( "KUN_SHADER_DIR" ) );
     std::string vert_shader_source = shader_dir + std::string( "kun_PBR.vert" );
     std::string frag_shader_source = shader_dir + std::string( "kun_PBR.frag" );
@@ -518,8 +517,6 @@ void ParticleBasedRenderer::Engine::create_shader_program()
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::create_buffer_object( const kun::PointObject* point )
 {
-    std::cout << "Start to create buffer object." << std::endl;
-
     kvs::ValueArray<kvs::Real32> coords = point->coords();
     kvs::ValueArray<kvs::Real32> normals = point->normals();
     kvs::ValueArray<kvs::Real32> values( static_cast<kvs::Real32*>( point->values().data() ), point->numberOfVertices() );

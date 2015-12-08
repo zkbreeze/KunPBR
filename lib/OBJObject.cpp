@@ -46,7 +46,7 @@ bool OBJObject::read( std::string filename )
 					std::cerr << "Coord data is wrong" << std::endl;
 					return false;
 				}
-				// // add for 1f_in
+				// // coordinate transform for 1f_in data.
 				// coord_temp1 -= ( 106105 + 73 );
 				// coord_temp2 -= ( 158414 + 110 );
 
