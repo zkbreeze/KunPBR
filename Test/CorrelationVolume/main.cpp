@@ -22,6 +22,7 @@
 #include <kvs/glut/Label>
 #include <kvs/RGBFormulae>
 #include <kvs/KeyPressEventListener>
+#include <kvs/OpacityMap>
 
 namespace
 {
@@ -29,7 +30,7 @@ namespace
 	int sequence_length = 27;
 	int time_lag = 0;
 	int max_lag = 10;
-	kvs::TransferFunction tfunc = kvs::RGBFormulae::Ocean( 256 );	
+	kvs::TransferFunction tfunc = kvs::RGBFormulae::Jet( 256 );
 }
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
@@ -208,6 +209,12 @@ int main( int argc, char** argv )
 
 	kvs::glsl::RayCastingRenderer* renderer = new kvs::glsl::RayCastingRenderer();
 	renderer->setName( "Renderer" );
+	kvs::OpacityMap omap;
+	omap.addPoint( 0.0, 1.0 );
+	omap.addPoint( 1.0, 1.0 );
+	omap.create();
+	tfunc.setOpacityMap( omap );
+	tfunc.setRange( -1.0, 1.0 );
 	renderer->setTransferFunction( ::tfunc );
 
 	screen.registerObject( object, renderer );
