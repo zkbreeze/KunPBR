@@ -15,7 +15,15 @@
 namespace kun
 {
 
-OBJObject::OBJObject( std::string filename )
+OBJObject::OBJObject():
+m_has_normal( false ),
+m_color( kvs::RGBColor::White() )
+{
+}
+
+OBJObject::OBJObject( std::string filename ):
+m_has_normal( false ),
+m_color( kvs::RGBColor::White() )
 {
 	this->read( filename );
 }
@@ -28,7 +36,7 @@ bool OBJObject::read( std::string filename )
 		std::cerr<< "Error to open file!" << std::endl;
 		return false;
 	}
-	std::cout << "File is opened." << std::endl;
+	std::cout << filename << " file is opened." << std::endl;
 
 	char* buf = new char[256];
 	std::vector<float> normals;
@@ -57,6 +65,7 @@ bool OBJObject::read( std::string filename )
 				break;
 
 				case 'n': // normal file
+				m_has_normal = true;
 				float normal_temp1, normal_temp2, normal_temp3;
 				if ( std::sscanf( buf + 2, "%f %f %f", &normal_temp1, &normal_temp2, &normal_temp3 ) != 3 )
 				{
@@ -75,16 +84,22 @@ bool OBJObject::read( std::string filename )
 			int nor_temp1, nor_temp2, nor_temp3;
 			if ( std::sscanf( buf + 2, "%d//%d %d//%d %d//%d", &connection_temp1, &nor_temp1, &connection_temp2, &nor_temp2, &connection_temp3, &nor_temp3 ) != 6 )
 			{
-				std::cerr << "Connection data is wrong" << std::endl;
-				return false;
+				if( std::sscanf( buf + 2, "%d %d %d", &connection_temp1, &connection_temp2, &connection_temp3 ) != 3 )
+				{
+					std::cerr << "Connection data is wrong" << std::endl;
+					return false;
+				}
 			}
 			m_connections.push_back( connection_temp1 - 1 );
 			m_connections.push_back( connection_temp2 - 1 );
 			m_connections.push_back( connection_temp3 - 1 );
 
-			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3] + normals[(nor_temp2 - 1) * 3] + normals[(nor_temp3 - 1 ) * 3] );
-			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 1] + normals[(nor_temp2 - 1) * 3 + 1] + normals[(nor_temp3 - 1 ) * 3 + 1] );
-			m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 2] + normals[(nor_temp2 - 1) * 3 + 2] + normals[(nor_temp3 - 1 ) * 3 + 2] );
+			if( m_has_normal )
+			{
+				m_normals.push_back( normals[(nor_temp1 - 1 ) * 3] + normals[(nor_temp2 - 1) * 3] + normals[(nor_temp3 - 1 ) * 3] );
+				m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 1] + normals[(nor_temp2 - 1) * 3 + 1] + normals[(nor_temp3 - 1 ) * 3 + 1] );
+				m_normals.push_back( normals[(nor_temp1 - 1 ) * 3 + 2] + normals[(nor_temp2 - 1) * 3 + 2] + normals[(nor_temp3 - 1 ) * 3 + 2] );				
+			}
 
 			break;
 		}
@@ -98,7 +113,12 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 	kvs::PolygonObject* polygon = new kvs::PolygonObject();
 
 	kvs::UInt8* color_buf = new kvs::UInt8[ m_coords.size() ];
-	for( size_t i = 0; i < m_coords.size(); i++ ) color_buf[i] = 150; // Assign the building as white
+	for( size_t i = 0; i < m_coords.size() / 3; i++ )
+	{
+		color_buf[i * 3] = m_color.r();
+		color_buf[i * 3 + 1] = m_color.g();
+		color_buf[i * 3 + 2] = m_color.b();
+	}
 
 	kvs::ValueArray<float> coords( m_coords.data(), m_coords.size() );
 	kvs::ValueArray<float> normals( m_normals.data(), m_normals.size() );
@@ -107,7 +127,7 @@ kvs::PolygonObject* OBJObject::toKVSPolygonObject()
 
 	polygon->setCoords( coords );
 	polygon->setColors( colors );
-	polygon->setNormals( normals );
+	if( m_has_normal ) polygon->setNormals( normals );
 	polygon->setConnections( connections );
 	polygon->setPolygonType( kvs::PolygonObject::Triangle );
 	polygon->setColorType( kvs::PolygonObject::VertexColor );
