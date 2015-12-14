@@ -23,6 +23,7 @@
 #include <kvs/RGBFormulae>
 #include <kvs/KeyPressEventListener>
 #include <kvs/OpacityMap>
+#include <kvs/ColorMap>
 
 namespace
 {
@@ -31,6 +32,20 @@ namespace
 	int time_lag = 0;
 	int max_lag = 10;
 	kvs::TransferFunction tfunc = kvs::RGBFormulae::Jet( 256 );
+}
+
+kvs::StructuredVolumeObject* setVolumeObject( float* values )
+{
+	kvs::StructuredVolumeObject* object = new kvs::StructuredVolumeObject();
+	object->setName( "Object" );
+	object->setGridTypeToUniform();
+	object->setResolution( kvs::Vec3ui::All( 2 ) );
+	object->setVeclen( 1 );
+	object->setValues( kvs::ValueArray<float>( values, 8 ) );
+	object->updateMinMaxCoords();
+	object->updateMinMaxValues();
+
+	return object;
 }
 
 class TransferFunctionEditor : public kvs::glut::TransferFunctionEditor
@@ -90,11 +105,7 @@ public:
 		for( size_t i = 0; i < 8; i++ )
 			pvalue[i] = kun::Correlation::calculateLag( m_sequences[i * 2], m_sequences[i * 2 + 1], ::sequence_length, ::time_lag );
 
-		kvs::ValueArray<float> values( pvalue, 8 );
-		kvs::HydrogenVolumeData* object = new kvs::HydrogenVolumeData( kvs::Vec3ui::All( 2 ) );
-		object->setValues( values );
-		object->updateMinMaxValues();
-		object->setName( "Object" );
+		kvs::StructuredVolumeObject* object = setVolumeObject( pvalue );
 
 		kvs::glsl::RayCastingRenderer* renderer = new kvs::glsl::RayCastingRenderer();
 		renderer->setName( "Renderer" );
@@ -140,13 +151,12 @@ public:
         
         float* pvalue = new float[8];
         for( size_t i = 0; i < 8; i++ )
+        {
         	pvalue[i] = kun::Correlation::calculateLag( m_sequences[i * 2], m_sequences[i * 2 + 1], ::sequence_length, ::time_lag );
-
-        kvs::ValueArray<float> values( pvalue, 8 );
-        kvs::HydrogenVolumeData* object = new kvs::HydrogenVolumeData( kvs::Vec3ui::All( 2 ) );
-        object->setValues( values );
-        object->updateMinMaxValues();
-        object->setName( "Object" );
+        	std::cout << pvalue[i] << ", ";
+        }
+        std::cout << std::endl;
+        kvs::StructuredVolumeObject* object = setVolumeObject( pvalue );
 
         kvs::glsl::RayCastingRenderer* renderer = new kvs::glsl::RayCastingRenderer();
         renderer->setName( "Renderer" );
@@ -174,18 +184,16 @@ float** readCSVtoSequences( char* filename )
 	for( size_t i = 0; i < ::sequence_length; i++ )
 	{
 		ifs.getline( buf, 256 );
-		int j = 0;
 		int lag = ( i + ::best_lag ) % ::sequence_length;
 		std::sscanf( buf, "%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f",
-		 &sequence[j++][i], &sequence[j++][lag], &sequence[j++][i], &sequence[j++][lag],
-		 &sequence[j++][i], &sequence[j++][lag], &sequence[j++][i], &sequence[j++][lag],
-		 &sequence[j++][i], &sequence[j++][lag], &sequence[j++][i], &sequence[j++][lag],
-		 &sequence[j++][i], &sequence[j++][lag], &sequence[j++][i], &sequence[j++][lag] );
+		 &sequence[0][i], &sequence[1][lag], &sequence[2][i], &sequence[3][lag],
+		 &sequence[4][i], &sequence[5][lag], &sequence[6][i], &sequence[7][lag],
+		 &sequence[8][i], &sequence[9][lag], &sequence[10][i], &sequence[11][lag],
+		 &sequence[12][i], &sequence[13][lag], &sequence[14][i], &sequence[15][lag] );
 	}
 
 	return sequence;
 }
-
 
 int main( int argc, char** argv )
 {
@@ -197,15 +205,11 @@ int main( int argc, char** argv )
 	for( size_t i = 0; i < 8; i++ )
 	{
 		pvalue[i] = kun::Correlation::calculate( sequences[i * 2], sequences[i * 2 + 1], 27 );
-		std::cout << pvalue[i] << std::endl;
+		std::cout << pvalue[i] << ", ";
 	}
+	std::cout << std::endl;
 
-	kvs::ValueArray<float> values( pvalue, 8 );
-
-	kvs::HydrogenVolumeData* object = new kvs::HydrogenVolumeData( kvs::Vec3ui::All( 2 ) );
-	object->setValues( values );
-	object->updateMinMaxValues();
-	object->setName( "Object" );
+	kvs::StructuredVolumeObject* object = setVolumeObject( pvalue );
 
 	kvs::glsl::RayCastingRenderer* renderer = new kvs::glsl::RayCastingRenderer();
 	renderer->setName( "Renderer" );
@@ -213,12 +217,19 @@ int main( int argc, char** argv )
 	omap.addPoint( 0.0, 1.0 );
 	omap.addPoint( 1.0, 1.0 );
 	omap.create();
+	kvs::ColorMap cmap;
+	cmap.addPoint( 0, kvs::RGBColor::Blue() );
+	cmap.addPoint( 125, kvs::RGBColor::White() );
+	cmap.addPoint( 255, kvs::RGBColor::Red() );
+	cmap.create();
 	tfunc.setOpacityMap( omap );
+	tfunc.setColorMap( cmap );
 	tfunc.setRange( -1.0, 1.0 );
 	renderer->setTransferFunction( ::tfunc );
 
 	screen.registerObject( object, renderer );
 	screen.setBackgroundColor( kvs::RGBColor::Black() );
+	screen.setSize( 1024, 768 );
 	screen.show();
 
 	TransferFunctionEditor* editor = new TransferFunctionEditor( &screen );
