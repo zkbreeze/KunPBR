@@ -82,7 +82,7 @@ bool CloudObject::read( std::string filename, size_t pe )
 		}
 
 		file[i].seekg( 4 ); // Fortran header
-		file[i].read( (char*)&num[i], sizeof(int) ); num[i] = 87825; // The particle number in the data is wrong, so the number is set by hand.
+		file[i].read( (char*)&num[i], sizeof(int) ); // The particle number in the data is wrong, so the number is set by hand.
 		file[i].read( (char*)&num_asl[i], sizeof(int) );
 		m_num += num[i];
 		total_num_asl += num[i] * num_asl[i];
@@ -100,13 +100,13 @@ bool CloudObject::read( std::string filename, size_t pe )
 	int index_asl = 0;
 	for( size_t i = 0; i < pe; i++ )
 	{
-		file[i].read( (char*)(m_x + index), sizeof(double) * num[i] );
-		file[i].read( (char*)(m_y + index), sizeof(double) * num[i] );
-		file[i].read( (char*)(m_z + index), sizeof(double) * num[i] );
-		file[i].read( (char*)(m_vz + index), sizeof(double) * num[i] );
-		file[i].read( (char*)(m_r + index), sizeof(double) * num[i] );
-		file[i].read( (char*)(m_asl + index_asl), sizeof(double) * num[i] * num_asl[i] );
-		file[i].read( (char*)(m_n + index), sizeof(long) * num[i] );
+		file[i].read( (char*)(m_x + index), sizeof(double) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_y + index), sizeof(double) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_z + index), sizeof(double) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_vz + index), sizeof(double) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_r + index), sizeof(double) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_asl + index_asl), sizeof(double) * num[i] * num_asl[i] );file[i].seekg( sizeof(double), file[i].cur );
+		file[i].read( (char*)(m_n + index), sizeof(long) * num[i] );file[i].seekg( sizeof(double), file[i].cur );
 
 		index += num[i];
 		index_asl += num[i] * num_asl[i];
