@@ -17,15 +17,14 @@
 #include <kvs/Type>
 #include <kvs/UnstructuredVolumeObject>
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 namespace kun
 {
 
-class UcdObject : public kvs::FileFormatBase
+class UcdObject
 {
 public:
-    typedef kvs::FileFormatBase BaseClass;
     typedef kvs::ValueArray<kvs::Real32> Coords;
     typedef kvs::ValueArray<kvs::UInt32> Connections;
     typedef kvs::ValueArray<kvs::Real32> Values;
@@ -63,19 +62,19 @@ private:
     CycleType m_cycle_type;
     ElementType m_element_type;
     std::vector<std::string> m_data_filenames;
-    size_t m_total_nnodes; ///< total num. of nodes
-    size_t m_total_nelems; ///< total num. of elems
-    size_t m_nelems; ///< num. of elems specified by the given element type
+    size_t m_total_nnodes; // total num. of nodes
+    size_t m_total_nelems; // total num. of elems
+    size_t m_nelems; // num. of elems specified by the given element type
     size_t m_ncomponents;
     size_t m_component_id;
     size_t m_component_veclen;
-    Coords m_coords; ///< coordinate array
-    Connections m_connections; ///< connection array
-    Values m_values; ///< value array
+    Coords m_coords; // coordinate array
+    Connections m_connections; // connection array
+    Values m_values; // value array
 
-    std::string m_filename;
+    std::string m_filename; // the control filename
     bool m_is_skipped;
-    std::ifstream m_ifs;
+    std::ifstream m_ifs; // file stream of the data file
     long m_pressure_fileg_beg;
     long m_density_fileg_beg;
     long m_temperature_fileg_beg;
@@ -84,6 +83,7 @@ public:
 
     UcdObject();
     UcdObject( std::string& filename );
+    void setFilename( std::string& filename ){ m_filename = filename; } // set the control file name
     void setElementType( ElementType element_type ) { m_element_type = element_type; }
     void setComponentID( size_t id ) { m_component_id = id; }
     void setComponentVeclen( size_t veclen ) { m_component_veclen = veclen; }
@@ -95,29 +95,33 @@ public:
     const Coords& coords() const { return m_coords; }
     const Connections& connections() const { return m_connections; }
     const Values& values() const { return m_values; }
-    bool read( const std::string& filename );
     bool read();
-    kvs::UnstructuredVolumeObject* toKVSUnstructuredVolumeObject();
+    kvs::UnstructuredVolumeObject* toKVSUnstructuredVolumeObject(); // The component ID need to be set before this.
+                                                                    // Default component ID is 0 without any setting.
 
     bool skipToValues();
     // Load one value without consuming other memory
-    float getPressureValue( size_t index ); 
-    float getDensityValue( size_t index );
-    float getTemperatureValue( size_t index );
+    float getPressureSphereValue( size_t index ); 
+    float getDensitySphereValue( size_t index );
+    float getTemperatureSphereValue( size_t index );
+
+    kvs::UnstructuredVolumeObject* toPressureSphere();
+    kvs::UnstructuredVolumeObject* toDensitySphere();
+    kvs::UnstructuredVolumeObject* toTemperatureSphere();
 
 private:
 
-    void read_control_file( const std::string& filename );
-    void read_data_file( const std::string& filename );
-    void read_file_info( std::ifstream& ifs );
-    void read_step_info( std::ifstream& ifs );
-    void read_node_info( std::ifstream& ifs );
-    void read_elem_info( std::ifstream& ifs );
-    void read_node_data( std::ifstream& ifs );
+    void read_control_file();
+    void read_data_file();
+    void read_file_info();
+    void read_step_info();
+    void read_node_info();
+    void read_elem_info();
+    void read_node_data();
 
-    void skip_to_values( const std::string& filename );
-    void skip_node_info( std::ifstream& ifs );
-    void skip_elem_info( std::ifstream& ifs );
+    void skip_to_values();
+    void skip_node_info();
+    void skip_elem_info();
 
 private:
 

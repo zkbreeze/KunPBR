@@ -84,6 +84,40 @@ kun::UcdObject::Coords GetCoords2( std::ifstream& ifs, size_t nnodes )
     return coords;
 }
 
+void CropSphere( kvs::UnstructuredVolumeObject* volume )
+{
+    kvs::Vec3 min_coord = kvs::Vec3::All( -30 );
+    kvs::Vec3 max_coord = kvs::Vec3::All( 30 );
+
+    const kvs::ValueArray<kvs::Real32>& coords = volume->coords();
+    const kvs::ValueArray<kvs::UInt32>& connections = volume->connections();
+    const size_t ncells = volume->numberOfCells();
+    const size_t ncellnodes = volume->numberOfCellNodes();
+
+    std::vector<kvs::UInt32> cropped_connections;
+    for ( size_t i = 0; i < ncells; i++ )
+    {
+        const size_t index = connections[ ncellnodes * i ];
+        const float x = coords[ 3 * index ];
+        const float y = coords[ 3 * index + 1 ];
+        const float z = coords[ 3 * index + 2 ];
+        if ( min_coord.x() <= x && x <= max_coord.x() &&
+             min_coord.y() <= y && y <= max_coord.y() &&
+             min_coord.z() <= z && z <= max_coord.z() )
+        {
+            for ( size_t j = 0; j < ncellnodes; j++ )
+            {
+                cropped_connections.push_back( connections[ ncellnodes * i + j ] );
+            }
+        }
+    }
+
+    volume->setConnections( kvs::ValueArray<kvs::UInt32>( cropped_connections ) );
+    volume->setNumberOfCells( cropped_connections.size() / ncellnodes );
+    volume->setMinMaxObjectCoords( min_coord, max_coord );
+    volume->setMinMaxExternalCoords( min_coord, max_coord );
+}
+
 }
 
 namespace kun
@@ -97,7 +131,7 @@ UcdObject::UcdObject():
     m_nelems( 0 ),
     m_ncomponents( 0 ),
     m_component_id( 0 ),
-    m_component_veclen( 0 ),
+    m_component_veclen( 1 ),
     m_is_skipped( false )
 {
 }
@@ -110,46 +144,43 @@ UcdObject::UcdObject( std::string& filename ):
     m_nelems( 0 ),
     m_ncomponents( 0 ),
     m_component_id( 0 ),
-    m_component_veclen( 0 ),
+    m_component_veclen( 1 ),
     m_filename( filename ),
     m_is_skipped( false )
 {
 }
 
-bool UcdObject::read( const std::string& filename )
-{
-    BaseClass::setFilename( filename );
-    BaseClass::setSuccess( true );
+// bool UcdObject::read( const std::string& filename )
+// {
+//     BaseClass::setFilename( filename );
+//     BaseClass::setSuccess( true );
 
-    try
-    {
-        this->read_control_file( filename );
-        this->read_data_file( m_data_filenames[0] );
-    }
-    catch ( const char* const error )
-    {
-        kvsMessageError( "%s: %s", filename.c_str(), error );
-        BaseClass::setSuccess( false );
-        return false;
-    }
+//     try
+//     {
+//         this->read_control_file( filename );
+//         this->read_data_file( m_data_filenames[0] );
+//     }
+//     catch ( const char* const error )
+//     {
+//         kvsMessageError( "%s: %s", filename.c_str(), error );
+//         BaseClass::setSuccess( false );
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 bool UcdObject::read()
 {
-    BaseClass::setFilename( m_filename );
-    BaseClass::setSuccess( true );
-
     try
     {
-        this->read_control_file( m_filename );
-        this->read_data_file( m_data_filenames[0] );
+        this->read_control_file();
+        std::cout << m_data_filenames[0] << std::endl;
+        this->read_data_file();
     }
     catch ( const char* const error )
     {
         kvsMessageError( "%s: %s", m_filename.c_str(), error );
-        BaseClass::setSuccess( false );
         return false;
     }
 
@@ -158,30 +189,26 @@ bool UcdObject::read()
 
 bool UcdObject::skipToValues()
 {
-	BaseClass::setFilename( m_filename );
-    BaseClass::setSuccess( true );
-
     try
     {
-        this->read_control_file( m_filename );
-        this->skip_to_values( m_data_filenames[0] );
+        this->read_control_file();
+        this->skip_to_values();
     }
     catch ( const char* const error )
     {
         kvsMessageError( "%s: %s", m_filename.c_str(), error );
-        BaseClass::setSuccess( false );
         return false;
     }
 
     return true;
 }
 
-void UcdObject::read_control_file( const std::string& filename )
+void UcdObject::read_control_file()
 {
-    std::ifstream ifs( filename.c_str(), std::ios::in );
+    std::ifstream ifs( m_filename.c_str(), std::ios::in );
     if ( !ifs.is_open() ) { throw "Cannot open file."; }
 
-    const std::string path = kvs::File( BaseClass::filename() ).pathName( true );
+    const std::string path = kvs::File( m_filename ).pathName( true );
 
     std::string buffer;
     while ( ifs && std::getline( ifs, buffer ) )
@@ -202,35 +229,35 @@ void UcdObject::read_control_file( const std::string& filename )
     ifs.close();
 }
 
-void UcdObject::read_data_file( const std::string& filename )
+void UcdObject::read_data_file()
 {
-    std::ifstream ifs( filename.c_str(), std::ios::in | std::ios::binary );
-    if ( !ifs.is_open() ) { throw "Cannot open file."; }
+    m_ifs.open( m_data_filenames[0].c_str(), std::ios::in | std::ios::binary );
+    if ( !m_ifs.is_open() ) { throw "Cannot open file."; }
 
-    this->read_file_info( ifs );
-    this->read_step_info( ifs );
-    this->read_node_info( ifs );
-    this->read_elem_info( ifs );
-    this->read_node_data( ifs );
+    this->read_file_info();
+    this->read_step_info();
+    this->read_node_info();
+    this->read_elem_info();
+    this->read_node_data();
 
-    ifs.close();
+    m_ifs.close();
 }
 
-void UcdObject::skip_to_values( const std::string& filename )
+void UcdObject::skip_to_values()
 {
-	m_ifs.open( filename.c_str(), std::ios::in | std::ios::binary );
+	m_ifs.open( m_data_filenames[0].c_str(), std::ios::in | std::ios::binary );
 	if ( !m_ifs.is_open() ) { throw "Cannot open file."; }
 
-	this->read_file_info( m_ifs );
-	this->read_step_info( m_ifs );
-	this->skip_node_info( m_ifs );
-	this->skip_elem_info( m_ifs );
+	this->read_file_info();
+	this->read_step_info();
+	this->skip_node_info();
+	this->skip_elem_info();
 }
 
-void UcdObject::read_file_info( std::ifstream& ifs )
+void UcdObject::read_file_info()
 {
-    std::string keyword = ::GetString( ifs, 7 );
-    float version = ::GetValue<float>( ifs );
+    std::string keyword = ::GetString( m_ifs, 7 );
+    float version = ::GetValue<float>( m_ifs );
     kvs::IgnoreUnusedVariable( version );
 
     if ( keyword != "AVSUC64" ) throw "Not supported for reading 32bit binary data.";
@@ -241,11 +268,11 @@ void UcdObject::read_file_info( std::ifstream& ifs )
 #endif
 }
 
-void UcdObject::read_step_info( std::ifstream& ifs )
+void UcdObject::read_step_info()
 {
-    std::string title = ::GetString( ifs, 70 );
-    int step_number = ::GetValue<int>( ifs );
-    int step_time = ::GetValue<int>( ifs );
+    std::string title = ::GetString( m_ifs, 70 );
+    int step_number = ::GetValue<int>( m_ifs );
+    int step_time = ::GetValue<int>( m_ifs );
     kvs::IgnoreUnusedVariable( step_number );
     kvs::IgnoreUnusedVariable( step_time );
 
@@ -256,14 +283,14 @@ void UcdObject::read_step_info( std::ifstream& ifs )
 #endif
 }
 
-void UcdObject::read_node_info( std::ifstream& ifs )
+void UcdObject::read_node_info()
 {
-    m_total_nnodes = ::GetValue<long>( ifs );
-    int desc_type = ::GetValue<int>( ifs );
+    m_total_nnodes = ::GetValue<long>( m_ifs );
+    int desc_type = ::GetValue<int>( m_ifs );
 
     m_coords = desc_type == 1 ?
-        ::GetCoords1( ifs, m_total_nnodes ) :
-        ::GetCoords2( ifs, m_total_nnodes );
+        ::GetCoords1( m_ifs, m_total_nnodes ) :
+        ::GetCoords2( m_ifs, m_total_nnodes );
 
 #if VERBOSE
     std::cout << "total nnodes = " << m_total_nnodes << std::endl;
@@ -271,30 +298,30 @@ void UcdObject::read_node_info( std::ifstream& ifs )
 #endif
 }
 
-void UcdObject::skip_node_info( std::ifstream& ifs )
+void UcdObject::skip_node_info()
 {
-	m_total_nnodes = ::GetValue<long>( ifs );
-	::SkipValue<int>( ifs ); // Skip desc_type
+	m_total_nnodes = ::GetValue<long>( m_ifs );
+	::SkipValue<int>( m_ifs ); // Skip desc_type
 
 	// Skip coordinates
-	::SkipValues<long>( ifs, m_total_nnodes );
-	::SkipValues<float>( ifs, m_total_nnodes );
-	::SkipValues<float>( ifs, m_total_nnodes );
-	::SkipValues<float>( ifs, m_total_nnodes );
+	::SkipValues<long>( m_ifs, m_total_nnodes );
+	::SkipValues<float>( m_ifs, m_total_nnodes );
+	::SkipValues<float>( m_ifs, m_total_nnodes );
+	::SkipValues<float>( m_ifs, m_total_nnodes );
 }
 
-void UcdObject::read_elem_info( std::ifstream& ifs )
+void UcdObject::read_elem_info()
 {
-    m_total_nelems = ::GetValue<long>( ifs );
+    m_total_nelems = ::GetValue<long>( m_ifs );
 
     // Element IDs
-    ifs.seekg( sizeof(long) * m_total_nelems, std::ios_base::cur );
+    m_ifs.seekg( sizeof(long) * m_total_nelems, std::ios_base::cur );
 
     // Material numbers
-    ifs.seekg( sizeof(int) * m_total_nelems, std::ios_base::cur );
+    m_ifs.seekg( sizeof(int) * m_total_nelems, std::ios_base::cur );
 
     // Element types
-    kvs::ValueArray<char> element_types = ::GetValues<char>( ifs, m_total_nelems );
+    kvs::ValueArray<char> element_types = ::GetValues<char>( m_ifs, m_total_nelems );
 
     kvs::ValueArray<long> element_counter( 15 );
     element_counter.fill(0);
@@ -334,12 +361,12 @@ void UcdObject::read_elem_info( std::ifstream& ifs )
         {
             for ( size_t j = 0; j < nnodes_per_element[ element_type ]; j++ )
             {
-                *(pconnections++) = ::GetValue<long>( ifs );
+                *(pconnections++) = ::GetValue<long>( m_ifs );
             }
         }
         else
         {
-            ifs.seekg( nnodes_per_element[ element_type ] * sizeof(long), std::ios_base::cur );
+            m_ifs.seekg( nnodes_per_element[ element_type ] * sizeof(long), std::ios_base::cur );
         }
     }
 
@@ -347,25 +374,25 @@ void UcdObject::read_elem_info( std::ifstream& ifs )
     m_connections = connections;
 }
 
-void UcdObject::skip_elem_info( std::ifstream& ifs )
+void UcdObject::skip_elem_info()
 {
-	m_total_nelems = ::GetValue<long>( ifs );
-	::SkipValues<long>( ifs, m_total_nelems ); // Skip element IDs
-	::SkipValues<int>( ifs, m_total_nelems ); // Skip material numbers
+	m_total_nelems = ::GetValue<long>( m_ifs );
+	::SkipValues<long>( m_ifs, m_total_nelems ); // Skip element IDs
+	::SkipValues<int>( m_ifs, m_total_nelems ); // Skip material numbers
 
 	// The following is only for heated sphere data. 
 	// Assign the cell number to save reading time.
-	::SkipValues<char>( ifs, m_total_nelems ); // Skip element types
+	::SkipValues<char>( m_ifs, m_total_nelems ); // Skip element types
 	long tet_number = 27545304;
 	long prism_number = 18917887;
-	::SkipValues<long>( ifs, tet_number * 4 ); // Skip tet connections
-	::SkipValues<long>( ifs, prism_number * 6 ); // Skip prism connections
+	::SkipValues<long>( m_ifs, tet_number * 4 ); // Skip tet connections
+	::SkipValues<long>( m_ifs, prism_number * 6 ); // Skip prism connections
 }
 
-void UcdObject::read_node_data( std::ifstream& ifs )
+void UcdObject::read_node_data()
 {
-    m_ncomponents = ::GetValue<int>( ifs );
-    int desc_type = ::GetValue<int>( ifs );
+    m_ncomponents = ::GetValue<int>( m_ifs );
+    int desc_type = ::GetValue<int>( m_ifs );
 
 #if VERBOSE
     std::cout << "ncomponents = " << m_ncomponents << std::endl;
@@ -384,11 +411,11 @@ void UcdObject::read_node_data( std::ifstream& ifs )
 #if VERBOSE
         for ( size_t i = 0; i < m_ncomponents; i++ )
         {
-            std::string name = ::GetString( ifs, 16 );
-            std::string unit = ::GetString( ifs, 16 );
-            int veclen = ::GetValue<int>( ifs );
-            int flag = ::GetValue<int>( ifs );
-            float value = ::GetValue<float>( ifs );
+            std::string name = ::GetString( m_ifs, 16 );
+            std::string unit = ::GetString( m_ifs, 16 );
+            int veclen = ::GetValue<int>( m_ifs );
+            int flag = ::GetValue<int>( m_ifs );
+            float value = ::GetValue<float>( m_ifs );
 
             std::cout << "\tcomp id = " << i << std::endl;
             std::cout << "\tname = " << name << std::endl;
@@ -404,7 +431,7 @@ void UcdObject::read_node_data( std::ifstream& ifs )
         size_t component_id = m_component_id;
         for ( size_t i = 0; i < m_ncomponents; i++ )
         {
-            kvs::ValueArray<float> values = ::GetValues<float>( ifs, m_total_nnodes );
+            kvs::ValueArray<float> values = ::GetValues<float>( m_ifs, m_total_nnodes );
             if ( component_id == i )
             {
                 values_set.push_back( values );
@@ -443,7 +470,7 @@ void UcdObject::read_node_data( std::ifstream& ifs )
     }
 }
 
-float UcdObject::getPressureValue( size_t index )
+float UcdObject::getPressureSphereValue( size_t index )
 {
 	static bool is_skipped_to_pressure = false;
 	if( !is_skipped_to_pressure ) 
@@ -470,7 +497,7 @@ float UcdObject::getPressureValue( size_t index )
 	return ::GetValue<float>( m_ifs );
 }
 
-float UcdObject::getDensityValue( size_t index )
+float UcdObject::getDensitySphereValue( size_t index )
 {
 	static bool is_skipped_to_density = false;
 	if( !is_skipped_to_density ) 
@@ -501,7 +528,7 @@ float UcdObject::getDensityValue( size_t index )
 	return ::GetValue<float>( m_ifs );
 }
 
-float UcdObject::getTemperatureValue( size_t index )
+float UcdObject::getTemperatureSphereValue( size_t index )
 {
 	static bool is_skipped_to_temperature = false;
 	if( !is_skipped_to_temperature ) 
@@ -535,6 +562,7 @@ float UcdObject::getTemperatureValue( size_t index )
 
 kvs::UnstructuredVolumeObject* UcdObject::toKVSUnstructuredVolumeObject()
 {
+    this->read();
 	kvs::UnstructuredVolumeObject::CellType cell_type =
 	    ( this->elementType() == kun::UcdObject::Tet ) ?
 	    kvs::UnstructuredVolumeObject::Tetrahedra :
@@ -556,5 +584,34 @@ kvs::UnstructuredVolumeObject* UcdObject::toKVSUnstructuredVolumeObject()
 	return volume;
 }
 
+kvs::UnstructuredVolumeObject* UcdObject::toPressureSphere()
+{
+    this->setComponentID( 0 );
+    this->setElementType( UcdObject::Prism );
+    this->setComponentVeclen( 1 );
+    kvs::UnstructuredVolumeObject* object = this->toKVSUnstructuredVolumeObject();
+    ::CropSphere( object );
+    return object;
+}
+
+kvs::UnstructuredVolumeObject* UcdObject::toDensitySphere()
+{
+    this->setComponentID( 2 );
+    this->setElementType( UcdObject::Prism );
+    this->setComponentVeclen( 1 );
+    kvs::UnstructuredVolumeObject* object = this->toKVSUnstructuredVolumeObject();
+    ::CropSphere( object );
+    return object;
+}
+
+kvs::UnstructuredVolumeObject* UcdObject::toTemperatureSphere()
+{
+    this->setComponentID( 3 );
+    this->setElementType( UcdObject::Prism );
+    this->setComponentVeclen( 1 );
+    kvs::UnstructuredVolumeObject* object = this->toKVSUnstructuredVolumeObject();
+    ::CropSphere( object );
+    return object;
+}
 
 } // end of namespace kun
