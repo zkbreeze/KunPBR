@@ -62,12 +62,12 @@ private:
     CycleType m_cycle_type;
     ElementType m_element_type;
     std::vector<std::string> m_data_filenames;
-    size_t m_total_nnodes; // total num. of nodes
-    size_t m_total_nelems; // total num. of elems
-    size_t m_nelems; // num. of elems specified by the given element type
-    size_t m_ncomponents;
-    size_t m_component_id;
-    size_t m_component_veclen;
+    unsigned int m_total_nnodes; // total num. of nodes
+    unsigned int m_total_nelems; // total num. of elems
+    unsigned int m_nelems; // num. of elems specified by the given element type
+    unsigned int m_ncomponents;
+    unsigned int m_component_id;
+    unsigned int m_component_veclen;
     Coords m_coords; // coordinate array
     Connections m_connections; // connection array
     Values m_values; // value array
@@ -85,12 +85,12 @@ public:
     UcdObject( std::string& filename );
     void setFilename( std::string& filename ){ m_filename = filename; } // set the control file name
     void setElementType( ElementType element_type ) { m_element_type = element_type; }
-    void setComponentID( size_t id ) { m_component_id = id; }
-    void setComponentVeclen( size_t veclen ) { m_component_veclen = veclen; }
-    size_t totalNumberOfNodes() const { return m_total_nnodes; }
-    size_t totalNumberOfElements() const { return m_total_nelems; }
-    size_t numberOfElements() const { return m_nelems; }
-    size_t veclen() const { return m_component_veclen; }
+    void setComponentID( unsigned int id ) { m_component_id = id; }
+    void setComponentVeclen( unsigned int veclen ) { m_component_veclen = veclen; }
+    unsigned int totalNumberOfNodes() const { return m_total_nnodes; }
+    unsigned int totalNumberOfElements() const { return m_total_nelems; }
+    unsigned int numberOfElements() const { return m_nelems; }
+    unsigned int veclen() const { return m_component_veclen; }
     ElementType elementType() const { return m_element_type; }
     const Coords& coords() const { return m_coords; }
     const Connections& connections() const { return m_connections; }
@@ -101,9 +101,9 @@ public:
 
     bool skipToValues();
     // Load one value without consuming other memory
-    float getPressureSphereValue( size_t index ); 
-    float getDensitySphereValue( size_t index );
-    float getTemperatureSphereValue( size_t index );
+    float getPressureSphereValue( unsigned int index ); 
+    float getDensitySphereValue( unsigned int index );
+    float getTemperatureSphereValue( unsigned int index );
 
     kvs::UnstructuredVolumeObject* toPressureSphere();
     kvs::UnstructuredVolumeObject* toDensitySphere();

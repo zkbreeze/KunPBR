@@ -14,7 +14,7 @@
 namespace
 {
 
-std::string GetString( std::ifstream& ifs, size_t n )
+std::string GetString( std::ifstream& ifs, unsigned int n )
 {
     std::string ret( n, '\0' );
     ifs.read( &ret[0], n );
@@ -30,7 +30,7 @@ T GetValue( std::ifstream& ifs )
 }
 
 template <typename T>
-kvs::ValueArray<T> GetValues( std::ifstream& ifs, const size_t size )
+kvs::ValueArray<T> GetValues( std::ifstream& ifs, const unsigned int size )
 {
     kvs::ValueArray<T> ret( size );
     ifs.read( (char*)( ret.data() ), sizeof(T) * size );
@@ -44,17 +44,17 @@ void SkipValue( std::ifstream& ifs )
 }
 
 template <typename T>
-void SkipValues( std::ifstream& ifs, size_t size )
+void SkipValues( std::ifstream& ifs, unsigned int size )
 {
     ifs.seekg( sizeof(T) * size, ifs.cur );
 }
 
-kun::UcdObject::Coords GetCoords1( std::ifstream& ifs, size_t nnodes )
+kun::UcdObject::Coords GetCoords1( std::ifstream& ifs, unsigned int nnodes )
 {
     kun::UcdObject::Coords coords( nnodes * 3 );
-    for ( size_t i = 0; i < nnodes; i++ )
+    for ( unsigned int i = 0; i < nnodes; i++ )
     {
-        const size_t index = GetValue<long>( ifs );
+        const unsigned int index = GetValue<long>( ifs );
         const float x = GetValue<float>( ifs );
         const float y = GetValue<float>( ifs );
         const float z = GetValue<float>( ifs );
@@ -66,16 +66,16 @@ kun::UcdObject::Coords GetCoords1( std::ifstream& ifs, size_t nnodes )
     return coords;
 }
 
-kun::UcdObject::Coords GetCoords2( std::ifstream& ifs, size_t nnodes )
+kun::UcdObject::Coords GetCoords2( std::ifstream& ifs, unsigned int nnodes )
 {
     kun::UcdObject::Coords coords( nnodes * 3 );
     kvs::ValueArray<long> indices = GetValues<long>( ifs, nnodes );
     kvs::ValueArray<float> xcoords = GetValues<float>( ifs, nnodes );
     kvs::ValueArray<float> ycoords = GetValues<float>( ifs, nnodes );
     kvs::ValueArray<float> zcoords = GetValues<float>( ifs, nnodes );
-    for ( size_t i = 0; i < nnodes; i++ )
+    for ( unsigned int i = 0; i < nnodes; i++ )
     {
-        const size_t index = indices[i];
+        const unsigned int index = indices[i];
         coords[ 3 * index + 0 ] = xcoords[index];
         coords[ 3 * index + 1 ] = ycoords[index];
         coords[ 3 * index + 2 ] = zcoords[index];
@@ -89,36 +89,71 @@ void CropSphere( kvs::UnstructuredVolumeObject* volume )
     kvs::Vec3 min_coord = kvs::Vec3::All( -30 );
     kvs::Vec3 max_coord = kvs::Vec3::All( 30 );
 
-    const kvs::ValueArray<kvs::Real32>& coords = volume->coords();
+    const kvs::ValueArray<float>& coords = volume->coords();
+    const float* pvalues = static_cast<const float*>( volume->values().data() );
     const kvs::ValueArray<kvs::UInt32>& connections = volume->connections();
-    const size_t ncells = volume->numberOfCells();
-    const size_t ncellnodes = volume->numberOfCellNodes();
+    const unsigned int ncells = volume->numberOfCells();
+    const unsigned int ncellnodes = volume->numberOfCellNodes();
+    const unsigned int nvertices = volume->numberOfNodes();
 
-    std::vector<kvs::UInt32> cropped_connections;
-    for ( size_t i = 0; i < ncells; i++ )
+    std::vector<float> cropped_coords;
+    std::vector<float> cropped_values;
+    unsigned int* table = new unsigned int[nvertices]; // table to keep the corresponding relation of the cropped vertices
+    unsigned int count = 0;
+    for( unsigned int i = 0; i < nvertices; i++ )
     {
-        const size_t index = connections[ ncellnodes * i ];
+        const float x = coords[ 3 * i ];
+        const float y = coords[ 3 * i + 1 ];
+        const float z = coords[ 3 * i + 2 ];
+        if ( min_coord.x() <= x && x <= max_coord.x() &&
+             min_coord.y() <= y && y <= max_coord.y() &&
+             min_coord.z() <= z && z <= max_coord.z() )
+        {
+            cropped_coords.push_back( x );
+            cropped_coords.push_back( y );
+            cropped_coords.push_back( z );
+
+            cropped_values.push_back( pvalues[i] );
+
+            table[i] = i - count;
+        }
+        else
+        {
+            table[i] = 0; // these vertices are not used in the connection
+            count++;
+        }
+    }
+
+    std::cout << cropped_values.size() * 3 << std::endl;
+    std::vector<kvs::UInt32> cropped_connections;
+    for ( unsigned int i = 0; i < ncells; i++ )
+    {
+        const unsigned int index = connections[ ncellnodes * i ];
         const float x = coords[ 3 * index ];
         const float y = coords[ 3 * index + 1 ];
         const float z = coords[ 3 * index + 2 ];
         if ( min_coord.x() <= x && x <= max_coord.x() &&
              min_coord.y() <= y && y <= max_coord.y() &&
-             min_coord.z() <= z && z <= max_coord.z() )
+             min_coord.z() <= z && z <= max_coord.z() ) // Only check the first vertex ???
         {
-            for ( size_t j = 0; j < ncellnodes; j++ )
+            for ( unsigned int j = 0; j < ncellnodes; j++ )
             {
-                cropped_connections.push_back( connections[ ncellnodes * i + j ] );
+                cropped_connections.push_back( table[connections[ ncellnodes * i + j ]] );
             }
         }
     }
 
+    volume->setCoords( kvs::ValueArray<float>( cropped_coords ) );
+    volume->setValues( kvs::ValueArray<float>( cropped_values ) );
     volume->setConnections( kvs::ValueArray<kvs::UInt32>( cropped_connections ) );
     volume->setNumberOfCells( cropped_connections.size() / ncellnodes );
+    volume->setNumberOfNodes( cropped_values.size() );
     volume->setMinMaxObjectCoords( min_coord, max_coord );
     volume->setMinMaxExternalCoords( min_coord, max_coord );
+    volume->updateMinMaxValues();
 }
 
-}
+} // end of namespace
 
 namespace kun
 {
@@ -149,26 +184,6 @@ UcdObject::UcdObject( std::string& filename ):
     m_is_skipped( false )
 {
 }
-
-// bool UcdObject::read( const std::string& filename )
-// {
-//     BaseClass::setFilename( filename );
-//     BaseClass::setSuccess( true );
-
-//     try
-//     {
-//         this->read_control_file( filename );
-//         this->read_data_file( m_data_filenames[0] );
-//     }
-//     catch ( const char* const error )
-//     {
-//         kvsMessageError( "%s: %s", filename.c_str(), error );
-//         BaseClass::setSuccess( false );
-//         return false;
-//     }
-
-//     return true;
-// }
 
 bool UcdObject::read()
 {
@@ -325,7 +340,7 @@ void UcdObject::read_elem_info()
 
     kvs::ValueArray<long> element_counter( 15 );
     element_counter.fill(0);
-    for ( size_t i = 0; i < m_total_nelems; i++ )
+    for ( unsigned int i = 0; i < m_total_nelems; i++ )
     {
         const int element_type = element_types[i];
         element_counter[ element_type ]++;
@@ -337,13 +352,13 @@ void UcdObject::read_elem_info()
         "Point", "Line", "Tri", "Quad", "Tet", "Pyr", "Prism", "Hex",
         "Line2", "Tri2", "Quad2", "Tet2", "Pyr2", "Prism2", "Hex2"
     };
-    for ( size_t i = 0; i < 15; i++ )
+    for ( unsigned int i = 0; i < 15; i++ )
     {
         std::cout << "\t" << element_type_names[i] << ": " << element_counter[i] << std::endl;
     }
 #endif
 
-    const size_t nnodes_per_element[15] = {
+    const unsigned int nnodes_per_element[15] = {
         1, 2, 3, 4, 4, 5, 6, 8,
         3, 6, 8, 10, 13, 15, 20
     };
@@ -354,12 +369,12 @@ void UcdObject::read_elem_info()
     const long nnodes = nnodes_per_element[ m_element_type ];
     kvs::ValueArray<kvs::UInt32> connections( nelems * nnodes );
     kvs::UInt32* pconnections = connections.data();
-    for ( size_t i = 0; i < m_total_nelems; i++ )
+    for ( unsigned int i = 0; i < m_total_nelems; i++ )
     {
         int element_type( element_types[i] );
         if ( element_type == int( m_element_type ) )
         {
-            for ( size_t j = 0; j < nnodes_per_element[ element_type ]; j++ )
+            for ( unsigned int j = 0; j < nnodes_per_element[ element_type ]; j++ )
             {
                 *(pconnections++) = ::GetValue<long>( m_ifs );
             }
@@ -408,28 +423,29 @@ void UcdObject::read_node_data()
     }
     case 2:
     {
-#if VERBOSE
-        for ( size_t i = 0; i < m_ncomponents; i++ )
+
+        for ( unsigned int i = 0; i < m_ncomponents; i++ )
         {
             std::string name = ::GetString( m_ifs, 16 );
             std::string unit = ::GetString( m_ifs, 16 );
             int veclen = ::GetValue<int>( m_ifs );
             int flag = ::GetValue<int>( m_ifs );
             float value = ::GetValue<float>( m_ifs );
-
+            #if VERBOSE
             std::cout << "\tcomp id = " << i << std::endl;
             std::cout << "\tname = " << name << std::endl;
             std::cout << "\tunit = " << unit << std::endl;
             std::cout << "\tveclen = " << veclen << std::endl;
             std::cout << "\tflag = " << flag << std::endl;
             std::cout << "\tvalue = " << value << std::endl;
+            #endif
         }
-#endif
+
 
         std::vector<kvs::ValueArray<float> > values_set;
-        size_t counter = 0;
-        size_t component_id = m_component_id;
-        for ( size_t i = 0; i < m_ncomponents; i++ )
+        unsigned int counter = 0;
+        unsigned int component_id = m_component_id;
+        for ( unsigned int i = 0; i < m_ncomponents; i++ )
         {
             kvs::ValueArray<float> values = ::GetValues<float>( m_ifs, m_total_nnodes );
             if ( component_id == i )
@@ -446,7 +462,7 @@ void UcdObject::read_node_data()
         else if ( m_component_veclen == 3 )
         {
             kvs::ValueArray<float> values( m_total_nnodes * 3 );
-            for ( size_t i = 0; i < m_total_nnodes; i++ )
+            for ( unsigned int i = 0; i < m_total_nnodes; i++ )
             {
                 values[ 3 * i + 0 ] = values_set[0][i];
                 values[ 3 * i + 1 ] = values_set[1][i];
@@ -470,7 +486,7 @@ void UcdObject::read_node_data()
     }
 }
 
-float UcdObject::getPressureSphereValue( size_t index )
+float UcdObject::getPressureSphereValue( unsigned int index )
 {
 	static bool is_skipped_to_pressure = false;
 	if( !is_skipped_to_pressure ) 
@@ -480,7 +496,7 @@ float UcdObject::getPressureSphereValue( size_t index )
 		m_ncomponents = ::GetValue<int>( m_ifs );
 		::SkipValue<int>( m_ifs );
 
-		for ( size_t i = 0; i < m_ncomponents; i++ )
+		for ( unsigned int i = 0; i < m_ncomponents; i++ )
 		{
 			::SkipValues<char>( m_ifs, 16 );
 			::SkipValues<char>( m_ifs, 16 );
@@ -497,7 +513,7 @@ float UcdObject::getPressureSphereValue( size_t index )
 	return ::GetValue<float>( m_ifs );
 }
 
-float UcdObject::getDensitySphereValue( size_t index )
+float UcdObject::getDensitySphereValue( unsigned int index )
 {
 	static bool is_skipped_to_density = false;
 	if( !is_skipped_to_density ) 
@@ -507,7 +523,7 @@ float UcdObject::getDensitySphereValue( size_t index )
 		m_ncomponents = ::GetValue<int>( m_ifs );
 		::SkipValue<int>( m_ifs );
 
-		for ( size_t i = 0; i < m_ncomponents; i++ )
+		for ( unsigned int i = 0; i < m_ncomponents; i++ )
 		{
 			::SkipValues<char>( m_ifs, 16 );
 			::SkipValues<char>( m_ifs, 16 );
@@ -528,7 +544,7 @@ float UcdObject::getDensitySphereValue( size_t index )
 	return ::GetValue<float>( m_ifs );
 }
 
-float UcdObject::getTemperatureSphereValue( size_t index )
+float UcdObject::getTemperatureSphereValue( unsigned int index )
 {
 	static bool is_skipped_to_temperature = false;
 	if( !is_skipped_to_temperature ) 
@@ -538,7 +554,7 @@ float UcdObject::getTemperatureSphereValue( size_t index )
 		m_ncomponents = ::GetValue<int>( m_ifs );
 		::SkipValue<int>( m_ifs );
 
-		for ( size_t i = 0; i < m_ncomponents; i++ )
+		for ( unsigned int i = 0; i < m_ncomponents; i++ )
 		{
 			::SkipValues<char>( m_ifs, 16 );
 			::SkipValues<char>( m_ifs, 16 );
