@@ -62,7 +62,8 @@ target_link_libraries(Cloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GL
 add_executable(AnimationCloud ${PROJECT_SOURCE_DIR}/App/AnimationCloud/main.cpp )
 target_link_libraries(AnimationCloud util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
-
+add_executable(CorrelationVis ${PROJECT_SOURCE_DIR}/App/CorrelationVis/main.cpp )
+target_link_libraries(CorrelationVis util kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 
 # INSTALL(
