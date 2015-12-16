@@ -200,7 +200,7 @@ int main( int argc, char** argv )
     param.addOption( "s", "Start time step you want to render", 1, false );
     param.addOption( "e", "End time step you want to render", 1, false );
 
-    if( !param.parse() ) return 1;
+    if( !param.parse() ) exit( 0 );
 
     std::string input_file;
     if( param.hasOption( "f" ) ) input_file = param.optionValue<std::string>( "f" );

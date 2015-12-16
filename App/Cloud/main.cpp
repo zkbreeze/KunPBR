@@ -61,8 +61,8 @@ int main( int argc, char** argv )
 	param.addOption( "p", "Part name of the MPI file", 1, false );
 	param.addOption( "n", "Number of processes", 1, false );
 	param.addOption( "rep", "Set repetition level", 1, false );
-	param.addOption( "b", "Set base opacity", 1, false );
-	if( !param.parse() ) return 1;
+	param.addOption( "o", "Set base opacity", 1, false );
+	if( !param.parse() ) exit( 0 );
 
 	kun::CloudObject* cloud = new kun::CloudObject();
 	bool isRead;
@@ -74,7 +74,7 @@ int main( int argc, char** argv )
 		exit( 1 );
 	}
 	if( param.hasOption( "rep" ) ) ::repetition_level = param.optionValue<int>( "rep" );
-	if( param.hasOption( "b" ) ) ::base_opacity = param.optionValue<float>( "b" );
+	if( param.hasOption( "o" ) ) ::base_opacity = param.optionValue<float>( "o" );
 
 	kun::PointObject* point = cloud->toKUNPointObject( 0 );
 	point->rotate( kvs::Matrix33f::RotationX( -90 ), kvs::Vec3::All( 0.0 ) );

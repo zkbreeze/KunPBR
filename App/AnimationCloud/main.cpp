@@ -256,7 +256,7 @@ int main( int argc, char** argv )
     param.addOption( "nsteps", "set n time steps to load", 1, false );
     param.addOption( "p", "parameter", 1, false );
     
-    if ( !param.parse() ) return 1;
+    if ( !param.parse() ) exit( 0 );
 
     ::repetition = param.optionValue<size_t>( "rep" );
     ::base_opacity = param.optionValue<float>( "o" );

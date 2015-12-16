@@ -132,7 +132,7 @@ int main( int argc, char** argv )
 	param.addOption( "maxy", "Input the clip range of max y", 1, false );
 	param.addOption( "maxz", "Input the clip range of max z", 1, false );
 
-	if( !param.parse() ) return 1;
+	if( !param.parse() ) exit( 0 );
 
 	// File import
 	kun::PointObject* point = NULL;

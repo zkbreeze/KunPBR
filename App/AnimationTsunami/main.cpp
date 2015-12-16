@@ -378,7 +378,7 @@ int main( int argc, char** argv )
     param.addOption( "maxx", "Input the clip range of max x", 1, false );
     param.addOption( "maxy", "Input the clip range of max y", 1, false );
     param.addOption( "maxz", "Input the clip range of max z", 1, false );
-    if ( !param.parse() ) return 1;
+    if ( !param.parse() ) exit( 0 );
 
     size_t input_timestep = 0;
     if( param.hasOption( "nsteps" ) ) input_timestep = param.optionValue<size_t>( "nsteps" );

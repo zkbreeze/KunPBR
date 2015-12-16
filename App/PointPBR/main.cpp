@@ -70,7 +70,7 @@ int main( int argc, char** argv )
 	param.addOption( "t", "Input tsunami file name", 1, false );
 	param.addOption( "rep", "Input repetition level", 1, false );
 
-	if( !param.parse() ) return 1;
+	if( !param.parse() ) exit( 0 );
 
 	kun::PointObject* point = NULL;
 	if( param.hasOption( "f" ) ) point = new kun::PointImporter( param.optionValue<std::string>( "f" ) );

@@ -133,7 +133,7 @@ int main( int argc, char** argv )
 
 	// Output
 	param.addOption( "writepoint", "Output point object filename", 1, false );
-	if ( !param.parse() ) return 1;
+	if ( !param.parse() ) exit( 0 );
 
 	size_t subpixel_level = 1;
 	kvs::TransferFunction tfunc_base( 256 );

@@ -51,7 +51,7 @@ int main( int argc, char** argv )
 	param.addOption( "prism", "Input prism Volume Object (binary_ucd)", 1, false );
 	param.addOption( "both", "Input prism and tetra Volume Object (binary_ucd)", 1, false );
 	param.addOption( "u-prism-ball", "KVSML Data Filename. around ball only", 1, false );
-	if ( !param.parse() ) return 1;
+	if ( !param.parse() ) exit( 0 );
 
 	size_t subpixel_level = 1;
 	kvs::TransferFunction tfunc_base( 256 );
