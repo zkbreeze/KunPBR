@@ -10,6 +10,7 @@
 #define KUN__CORRELATION_H_INCLUDE
  
 #include <iostream>
+#include <kvs/ValueArray>
 
 namespace kun
 {
@@ -22,8 +23,8 @@ public:
 	// Correlation( float* parameterA, float* parameterB, size_t size );
 	~Correlation();
 
-	static float calculate( float* parameterA, float* parameterB, size_t size );
-	static float calculateLag( float* parameterA, float* parameterB, size_t size, size_t lag );
+	static float calculate( const kvs::ValueArray<float>& sequences1, const kvs::ValueArray<float>& sequences2 );
+	static float calculateLag( const kvs::ValueArray<float>& sequences1, const kvs::ValueArray<float>& sequences2, unsigned int lag );
 };
 	
 } // end of namespace kun
