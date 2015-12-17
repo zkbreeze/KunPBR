@@ -12,7 +12,7 @@
 namespace
 {
 
-float calculateMean( kvs::ValueArray<float> sequences )
+float calculateMean( const kvs::ValueArray<float>& sequences )
 {
 	float sum = 0.0;
 	for( size_t i = 0; i < sequences.size(); i++ ) sum += sequences.data()[i];
