@@ -41,7 +41,6 @@
 #define TETRA 4
 #define PRISM 6
 
-
 namespace
 {
 	bool ShadingFlag = true;

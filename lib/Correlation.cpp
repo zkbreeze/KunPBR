@@ -62,8 +62,7 @@ float Correlation::calculateLag( const kvs::ValueArray<float>& sequences1, const
 	kvs::ValueArray<float> lag_seq1( sequences1.data(), sequences1.size() - lag );
 	kvs::ValueArray<float> lag_seq2( sequences2.data() + lag, sequences1.size() - lag );
 
-	float result = calculate( lag_seq1, lag_seq2 );
-	return result;
+	return calculate( lag_seq1, lag_seq2 );
 }
 
 } // end of namespace kun
