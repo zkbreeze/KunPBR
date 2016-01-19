@@ -27,9 +27,11 @@ find_package(GLEW REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${GLEW_INCLUDE_DIRS}")
 
 # Build Library
-file(GLOB_RECURSE  Library "${PROJECT_SOURCE_DIR}/lib/*.cpp")
+file(GLOB_RECURSE  Library "${PROJECT_SOURCE_DIR}/include/*.cpp")
 add_library(kunPBR ${Library})
-include_directories(${PROJECT_SOURCE_DIR}/lib)
+set_target_properties(kunPBR PROPERTIES
+         ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Build Source
 add_executable(PBR ${PROJECT_SOURCE_DIR}/App/PBR/main.cpp )
