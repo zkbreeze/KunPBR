@@ -25,43 +25,12 @@ find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${GLEW_INCLUDE_DIRS}")
 
-# Build Library
-file(GLOB_RECURSE  Library "${PROJECT_SOURCE_DIR}/include/*.cpp")
-add_library(kunPBR ${Library})
-set_target_properties(kunPBR PROPERTIES
-         ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+# Library
+add_subdirectory(include)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# Build Source
-add_executable(PBR ${PROJECT_SOURCE_DIR}/App/PBR/main.cpp )
-target_link_libraries(PBR kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(AnimationPBR ${PROJECT_SOURCE_DIR}/App/AnimationPBR/main.cpp )
-target_link_libraries(AnimationPBR kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(AnimationRay ${PROJECT_SOURCE_DIR}/App/AnimationRay/main.cpp )
-target_link_libraries(AnimationRay kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(ImageEvaluation ${PROJECT_SOURCE_DIR}/App/ImageEvaluation/main.cpp )
-target_link_libraries(ImageEvaluation kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(OldPBVR ${PROJECT_SOURCE_DIR}/App/OldPBVR/main.cpp )
-target_link_libraries(OldPBVR kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(PointPBR ${PROJECT_SOURCE_DIR}/App/PointPBR/main.cpp )
-target_link_libraries(PointPBR kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(Tsunami ${PROJECT_SOURCE_DIR}/App/Tsunami/main.cpp )
-target_link_libraries(Tsunami kunPBR kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(AnimationTsunami ${PROJECT_SOURCE_DIR}/App/AnimationTsunami/main.cpp )
-target_link_libraries(AnimationTsunami kunPBR kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(Cloud ${PROJECT_SOURCE_DIR}/App/Cloud/main.cpp )
-target_link_libraries(Cloud kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
-
-add_executable(AnimationCloud ${PROJECT_SOURCE_DIR}/App/AnimationCloud/main.cpp )
-target_link_libraries(AnimationCloud kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+# Build directory
+add_subdirectory(App)
 
 # INSTALL(
 # 	TARGETS kunPBR
