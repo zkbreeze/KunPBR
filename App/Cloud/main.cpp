@@ -77,7 +77,7 @@ int main( int argc, char** argv )
 	if( param.hasOption( "o" ) ) ::base_opacity = param.optionValue<float>( "o" );
 
 	kun::PointObject* point = cloud->toKUNPointObject( 0 );
-	point->rotate( kvs::Matrix33f::RotationX( -90 ), kvs::Vec3::All( 0.0 ) );
+	// point->rotate( kvs::Matrix33f::RotationX( -90 ), kvs::Vec3::All( 0.0 ) );
 	point->print( std::cout );
 
 	kvs::TransferFunction tfunc( 256 );

@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 project(KunPBR)
-set($ENV{KUN_SHADER_DIR} "${PROJECT_SOURCE_DIR}/lib/Shader/")
 
 # KVS Library
 set(KVS_DIR $ENV{KVS_DIR})
