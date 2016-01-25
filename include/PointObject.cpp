@@ -482,6 +482,8 @@ void PointObject::print( std::ostream& os, const kvs::Indent& indent ) const
     BaseClass::print( os, indent );
     os << indent << "Number of sizes : " << this->numberOfSizes() << std::endl;
     os << "Number of values:  " << this->numberOfValues() << std::endl;
+    os << "Minimum value: " << this->minValue() << std::endl;
+    os << "Maximum value: " << this->maxValue() << std::endl;
 }
 
 /*===========================================================================*/
