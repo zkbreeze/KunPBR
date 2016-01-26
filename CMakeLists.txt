@@ -31,6 +31,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Build directory
 add_subdirectory(App)
+add_subdirectory(CorrelationApp)
 
 # INSTALL(
 # 	TARGETS kunPBR
