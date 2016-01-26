@@ -6,7 +6,7 @@ mkdir /Volumes/WORK_1TB/heatSphere/both_pointdata_binary
 while [ $n -ne 60500 ]
 do
 
-	./PBR -point /Volumes/WORK_1TB/heatSphere/both_pointdata/$n.kvsml -writepoint /Volumes/WORK_1TB/heatSphere/both_pointdata_binary/$n.kvsml
+	./App/PBR -point /Volumes/WORK_1TB/heatSphere/both_pointdata/$n.kvsml -writepoint /Volumes/WORK_1TB/heatSphere/both_pointdata_binary/$n.kvsml
 
 	echo "$n done"
 	n=$((n+500))
