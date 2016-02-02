@@ -85,11 +85,16 @@ int main( int argc, char** argv )
 		ofs.write( (char*)point->values().data(), sizeof(float) * point->numberOfVertices() );
 		ofs.close();
 
-		// // Coords; only once
-		// std::string output_coords( "coords.crd" );
-		// std::ofstream ofs_coords( output_coords.c_str(), std::ios::out );
-		// ofs_coords.write( (char*)point->coords().data(), sizeof(float) * point->numberOfVertices() * 3 );
-		// ofs_coords.close();
+		// Coords; only once
+		static bool is_coord = false;
+		if( !is_coord )
+		{
+			std::string output_coords( "coords.crd" );
+			std::ofstream ofs_coords( output_coords.c_str(), std::ios::out );
+			ofs_coords.write( (char*)point->coords().data(), sizeof(float) * point->numberOfVertices() * 3 );
+			ofs_coords.close();
+			is_coord = true;			
+		}
 
 		std::cout << "Finish writing." << std::endl;
 		exit( 0 );

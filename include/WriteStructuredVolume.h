@@ -13,12 +13,13 @@
 #include <kvs/KVSMLObjectStructuredVolume>
 #include <kvs/StructuredVolumeExporter>
 
-void WriteStructuredVolume ( kvs::StructuredVolumeObject* object, std::string outname )
+bool WriteStructuredVolume( kvs::StructuredVolumeObject* object, std::string outname )
 {
     kvs::KVSMLObjectStructuredVolume* output_volume = new kvs::StructuredVolumeExporter<kvs::KVSMLObjectStructuredVolume>( object );
     output_volume->setWritingDataType( kvs::KVSMLObjectStructuredVolume::ExternalBinary );
     output_volume->write( outname.c_str() );
     std::cout << "Finish writing Unstructured volume of " << outname << std::endl;
+    return true;
 }
  
 #endif // KUN__WRITESTRUCTUREDVOLUME_H_INCLUDE

@@ -12,11 +12,11 @@ Particle-based rendering library created by Kun Zhao.
 ### Windows
 |Variable|Value|
 |:-------|:----|
-|KUN_SHADER_DIR |C:*\KunPBR\lib\Shader\|
+|KUN_SHADER_DIR |C:*\KunPBR\include\Shader\|
 
 ### Linux
 ```
-export KUN_SHADER_DIR=*/KunPBR/lib/Shader/
+export KUN_SHADER_DIR=*/KunPBR/include/Shader/
 ```
 
 ## Build

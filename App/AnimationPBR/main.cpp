@@ -153,7 +153,7 @@ public:
     void screenUpdated( void )
     {
         char* buf = new char[256];
-        sprintf( buf, "Time step : %03d", ::time_step + 100 );
+        sprintf( buf, "Time step : %03d", ::time_step );
         setText( std::string( buf ).c_str() );
     }
 };

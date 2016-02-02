@@ -32,6 +32,7 @@
 #include <kvs/CommandLine>
 #include "PointObject.h"
 #include "ParticleBasedRenderer.h"
+#include "WritePoint.h"
 
 namespace
 {
@@ -83,7 +84,7 @@ std::vector<kvs::ValueArray<float> > loadArrays( const std::string& distname, co
 	        nsteps = step;
 	}
 
-	::max_lag = nsteps * 0.3;
+	::max_lag = nsteps * 0.5;
 
 	std::cout << "Start to load arrays." << std::endl;
 	std::cout << "There are " << nsteps << " time steps" << std::endl;
@@ -259,6 +260,7 @@ int main( int argc, char** argv )
 	param.addOption( "d1", "Directory name of the first arrays", 1, true );
 	param.addOption( "d2", "Directory name of the seconde arrays", 1, true );
 	param.addOption( "b", "Base opacity.", 1, false );
+	param.addOption( "output", "Output correlation point", 0, false );
 	param.addHelpOption();
 	if( !param.parse() ) exit( 0 );
 
@@ -285,6 +287,19 @@ int main( int argc, char** argv )
 	std::vector<kvs::ValueArray<float> > sequences1 = kun::Correlation::arraysToSequences( arrays1 );
 	std::vector<kvs::ValueArray<float> > sequences2 = kun::Correlation::arraysToSequences( arrays2 );
 
+	if( param.hasOption( "output" ) )
+	{
+		for( unsigned int i = 0; i < ::max_lag; i++ )
+		{
+			kun::PointObject* point = calculateCorrelationPoint( sequences1, sequences2, i );
+			char* buf = new char[20];
+			sprintf( buf, "CorrelationPoint%02d.kvsml", i );
+			kun::WritePoint( point, buf );
+			delete point;
+		}
+		exit( 0 );
+	}
+
 	kun::PointObject* object = calculateCorrelationPoint( sequences1, sequences2 );
 	object->print( std::cout );
 
@@ -306,6 +321,7 @@ int main( int argc, char** argv )
 	::tfunc.setOpacityMap( omap );
 	::tfunc.setColorMap( cmap );
 	::tfunc.setRange( -1.0, 1.0 );
+	::tfunc.write( "correlation_tfunc.kvsml" );
 	renderer->setTransferFunction( ::tfunc );
 
 	screen.registerObject( object, renderer );
