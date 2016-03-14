@@ -29,7 +29,7 @@
 #include <kvs/ObjectManager>
 #include <kvs/PaintEventListener>
 #include "PolygonClipper.h"
-#include "AdvObject.h"
+// #include "AdvObject.h"
 #include "VTKObject.h"
 
 namespace
@@ -68,11 +68,11 @@ public:
 		kvs::glut::Screen* glut_screen = static_cast<kvs::glut::Screen*>( screen() );
 		kvs::RendererBase* r = glut_screen->scene()->rendererManager()->renderer( "PointRenderer" );
 		kun::ParticleBasedRenderer* renderer = static_cast<kun::ParticleBasedRenderer*>( r );
-		if( !::isAdv )
-		{
-			renderer->enableDensityMode();
-			renderer->setDensityVolume( ::density_volume );			
-		}
+		// if( !::isAdv )
+		// {
+		// 	renderer->enableDensityMode();
+		// 	renderer->setDensityVolume( ::density_volume );			
+		// }
 
 		// renderer->setShader( kvs::Shader::Phong( 0.6, 0.4, 0, 1 ) );
 		renderer->setRepetitionLevel( ::repetition_level );
@@ -118,7 +118,7 @@ int main( int argc, char** argv )
 	param.addHelpOption();
 	param.addOption( "m", "Assign max grid number", 1, false );
 	param.addOption( "f", "Input KUN point file name", 1, false );
-	param.addOption( "adv", "Input Adv Data", 1, false );
+	// param.addOption( "adv", "Input Adv Data", 1, false );
 	param.addOption( "t", "Input tsunami file name", 1, false );
 	param.addOption( "rep", "Input repetition level", 1, false );
 	param.addOption( "l", "Input the OBJ land object", 1, false );
@@ -142,12 +142,12 @@ int main( int argc, char** argv )
 		kun::TsunamiObject* tsunami = new kun::TsunamiObject( param.optionValue<std::string>( "t" ) );
 		point = tsunami->toKUNPointObject( 1 );		
 	}
-	if( param.hasOption( "adv" ) )
-	{	
-		::isAdv = true;
-		kun::AdvObject* tsunami = new kun::AdvObject( param.optionValue<std::string>( "adv" ) );
-		point = tsunami->toKUNPointObject();
-	}
+	// if( param.hasOption( "adv" ) )
+	// {	
+	// 	::isAdv = true;
+	// 	kun::AdvObject* tsunami = new kun::AdvObject( param.optionValue<std::string>( "adv" ) );
+	// 	point = tsunami->toKUNPointObject();
+	// }
 
 	if( param.hasOption( "minx" ) ) 
 	{

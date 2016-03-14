@@ -6,10 +6,10 @@ set(KVS_DIR $ENV{KVS_DIR})
 include_directories( ${KVS_DIR}/include )
 link_directories( ${KVS_DIR}/lib )
 
-# Adv Library
-set(Adv_DIR $ENV{Adv_DIR})
-include_directories( ${Adv_DIR}/include )
-link_directories( ${Adv_DIR}/lib )
+# # Adv Library
+# set(Adv_DIR $ENV{Adv_DIR})
+# include_directories( ${Adv_DIR}/include )
+# link_directories( ${Adv_DIR}/lib )
 
 option(DEBUG "DEBUG" OFF)
 

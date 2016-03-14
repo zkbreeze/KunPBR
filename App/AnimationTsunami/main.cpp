@@ -38,7 +38,7 @@
 #include "OBJObject.h"
 #include <kvs/RGBFormulae>
 #include "PolygonClipper.h"
-#include "AdvObject.h"
+// #include "AdvObject.h"
 #include "VTKObject.h"
 
 namespace
@@ -138,12 +138,12 @@ void initialize( std::string filename, size_t input_timestep = 0 )
             ::nsteps++;
             file_name.push_back( file.filePath() );
         }
-        if( file.extension() == "adv" )
-        {
-            isAdv = true;
-            ::nsteps++;
-            file_name.push_back( file.filePath() );            
-        }
+        // if( file.extension() == "adv" )
+        // {
+        //     isAdv = true;
+        //     ::nsteps++;
+        //     file_name.push_back( file.filePath() );            
+        // }
     }
 
     if( input_timestep )
@@ -157,16 +157,16 @@ void initialize( std::string filename, size_t input_timestep = 0 )
     time.start();
     for ( int i = 0; i < ::nsteps; i++ )
     {
-        if( isAdv )
-        {
-            kun::AdvObject* adv = new kun::AdvObject( file_name[i] );
-            ::object[i] = adv->toKUNPointObject();
-            delete adv;
-        }
-        else
-        {
+        // if( isAdv )
+        // {
+        //     kun::AdvObject* adv = new kun::AdvObject( file_name[i] );
+        //     ::object[i] = adv->toKUNPointObject();
+        //     delete adv;
+        // }
+        // else
+        // {
             ::object[i] = new kun::PointImporter( file_name[i] );            
-        }
+        // }
         if( ::isClipping ) ::object[i]->setMinMaxRange( ::min_range, ::max_range );
 
         kun::DensityCalculator* calculator = new kun::DensityCalculator( ::object[i] );
@@ -363,7 +363,7 @@ int main( int argc, char** argv )
     kvs::CommandLine param( argc, argv );
     param.addHelpOption();
     param.addOption( "f", "Input KUN Point Data Directory", 1, false );
-    param.addOption( "adv", "Input Adv Data Directory", 1, false );
+    // param.addOption( "adv", "Input Adv Data Directory", 1, false );
     param.addOption( "l", "Input the OBJ Land File", 1, false );
     param.addOption( "v", "Input the vtk land object", 1, false );
     param.addOption( "nos", "No Shading", 0, false );
@@ -403,7 +403,7 @@ int main( int argc, char** argv )
     // Time-varying data loading
     std::string directory;
     if( param.hasOption( "f" ) ) directory = param.optionValue<std::string>( "f" );
-    if( param.hasOption( "adv" ) ) directory = param.optionValue<std::string>( "adv" );
+    // if( param.hasOption( "adv" ) ) directory = param.optionValue<std::string>( "adv" );
     initialize( directory, input_timestep );
     ::min_range = ::object[0]->minObjectCoord();
     ::max_range = ::object[0]->maxObjectCoord();

@@ -20,10 +20,10 @@ add_executable(PointPBR PointPBR/main.cpp )
 target_link_libraries(PointPBR kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(Tsunami Tsunami/main.cpp )
-target_link_libraries(Tsunami kunPBR kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+target_link_libraries(Tsunami kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(AnimationTsunami AnimationTsunami/main.cpp )
-target_link_libraries(AnimationTsunami kunPBR kvsCore kvsSupportGLUT AdvBase AdvDocIO AdvFileIO ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
+target_link_libraries(AnimationTsunami kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
 
 add_executable(Cloud Cloud/main.cpp )
 target_link_libraries(Cloud kunPBR kvsCore kvsSupportGLUT ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARY})
