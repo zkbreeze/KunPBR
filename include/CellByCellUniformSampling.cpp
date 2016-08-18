@@ -65,7 +65,8 @@ CellByCellUniformSampling::CellByCellUniformSampling():
     kvs::MapperBase(),
     kun::PointObject(),
     m_camera( 0 ),
-    m_shuffle( false )
+    m_shuffle( false ),
+    m_kun_sampling_step( false )
 {
 }
 
@@ -88,7 +89,8 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     kvs::MapperBase( transfer_function ),
     kun::PointObject(),
     m_camera( 0 ),
-    m_shuffle( false )
+    m_shuffle( false ),
+    m_kun_sampling_step( false )
 {
     this->setSubpixelLevel( subpixel_level );
     this->setSamplingStep( sampling_step );
@@ -116,7 +118,8 @@ CellByCellUniformSampling::CellByCellUniformSampling(
     const float                  object_depth ):
     kvs::MapperBase( transfer_function ),
     kun::PointObject(),
-    m_shuffle( false )
+    m_shuffle( false ),
+    m_kun_sampling_step( false )
 {
     this->attachCamera( camera ),
     this->setSubpixelLevel( subpixel_level );
